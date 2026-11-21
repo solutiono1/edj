@@ -68,3 +68,5 @@ Format: date - decision - rationale - status. Append only; never rewrite history
 - 2026-11-21 - Auth art replaced with a different human café clip (Pexels 7709365), full-bleed across the entire left panel with no inset box - LOCKED
 - 2026-11-21 - How it works section forced to solid white so the fixed footer cannot bleed through as grey - LOCKED
 - 2026-11-21 - Frontend polish pass: removed decorative glow shadows and white radial wash, set sentence-case preview label, shortened search and assistant placeholders, reduced hover movement - LOCKED
+- 2026-11-21 - Backend: records and signing key persisted to a local JSON file, write endpoints and account reads require bearer auth, /api/portfolio returns real saved totals - LOCKED
+- 2026-11-21 - README rewritten as a project front door with quick start, configuration, API, SDK, testing, deployment and honesty notes - LOCKED

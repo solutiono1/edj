@@ -85,6 +85,16 @@ func (m *Memory) GetRun(id string) (*core.PayrollRun, bool) {
 	return r, ok
 }
 
+func (m *Memory) Runs() []*core.PayrollRun {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	out := make([]*core.PayrollRun, 0, len(m.runs))
+	for _, r := range m.runs {
+		out = append(out, r)
+	}
+	return out
+}
+
 func (m *Memory) PutProof(p *core.DisclosureProof) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -97,6 +107,16 @@ func (m *Memory) GetProof(id string) (*core.DisclosureProof, bool) {
 	defer m.mu.RUnlock()
 	p, ok := m.proofs[id]
 	return p, ok
+}
+
+func (m *Memory) Proofs() []*core.DisclosureProof {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	out := make([]*core.DisclosureProof, 0, len(m.proofs))
+	for _, p := range m.proofs {
+		out = append(out, p)
+	}
+	return out
 }
 
 func (m *Memory) UpsertUser(u *User) (*User, bool) {

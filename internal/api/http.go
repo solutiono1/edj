@@ -119,3 +119,25 @@ func (s *Server) GetProof(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, p)
 }
+
+// Portfolio reports real saved data. No balance is invented: edj does not
+// hold funds, so the amounts are the totals of created requests and drafts.
+func (s *Server) Portfolio(w http.ResponseWriter, r *http.Request) {
+	links := s.Store.Links()
+	runs := s.Store.Runs()
+	proofs := s.Store.Proofs()
+	var linkTotal, payrollTotal int64
+	for _, l := range links {
+		linkTotal += l.Amount
+	}
+	for _, run := range runs {
+		payrollTotal += run.Total
+	}
+	writeJSON(w, http.StatusOK, map[string]any{
+		"links":       len(links),
+		"payrollRuns": len(runs),
+		"proofs":      len(proofs),
+		"linkTotal":   linkTotal,
+		"payrollTotal": payrollTotal,
+	})
+}

@@ -25,12 +25,13 @@
 </div></main>
 <footer class="footer"><div class="wrap"><div class="foot-word" aria-hidden="true">edj</div><p class="foot-bottom">© 2026 edj · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></p></div></footer>
 <script>
+const token=localStorage.getItem('edj_session');if(!token)location.href='/login';const AH={Authorization:'Bearer '+token};
 document.getElementById('link-form').addEventListener('submit', async (e) => {
  e.preventDefault();
  const amount = Number(document.getElementById('amount').value);
  const token = document.getElementById('asset').value === 'BCH' ? null : 'PUSD';
  const note = document.getElementById('note').value;
- const res = await fetch('/api/links', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount: amount*100000,token,note})});
+ const res = await fetch('/api/links', {method:'POST',headers:{'Content-Type':'application/json',...AH},body:JSON.stringify({amount: amount*100000,token,note})});
  if(!res.ok){alert('Could not create link');return;}
  const data = await res.json();
  document.getElementById('link-result').style.display='block';

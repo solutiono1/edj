@@ -130,3 +130,14 @@ func (s *Server) Assistant(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, map[string]string{"answer": answer, "link": link})
 }
+
+// RequireUser rejects requests without a valid edj session token.
+func (s *Server) RequireUser(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if _, _, ok := s.userFromRequest(r); !ok {
+			fail(w, http.StatusUnauthorized, "not signed in")
+			return
+		}
+		next(w, r)
+	}
+}

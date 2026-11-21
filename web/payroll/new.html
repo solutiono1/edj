@@ -22,10 +22,11 @@
 </div></main>
 <footer class="footer"><div class="wrap"><div class="foot-word" aria-hidden="true">edj</div><p class="foot-bottom">© 2026 edj · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></p></div></footer>
 <script>
+const token=localStorage.getItem('edj_session');if(!token)location.href='/login';const AH={Authorization:'Bearer '+token};
 document.getElementById('pay-form').addEventListener('submit', async (e) => {
  e.preventDefault();
  const fd = new FormData(e.target);
- const res = await fetch('/api/payroll/upload',{method:'POST',body:fd});
+ const res = await fetch('/api/payroll/upload',{method:'POST',headers:AH,body:fd});
  if(!res.ok){alert('Invalid CSV - use name,address,amount');return;}
  const d = await res.json();
  document.getElementById('pay-result').style.display='block';

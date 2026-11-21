@@ -1,96 +1,64 @@
-# ARCHITECTURE - living
+# ARCHITECTURE
 
-## Shape
+## Current shape
 
-A small Go HTTP server serves server-rendered HTMX pages (templ templates + Tailwind CSS). The same server exposes a JSON API used by the SDK and by the HTMX fragments. All money movement happens through a chain adapter; core logic never speaks BCH RPC directly.
+edj is one Go binary. It serves static HTML pages, hand-written CSS, a small amount of vanilla JavaScript, and a JSON API. The frontend has no build step. htmx is vendored locally but the pages currently use ordinary fetch calls.
 
 ```
-edj/
-  cmd/edj/                  # server entrypoint
-  internal/
-    core/                   # chain-agnostic logic (links, payroll, proofs)
-      link.go               # one-time address + claim link generation
-      payroll.go            # CSV parse, batch plan, unlinkable output plan
-      disclosure.go         # signed threshold proof (non-ZK)
-    chain/
-      adapter.go            # interface: Balance, Send, Route, Confirm
-      bch.go                # BCH mainnet implementation (v1 only adapter)
-    privacy/
-      router.go             # token -> BCH -> CashFusion -> BCH -> token plan
-      cashfusion.go         # CashFusion adapter (external tool invocation)
-    api/
-      http.go               # JSON API + HTMX partial handlers
-    store/
-      memory.go             # v1: in-memory/ephemeral job state, no database
-  web/                      # FRONTEND BUILDER OWNS THIS DIRECTORY ONLY
-    templates/              # .templ files
-    static/                 # compiled Tailwind CSS, small assets
-  handoffs/                 # incoming patches from frontend builder
-  REVIEWS/                  # planner's reviews of each TASK
-  TASKS/                    # copy-paste task envelopes
-  *.md                      # living docs
+cmd/edj/                  server entrypoint, routes
+internal/
+  api/                    HTTP handlers, session checks
+  core/                   links, payroll parsing, signed statements
+  chain/                  Bitcoin Cash address adapter
+  store/                  persistent JSON record store
+web/                      pages, CSS, scripts, icons, SDK
+data/edj.json             local records and signing key, ignored by git
 ```
 
-## Chain adapter (interface)
+## Request flow
 
-```go
-type Chain interface {
-    NewOneTimeAddress(ctx context.Context) (Address, error)
-    Send(ctx context.Context, from, to Address, amount int64, token *TokenID) (TxID, error)
-    RoutePrivacy(ctx context.Context, amount int64, token TokenID) (TxIDs []string, err error)
-    Confirm(ctx context.Context, txid TxID) (bool, error)
-}
-```
+1. The browser loads a static page from `web/`.
+2. Sign-in uses Google Identity Services. The Google ID token is posted to `/api/auth/google`.
+3. The server verifies the token with Google, checks the audience and verified email, then returns a session token. The browser stores it in localStorage.
+4. Authenticated requests send `Authorization: Bearer <token>`.
+5. Write endpoints and account reads require that header. Public reads are limited to a link id or a proof id.
+6. Chain addresses come from environment variables. The app never generates a random receiving address.
 
-v1 implements only `bch.go`. Future chains are new implementations of the same interface - no core rewrite. **No multi-chain features are built in v1.**
+## Chain model
 
-## Core objects
+Bitcoin Cash settlement is public. edj does not hold funds and does not broadcast transactions. The claim page opens a BCH payment URI in the user's wallet. Payout execution is handled by the wallet and an external privacy step.
 
-```go
-type Link struct {
-    ID        string    // random, unguessable
-    Address   string    // one-time cashaddr (token-enabled if PUSD)
-    Amount    int64     // satoshis or token units
-    Token     *TokenID  // nil = BCH
-    CreatedAt time.Time
-    Status    string    // open | claimed | expired
-}
+The chain adapter in `internal/chain` keeps chain details out of core logic. v1 supports one adapter: BCH with an operator-configured receiving address and CashTokens address. There is no multi-chain support in v1.
 
-type PayrollRun struct {
-    ID        string
-    Rows      []PayrollRow // name/address/amount from CSV
-    Total     int64
-    Plan      []PayoutPlan // unlinkable outputs + privacy route steps
-    Status    string       // draft | reviewed | executing | done
-}
+Privacy claims are limited:
 
-type DisclosureProof struct {
-    ID        string
-    Subject   string    // who it is for
-    ExpiresAt time.Time
-    Threshold int64
-    Signature string    // signed by holder's key; verifiable offline
-    Claim     string    // e.g. "holds at least X"
-}
-```
+- BCH payments use a configured receiving address and an unguessable link id.
+- CashFusion can be used by the recipient on the BCH leg.
+- PUSD flows are described as a planned route. They are not presented as an implemented on-chain contract.
+- Disclosure proofs are Ed25519 signed statements with a subject, threshold, and expiry. They are not zero-knowledge proofs.
 
-## Privacy flow (v1, honest guarantees)
+## Store
 
-1. BCH payment: one-time address per link; no address reuse; CashFusion can break BCH UTXO linkability when the recipient chooses to mix.
-2. PUSD payment: automated route - PUSD → BCH (swap) → CashFusion-mixed BCH → PUSD (swap) → recipient's one-time token-enabled address. Public chain sees swaps and standard transfers; the amounts and the link between payer and payee are not published by edj.
-3. Payroll: one batch, per-recipient one-time outputs; the payer's main wallet is not the visible source of each payout.
-4. Disclosure: holder signs a threshold statement on their device; a verifier checks the signature. This is **not** a ZK proof and reveals the named verifier and the threshold.
+Records and the signing key are written to `data/edj.json` using an atomic rename. The default path can be changed with `EDJ_DATA_FILE`. The file is ignored by git.
+
+This is a prototype store, not an audited database. It gives restart survival without adding a database dependency.
 
 ## Trust boundaries
 
-- No committee key, no custodian, no admin withdrawal.
-- CashFusion is an external tool; we invoke it and report what it actually does.
-- The chain adapter is the only component that touches the network/chain.
-- Core logic must be unit-testable with a mock `Chain`.
+- No custodian, no admin withdrawal, no committee key.
+- The browser holds the session token and the derived key fingerprint.
+- The server holds links, payroll drafts, proofs, users, sessions, and the disclosure signing key.
+- The wallet holds funds and signs payments.
+- External privacy tooling is reported for what it actually does.
 
 ## Security rules
 
-- Never log seed phrases, private keys, or raw claim-link secrets.
-- Link IDs are cryptographically random; no sequential IDs.
-- CSV uploads are parsed strictly; no formula evaluation, no path traversal.
-- All external commands are invoked with fixed argv, no shell interpolation.
+- Never log session tokens, signing keys, or link secrets.
+- Link and proof ids are cryptographically random.
+- CSV uploads are parsed strictly with a fixed header.
+- No shell interpolation for external commands.
+- Write endpoints must keep server-side session checks. The UI is not a security boundary.
+
+## Contract scope
+
+BCH does not use EVM-style smart contracts. v1 keeps the payment route in the chain adapter and the wallet, not in a fabricated contract. Any future covenant or CashTokens contract must be written against BCH Script, tested on chipnet, and audited before it is described in user-facing copy.

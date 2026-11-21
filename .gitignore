@@ -9,3 +9,6 @@
 
 # Editor
 .DS_Store
+
+# Local persistent data
+data/

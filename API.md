@@ -31,7 +31,7 @@ No cookie is set. The browser stores the session token in localStorage.
 
 ## Links
 
-`POST /api/links`
+`POST /api/links` requires the bearer token.
 ```json
 { "amount": 25000, "token": null, "note": "Invoice 42" }
 ```
@@ -46,18 +46,18 @@ Amounts are positive integers in the smallest unit: satoshis for BCH, cents for 
 
 ## Payroll
 
-`POST /api/payroll/upload` is multipart with field `csv`. The CSV header is exactly `name,address,amount`, and amounts are integers.
+`POST /api/payroll/upload` requires the bearer token and is multipart with field `csv`. The CSV header is exactly `name,address,amount`, and amounts are integers.
 
 `201` response:
 ```json
 { "id": "PR_...", "rows": 5, "total": 21500, "reviewUrl": "/payroll/PR_..." }
 ```
 
-`GET /api/payroll/{id}` returns the draft run and payout plan. Uploading does not send funds.
+`GET /api/payroll/{id}` requires the bearer token and returns the draft run and payout plan. Uploading does not send funds.
 
 ## Disclosure
 
-`POST /api/disclose`
+`POST /api/disclose` requires the bearer token.
 ```json
 { "subject": "Lender X", "threshold": 1000000, "expiresInDays": 30 }
 ```
@@ -92,6 +92,24 @@ const link = await edj.createLink({ amount: 25000, note: 'Invoice 42' })
 
 Methods: `createLink`, `getLink`, `submitPayroll`, `getPayroll`, `createProof`, `getProof`, `me`, `logout`.
 
+## Portfolio
+
+`GET /api/portfolio` requires the bearer token. It returns counts and totals from saved records. It never invents a balance:
+
+```json
+{
+  "links": 2,
+  "payrollRuns": 1,
+  "proofs": 3,
+  "linkTotal": 50000,
+  "payrollTotal": 98000
+}
+```
+
+## Persistence
+
+Records and the signing key are stored in `data/edj.json` by default. The path can be changed with `EDJ_DATA_FILE`. The file is ignored by git. Prototype data survives a restart; it is not a substitute for an audited database.
+
 ## Security note
 
-The prototype is honest about its limits. The create endpoints are used by the authenticated app, but they are not yet protected by a server-side authorization check independent of the UI. Put them behind the session check and rotate the signer before holding real funds. The current signer is generated in memory at startup.
+Write endpoints and account reads require the bearer token. Public reads are limited to a link by its unguessable id and a disclosure statement by its id. The prototype is not audited for custody of funds.

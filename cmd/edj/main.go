@@ -7,7 +7,6 @@ import (
 
 	"edj.cash/edj/internal/api"
 	"edj.cash/edj/internal/chain"
-	"edj.cash/edj/internal/core"
 	"edj.cash/edj/internal/store"
 )
 
@@ -16,13 +15,21 @@ func main() {
 	if addr == "" {
 		addr = ":8080"
 	}
+	dataFile := os.Getenv("EDJ_DATA_FILE")
+	if dataFile == "" {
+		dataFile = "data/edj.json"
+	}
+	memory, signer, err := store.NewPersistent(dataFile)
+	if err != nil {
+		log.Fatalf("open store: %v", err)
+	}
 	s := &api.Server{
 		Chain: chain.BCH{
 			ReceiveAddress: os.Getenv("EDJ_RECEIVE_ADDRESS"),
 			TokenAddress:   os.Getenv("EDJ_TOKEN_ADDRESS"),
 		},
-		Store:  store.New(),
-		Signer: core.NewSigner(),
+		Store:  memory,
+		Signer: signer,
 	}
 
 	mux := http.NewServeMux()
@@ -30,14 +37,15 @@ func main() {
 	mux.HandleFunc("GET /api/config", s.Config)
 	mux.HandleFunc("POST /api/auth/google", s.GoogleAuth)
 	mux.HandleFunc("GET /api/me", s.Me)
+	mux.HandleFunc("GET /api/portfolio", s.RequireUser(s.Portfolio))
 	mux.HandleFunc("POST /api/logout", s.Logout)
-	mux.HandleFunc("GET /api/notifications", s.Notifications)
+	mux.HandleFunc("GET /api/notifications", s.RequireUser(s.Notifications))
 	mux.HandleFunc("POST /api/assistant", s.Assistant)
-	mux.HandleFunc("POST /api/links", s.CreateLink)
+	mux.HandleFunc("POST /api/links", s.RequireUser(s.CreateLink))
 	mux.HandleFunc("GET /api/links/{id}", s.GetLink)
-	mux.HandleFunc("POST /api/payroll/upload", s.UploadPayroll)
-	mux.HandleFunc("GET /api/payroll/{id}", s.GetPayroll)
-	mux.HandleFunc("POST /api/disclose", s.CreateProof)
+	mux.HandleFunc("POST /api/payroll/upload", s.RequireUser(s.UploadPayroll))
+	mux.HandleFunc("GET /api/payroll/{id}", s.RequireUser(s.GetPayroll))
+	mux.HandleFunc("POST /api/disclose", s.RequireUser(s.CreateProof))
 	mux.HandleFunc("GET /api/proofs/{id}", s.GetProof)
 
 	static := http.FileServer(http.Dir("web/static"))

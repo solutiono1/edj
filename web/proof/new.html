@@ -23,9 +23,10 @@
 </div></main>
 <footer class="footer"><div class="wrap"><div class="foot-word" aria-hidden="true">edj</div><p class="foot-bottom">© 2026 edj · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></p></div></footer>
 <script>
+const token=localStorage.getItem('edj_session');if(!token)location.href='/login';const AH={Authorization:'Bearer '+token};
 document.getElementById('proof-form').addEventListener('submit', async (e) => {
  e.preventDefault();
- const res = await fetch('/api/disclose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject:document.getElementById('subject').value,threshold:Number(document.getElementById('threshold').value),expiresInDays:Number(document.getElementById('days').value)})});
+ const res = await fetch('/api/disclose',{method:'POST',headers:{'Content-Type':'application/json',...AH},body:JSON.stringify({subject:document.getElementById('subject').value,threshold:Number(document.getElementById('threshold').value),expiresInDays:Number(document.getElementById('days').value)})});
  if(!res.ok){alert('Could not create proof');return;}
  const d = await res.json();
  location.href = d.verifyUrl;
