@@ -1,0 +1,34 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Edj: private payments. no public amount</title>
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://edj.cash/">
+<meta property="og:title" content="Edj: private payments. no public amount">
+<meta property="og:description" content="Private payments and payroll on Bitcoin Cash. No public amounts. No seed phrase.">
+<meta property="og:image" content="https://edj.cash/static/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Edj: private payments. no public amount">
+<meta name="twitter:description" content="Private payments and payroll on Bitcoin Cash. No public amounts. No seed phrase.">
+<meta name="twitter:image" content="https://edj.cash/static/og.png"><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"></head><body>
+<a class="skip" href="#main">Skip to content</a><div class="announce"><span>BLAZE 2026 · $8,000 in prizes</span></div>
+<header class="nav-wrap"><nav class="nav"><a class="brand" href="/"><span class="brand-mark"></span>edj</a><div class="nav-links"><a href="/#features">Product</a><a href="/#developers">Developers</a><a href="/#faq">Docs</a></div><a class="btn btn-ink btn-sm" href="/link/new">Get started</a></nav></header>
+<main id="main" class="section" style="padding-top:60px"><div class="wrap" style="max-width:620px">
+<p class="kicker">Step 03 / Disclosure</p><h1 style="font-size:clamp(40px,5vw,64px)">Prove a threshold.</h1>
+<p class="sub" style="margin-bottom:34px">Show a lender or counterparty exactly what they need - not the number behind it.</p>
+<form id="proof-form" class="demo" style="display:grid;gap:18px">
+<label style="display:grid;gap:8px"><span style="font-size:13px;color:var(--ink);font-weight:500">Who is it for?</span><input id="subject" required maxlength="80" placeholder="Lender X" style="height:50px;border:1px solid var(--hair);border-radius:12px;padding:0 16px;font:16px Inter"></label>
+<label style="display:grid;gap:8px"><span style="font-size:13px;color:var(--ink);font-weight:500">Prove holdings at least</span><input id="threshold" type="number" min="1" required placeholder="1000" style="height:50px;border:1px solid var(--hair);border-radius:12px;padding:0 16px;font:16px Inter"></label>
+<label style="display:grid;gap:8px"><span style="font-size:13px;color:var(--ink);font-weight:500">Expires in (days)</span><input id="days" type="number" min="1" value="30" style="height:50px;border:1px solid var(--hair);border-radius:12px;padding:0 16px;font:16px Inter"></label>
+<button class="btn btn-ink" type="submit" style="margin-top:6px">Create proof</button>
+</form>
+<div id="proof-result" class="demo" style="margin-top:22px;display:none"><span class="panel-k">Signed statement</span><h3 id="proof-claim" style="font-size:20px;margin-top:10px"></h3><p class="demo-note">This is a signed statement, not a zero-knowledge proof. It names the reader and expires.</p></div>
+</div></main>
+<footer class="footer"><div class="wrap"><div class="foot-word" aria-hidden="true">edj</div><p class="foot-bottom">© 2026 edj · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></p></div></footer>
+<script>
+document.getElementById('proof-form').addEventListener('submit', async (e) => {
+ e.preventDefault();
+ const res = await fetch('/api/disclose',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject:document.getElementById('subject').value,threshold:Number(document.getElementById('threshold').value),expiresInDays:Number(document.getElementById('days').value)})});
+ if(!res.ok){alert('Could not create proof');return;}
+ const d = await res.json();
+ location.href = d.verifyUrl;
+});
+</script>
+</body></html>

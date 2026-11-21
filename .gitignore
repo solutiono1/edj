@@ -1,0 +1,11 @@
+# Build output
+/web/static/dist/
+*.log
+
+# Local environment
+.env
+*.key
+*.pem
+
+# Editor
+.DS_Store

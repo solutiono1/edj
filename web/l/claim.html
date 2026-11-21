@@ -1,0 +1,99 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Edj: private payments. no public amount</title>
+<meta name="description" content="A private payment request on Bitcoin Cash. The amount stays private. Settlement is public.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://edj.cash/">
+<meta property="og:title" content="Edj: private payments. no public amount">
+<meta property="og:description" content="A private payment request on Bitcoin Cash. The amount stays private. Settlement is public.">
+<meta property="og:image" content="https://edj.cash/static/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Edj: private payments. no public amount">
+<meta name="twitter:description" content="A private payment request on Bitcoin Cash. The amount stays private. Settlement is public.">
+<meta name="twitter:image" content="https://edj.cash/static/og.png"><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"></head><body class="page-light">
+<a class="skip" href="#main">Skip to content</a>
+<header class="nav-wrap"><nav class="nav nav-page" id="nav" aria-label="Main">
+ <a class="brand" href="/"><span class="brand-mark"></span>edj</a>
+ <div class="nav-links"><a href="/#how">How it works</a><a href="/#developers">Developers</a><a href="/docs">Docs</a><a href="/support">Support</a></div>
+ <div class="nav-actions"><a class="nav-login" href="/login">Log in</a><a class="btn btn-nav btn-sm" href="/signup">Get started</a></div>
+</nav></header>
+<main id="main" class="page-main"><div class="claim-wrap">
+ <p class="eyebrow">Private payment request</p>
+ <h1 class="doc-title">You received a private request.</h1>
+ <p class="doc-lede">The sender shared this link. The amount stays between you and them. Settlement is public.</p>
+ <div class="claim-card">
+  <p class="claim-k">Payment request</p>
+  <p class="claim-amount" id="claim-amount">-</p>
+  <p class="claim-note" id="claim-note">Loading the request...</p>
+  <div class="claim-row"><span>Amount published by edj</span><b>No</b></div>
+  <div class="claim-row"><span>Destination</span><b>Sender receiving address</b></div>
+  <button class="btn btn-blue" id="pay-btn" type="button">Pay with wallet</button>
+  <p class="claim-status" id="pay-status">Connect a BCH wallet to complete this payment on mainnet.</p>
+ </div>
+ <p class="claim-foot">Anyone with this link can pay. Do not share it more widely than needed.</p>
+</div></main>
+<footer class="footer compact"><div class="wrap">
+ <div class="foot-bottom">
+  <p>Edj is a software project for Bitcoin Cash. Settlement is public, details are private. This is not anonymity.</p>
+  <div class="foot-mini"><a href="/">Home</a><a href="/docs">Docs</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a></div>
+ </div>
+</div></footer>
+<script>
+(() => {
+  const id = decodeURIComponent(location.pathname.split('/').pop() || '');
+  const amountEl = document.getElementById('claim-amount');
+  const noteEl = document.getElementById('claim-note');
+  const statusEl = document.getElementById('pay-status');
+  const payBtn = document.getElementById('pay-btn');
+  let claim = null;
+
+  const money = (value, token) => {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return '-';
+    if (token) return (n / 100).toFixed(2) + ' PUSD';
+    return (n / 100000000).toFixed(8) + ' BCH';
+  };
+
+  fetch('/api/links/' + encodeURIComponent(id))
+    .then((r) => r.json())
+    .then((d) => {
+      if (d.error) {
+        amountEl.textContent = 'Link not found';
+        noteEl.textContent = 'This payment request is no longer open. Ask the sender for a new link.';
+        payBtn.disabled = true;
+        return;
+      }
+      claim = d;
+      amountEl.textContent = money(d.amount, d.token);
+      noteEl.textContent = d.note || 'Private payment via edj';
+      if (d.token) statusEl.textContent = 'This request is for PUSD. A CashTokens-enabled BCH wallet is required.';
+      if (d.status && d.status !== 'open') {
+        payBtn.disabled = true;
+        statusEl.textContent = 'This request is ' + d.status + '.';
+      }
+    })
+    .catch(() => {
+      amountEl.textContent = 'Link unavailable';
+      noteEl.textContent = 'Check your connection and reload this page.';
+      payBtn.disabled = true;
+    });
+
+  payBtn.addEventListener('click', () => {
+    if (!claim) {
+      statusEl.textContent = 'Link data is unavailable.';
+      return;
+    }
+    if (claim.token) {
+      statusEl.textContent = 'This request is for PUSD. Open it in a CashTokens-enabled BCH wallet to pay.';
+      return;
+    }
+    const bch = (Number(claim.amount) / 100000000).toFixed(8);
+    const address = String(claim.address || '').replace(/^bitcoincash:/, '');
+    if (!address) {
+      statusEl.textContent = 'The receiving address is missing. Ask the sender for a new link.';
+      return;
+    }
+    window.location.href = 'bitcoincash:' + address + '?amount=' + bch;
+    statusEl.textContent = 'Opening your BCH wallet with the payment prefilled. Confirm to send on mainnet.';
+  });
+})();
+</script>
+</body></html>

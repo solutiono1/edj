@@ -1,0 +1,46 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Edj: private payments. no public amount</title>
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://edj.cash/">
+<meta property="og:title" content="Edj: private payments. no public amount">
+<meta property="og:description" content="Private payments and payroll on Bitcoin Cash. No public amounts. No seed phrase.">
+<meta property="og:image" content="https://edj.cash/static/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Edj: private payments. no public amount">
+<meta name="twitter:description" content="Private payments and payroll on Bitcoin Cash. No public amounts. No seed phrase.">
+<meta name="twitter:image" content="https://edj.cash/static/og.png"><link rel="stylesheet" href="/static/style.css"><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"></head><body>
+<main class="onboard">
+ <div class="onboard-head"><span class="step" id="step-label">Step 1 of 3</span><h1 id="title">Set up your account</h1><p id="subtitle">A few quick steps. You only do this once.</p></div>
+ <div class="onboard-card" id="card">
+  <h3 id="card-title">What's your name?</h3><p class="hint" id="card-hint">The name people see when you pay them or they pay you.</p>
+  <div id="step1"><label class="field"><span>Display name</span><input id="name" maxlength="60" placeholder="Your name"></label><button class="btn btn-black" id="next1" style="width:100%">Continue</button></div>
+  <div id="step2" hidden><label class="field"><span>Wallet passphrase</span><input id="pass" type="password" minlength="8" placeholder="At least 8 characters"></label><p class="hint">Used with your Google identity to derive your signing key on this device. edj never receives it. You'll need it on another device.</p><button class="btn btn-black" id="next2" style="width:100%">Create my wallet</button></div>
+  <div id="step3" hidden><div class="checklist"><div><span>Google identity</span><b id="c-email">-</b></div><div><span>Display name</span><b id="c-name">-</b></div><div><span>Local signing key</span><b>Ready ✓</b></div></div><button class="btn btn-black" id="done" style="width:100%;margin-top:20px">Go to Portfolio</button></div>
+ </div>
+</main>
+<script>
+const token=localStorage.getItem('edj_session');
+if(!token){location.href='/login';}
+let me={};
+fetch('/api/me',{headers:{Authorization:'Bearer '+token}}).then(r=>r.json()).then(d=>{if(d.sub){me=d;document.getElementById('name').value=d.name||'';}else location.href='/login';});
+document.getElementById('next1').onclick=()=>{
+ const n=document.getElementById('name').value.trim();if(!n)return;
+ me.name=n;
+ document.getElementById('step-label').textContent='Step 2 of 3';document.getElementById('title').textContent='Create your wallet';document.getElementById('subtitle').textContent='Your key is derived on this device. No seed phrase.';
+ document.getElementById('card-title').textContent='Choose a wallet passphrase';document.getElementById('card-hint').textContent='This plus your Google identity derives your key. Keep it safe.';
+ document.getElementById('step1').hidden=true;document.getElementById('step2').hidden=false;
+};
+document.getElementById('next2').onclick=async()=>{
+ const p=document.getElementById('pass').value;if(p.length<8)return;
+ const enc=new TextEncoder().encode(me.sub+'|'+p);
+ const base=await crypto.subtle.importKey('raw',enc,'PBKDF2',false,['deriveBits']);
+ const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:new TextEncoder().encode('edj-v1'),iterations:150000,hash:'SHA-256'},base,256);
+ localStorage.setItem('edj_key_fp',Array.from(new Uint8Array(bits)).slice(0,8).map(b=>b.toString(16).padStart(2,'0')).join(''));
+ localStorage.setItem('edj_name',me.name);
+ document.getElementById('step-label').textContent='Step 3 of 3';document.getElementById('title').textContent='Your account is ready.';document.getElementById('subtitle').textContent='Private payments, payroll and proofs - from any device.';
+ document.getElementById('card-title').textContent="You're all set";document.getElementById('card-hint').textContent='You can change your name later in Settings.';
+ document.getElementById('c-email').textContent=me.email;document.getElementById('c-name').textContent=me.name;
+ document.getElementById('step2').hidden=true;document.getElementById('step3').hidden=false;
+};
+document.getElementById('done').onclick=()=>location.href='/portfolio';
+</script>
+</body></html>

@@ -1,0 +1,119 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Edj: private payments. no public amount</title>
+<meta name="description" content="edj developer docs. Create private payment links, payroll runs and signed disclosure proofs on Bitcoin Cash.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://edj.cash/docs">
+<meta property="og:title" content="Edj: private payments. no public amount">
+<meta property="og:description" content="Create private payment links, payroll runs and signed disclosure proofs on Bitcoin Cash.">
+<meta property="og:image" content="https://edj.cash/static/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Edj: private payments. no public amount">
+<meta name="twitter:description" content="Create private payment links, payroll runs and signed disclosure proofs on Bitcoin Cash.">
+<meta name="twitter:image" content="https://edj.cash/static/og.png"><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"></head><body class="page-light">
+<a class="skip" href="#main">Skip to content</a>
+<header class="nav-wrap"><nav class="nav nav-page" id="nav" aria-label="Main">
+ <a class="brand" href="/"><span class="brand-mark"></span>edj</a>
+ <div class="nav-links"><a href="/#how">How it works</a><a href="/#developers">Developers</a><a href="/docs">Docs</a><a href="/support">Support</a></div>
+ <div class="nav-actions"><a class="nav-login" href="/login">Log in</a><a class="btn btn-nav btn-sm" href="/signup">Get started</a></div>
+</nav></header>
+<main id="main" class="page-main"><div class="doc-wrap">
+ <p class="eyebrow">Developer docs</p>
+ <h1 class="doc-title">Build private payments into your app.</h1>
+ <p class="doc-lede">The edj HTTP API is live in v1. Create a private payment link, prepare a payroll run, or issue a signed disclosure proof. Settlement is public. The amount is not.</p>
+ <div class="doc-chips"><span>v1 API</span><span>JSON</span><span>Google sign-in</span></div>
+ <div class="doc-callout"><b>Status.</b> A small JavaScript client ships with the app at <code>/static/sdk/edj.js</code>. It is a thin source wrapper, not a package registry release. MCP and CLI are planned on the same primitives.</div>
+
+ <section class="doc-section" id="quickstart">
+  <h2>Quickstart</h2>
+  <p>Create a private link with one request. Amounts are integers in the smallest unit of the asset: satoshis for BCH, cents for PUSD.</p>
+  <pre class="code-block">curl -X POST http://localhost:8080/api/links \
+  -H 'Content-Type: application/json' \
+  -d '{"amount":25000,"token":null,"note":"Invoice 42"}'</pre>
+  <p class="code-label">201 response</p>
+  <pre class="code-block">{
+  "id": "L_...",
+  "claimUrl": "/l/L_...",
+  "address": "bitcoincash:...",
+  "status": "open"
+}</pre>
+  <p>Share <code>claimUrl</code>. The payer opens it, sees the amount, and pays from any BCH wallet. The chain sees a settlement, not the invoice.</p>
+ </section>
+
+ <section class="doc-section" id="auth">
+  <h2>Authentication</h2>
+  <p>Google Identity Services returns an ID token to the browser. Exchange it for an edj session token. Send that token as a bearer header on account calls.</p>
+  <pre class="code-block">POST /api/auth/google
+{ "idToken": "&lt;google credential&gt;" }
+
+Authorization: Bearer &lt;edj session token&gt;</pre>
+  <p>The server verifies the Google token, checks the audience and verified email, then returns a session token. No cookie is set. The client stores the token in localStorage.</p>
+ </section>
+
+ <section class="doc-section" id="endpoints">
+  <h2>Endpoints</h2>
+  <div class="doc-table-wrap"><table class="doc-table">
+   <thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead>
+   <tbody>
+    <tr><td>GET</td><td><code>/api/health</code></td><td>Service status</td></tr>
+    <tr><td>GET</td><td><code>/api/config</code></td><td>Google client ID and receiving addresses</td></tr>
+    <tr><td>POST</td><td><code>/api/auth/google</code></td><td>Verify a Google ID token and create a session</td></tr>
+    <tr><td>GET</td><td><code>/api/me</code></td><td>Current account (bearer token)</td></tr>
+    <tr><td>POST</td><td><code>/api/logout</code></td><td>Delete the session (bearer token)</td></tr>
+    <tr><td>GET</td><td><code>/api/notifications</code></td><td>Account notifications</td></tr>
+    <tr><td>POST</td><td><code>/api/assistant</code></td><td>Rules-based in-app guide</td></tr>
+    <tr><td>POST</td><td><code>/api/links</code></td><td>Create a private payment link</td></tr>
+    <tr><td>GET</td><td><code>/api/links/{id}</code></td><td>Read link state</td></tr>
+    <tr><td>POST</td><td><code>/api/payroll/upload</code></td><td>Parse a payroll CSV (multipart field <code>csv</code>)</td></tr>
+    <tr><td>GET</td><td><code>/api/payroll/{id}</code></td><td>Read a payroll plan</td></tr>
+    <tr><td>POST</td><td><code>/api/disclose</code></td><td>Create a signed disclosure proof</td></tr>
+    <tr><td>GET</td><td><code>/api/proofs/{id}</code></td><td>Read a proof</td></tr>
+   </tbody>
+  </table></div>
+ </section>
+
+ <section class="doc-section" id="payroll">
+  <h2>Payroll</h2>
+  <p>Upload a CSV with exactly three columns. Amounts are integers in the smallest unit. The response is a draft run with a review URL; nothing is sent by uploading. Addresses below are shortened.</p>
+  <pre class="code-block">name,address,amount
+Ada,bitcoincash:qexample,125000
+Grace,bitcoincash:pexample,98000</pre>
+  <p class="code-label">201 response</p>
+  <pre class="code-block">{ "id": "PR_...", "rows": 2, "total": 223000, "reviewUrl": "/payroll/PR_..." }</pre>
+ </section>
+
+ <section class="doc-section" id="proofs">
+  <h2>Disclosure proofs</h2>
+  <p>A proof is a signed statement that a subject meets a threshold until an expiry date. It is not a zero-knowledge proof. The verifier learns the threshold, the subject and the expiry, never the balance.</p>
+  <pre class="code-block">POST /api/disclose
+{ "subject": "Lender X", "threshold": 1000000, "expiresInDays": 30 }</pre>
+  <p class="code-label">201 response</p>
+  <pre class="code-block">{ "id": "DP_...", "proof": "...", "verifyUrl": "/proof/DP_..." }</pre>
+ </section>
+
+ <section class="doc-section" id="client">
+  <h2>Source client</h2>
+  <p>The v1 client mirrors the endpoints: <code>createLink</code>, <code>getLink</code>, <code>submitPayroll</code>, <code>getPayroll</code>, <code>createProof</code>, <code>getProof</code>, <code>me</code> and <code>logout</code>.</p>
+  <pre class="code-block">import { EdjClient } from '/static/sdk/edj.js'
+
+const edj = new EdjClient({
+  baseUrl: location.origin,
+  token: localStorage.getItem('edj_session')
+})
+
+const link = await edj.createLink({ amount: 25000, note: 'Invoice 42' })
+console.log(link.claimUrl)</pre>
+ </section>
+
+ <section class="doc-section" id="errors">
+  <h2>Errors and limits</h2>
+  <p>Errors use one shape and one HTTP status. The prototype keeps state in memory, so links, payroll runs and proofs reset when the server restarts. Nothing here is a promise of mainnet custody.</p>
+  <pre class="code-block">{ "error": { "code": "ERROR", "message": "invalid amount" } }</pre>
+  <p>Payroll uploads are limited to 8 MB. Amounts must be positive integers. Proofs default to 30 days when no expiry is supplied.</p>
+ </section>
+</div></main>
+<footer class="footer compact"><div class="wrap">
+ <div class="foot-bottom">
+  <p>Edj is a software project for Bitcoin Cash. Settlement is public, details are private. This is not anonymity.</p>
+  <div class="foot-mini"><a href="/">Home</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/delete">Delete data</a></div>
+ </div>
+</div></footer>
+</body></html>
