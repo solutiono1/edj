@@ -1,0 +1,40 @@
+{
+  "contractName": "PrivatePayroll",
+  "constructorInputs": [
+    { "name": "payeePkh", "type": "bytes20" },
+    { "name": "payerPkh", "type": "bytes20" },
+    { "name": "paymentAmount", "type": "int" },
+    { "name": "refundAfter", "type": "int" }
+  ],
+  "abi": [
+    { "name": "pay", "inputs": [] },
+    { "name": "refund", "inputs": [] }
+  ],
+  "bytecode": "OP_4 OP_PICK OP_0 OP_NUMEQUAL OP_IF 76a914 OP_SWAP OP_CAT 88ac OP_CAT OP_TXOUTPUTCOUNT OP_1 OP_NUMEQUALVERIFY OP_0 OP_OUTPUTVALUE OP_3 OP_ROLL OP_NUMEQUALVERIFY OP_0 OP_OUTPUTBYTECODE OP_EQUAL OP_NIP OP_NIP OP_NIP OP_ELSE OP_4 OP_ROLL OP_1 OP_NUMEQUALVERIFY 76a914 OP_ROT OP_CAT 88ac OP_CAT OP_3 OP_ROLL OP_CHECKLOCKTIMEVERIFY OP_DROP OP_TXOUTPUTCOUNT OP_1 OP_NUMEQUALVERIFY OP_0 OP_OUTPUTVALUE OP_3 OP_ROLL OP_NUMEQUALVERIFY OP_0 OP_OUTPUTBYTECODE OP_EQUAL OP_NIP OP_ENDIF",
+  "source": "pragma cashscript ^0.14.0;\n\n/*\n * PrivatePayroll\n *\n * A BCH covenant that constrains how a locked payment can leave the contract.\n * The payee can direct the full amount to their own P2PKH address.\n * After a fixed block height, the payer can reclaim the same amount.\n *\n * This is a BCH Script covenant using native introspection opcodes.\n * It is not an EVM contract and it does not provide anonymity or ZK proofs.\n */\ncontract PrivatePayroll(bytes20 payeePkh, bytes20 payerPkh, int paymentAmount, int refundAfter) {\n    function pay() {\n        bytes25 destination = new LockingBytecodeP2PKH(payeePkh);\n        require(tx.outputs.length == 1);\n        require(tx.outputs[0].value == paymentAmount);\n        require(tx.outputs[0].lockingBytecode == destination);\n    }\n\n    function refund() {\n        bytes25 destination = new LockingBytecodeP2PKH(payerPkh);\n        require(tx.time >= refundAfter);\n        require(tx.outputs.length == 1);\n        require(tx.outputs[0].value == paymentAmount);\n        require(tx.outputs[0].lockingBytecode == destination);\n    }\n}\n",
+  "fingerprint": "d2cf5e9ef42d792094d36b0ae03373f5af503dc5757544198ca86e76da438bed",
+  "debug": {
+    "bytecode": "5479009c630376a9147c7e0288ac7ec4519d00cc537a9d00cd8777777767547a519d0376a9147b7e0288ac7e537ab175c4519d00cc537a9d00cd877768",
+    "sourceMap": "14:4:19:5;;;;;15:30:15:64;:55::63;:30::64:1;;;16:16:16:33:0;:37::38;:8::40:1;17:27:17:28:0;:16::35:1;:39::52:0;;:8::54:1;18:27:18:28:0;:16::45:1;:8::62;14:19:19:5;;;:4;21::27::0;;;;22:30:22:64;:55::63;:30::64:1;;;23:27:23:38:0;;:8::40:1;;24:16:24:33:0;:37::38;:8::40:1;25:27:25:28:0;:16::35:1;:39::52:0;;:8::54:1;26:27:26:28:0;:16::45:1;:8::62;21:22:27:5;13:0:28:1",
+    "logs": [],
+    "requires": [
+      { "ip": 16, "line": 16 },
+      { "ip": 21, "line": 17 },
+      { "ip": 25, "line": 18 },
+      { "ip": 40, "line": 23 },
+      { "ip": 44, "line": 24 },
+      { "ip": 49, "line": 25 },
+      { "ip": 53, "line": 26 }
+    ],
+    "sourceTags": "21:23:sc;49:49:sc"
+  },
+  "compiler": {
+    "name": "cashc",
+    "version": "0.14.0",
+    "options": {
+      "enforceFunctionParameterTypes": true,
+      "enforceLocktimeGuard": true
+    }
+  },
+  "updatedAt": "2026-11-21T14:04:33.285Z"
+}

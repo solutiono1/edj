@@ -70,3 +70,5 @@ Format: date - decision - rationale - status. Append only; never rewrite history
 - 2026-11-21 - Frontend polish pass: removed decorative glow shadows and white radial wash, set sentence-case preview label, shortened search and assistant placeholders, reduced hover movement - LOCKED
 - 2026-11-21 - Backend: records and signing key persisted to a local JSON file, write endpoints and account reads require bearer auth, /api/portfolio returns real saved totals - LOCKED
 - 2026-11-21 - README rewritten as a project front door with quick start, configuration, API, SDK, testing, deployment and honesty notes - LOCKED
+- 2026-11-21 - Smart contract: PrivatePayroll BCH Script covenant compiled with cashc and evaluated with a mock network provider; chipnet steps and audit scope recorded in SMART-CONTRACT.md - LOCKED
+- 2026-11-21 - Dev tools: SDK packaged at sdk/js, CLI added at tools/cli, MCP scope defined in DEV-TOOLS.md, API.md remains source of truth - LOCKED

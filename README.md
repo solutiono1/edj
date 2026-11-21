@@ -125,6 +125,8 @@ Set the environment variables above, build the binary, and serve it behind HTTPS
 | `DECISIONS.md` | Decision log |
 | `ROADMAP.md` | Remaining work |
 | `HANDOFF.md` | Repository ownership rules |
+| `SMART-CONTRACT.md` | BCH covenant design, tests, chipnet checklist, audit scope |
+| `DEV-TOOLS.md` | SDK, CLI, and MCP plan |
 
 ## Contributing
 

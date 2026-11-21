@@ -1,0 +1,15 @@
+{
+  "name": "@edj/sdk",
+  "version": "0.1.0",
+  "description": "Small client for the edj HTTP API",
+  "type": "module",
+  "main": "edj.js",
+  "exports": {
+    ".": "./edj.js"
+  },
+  "files": [
+    "edj.js",
+    "README.md"
+  ],
+  "license": "MIT"
+}

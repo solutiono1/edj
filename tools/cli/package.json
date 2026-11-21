@@ -1,0 +1,8 @@
+{
+  "name": "edj-cli",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "edj": "./edj.mjs"
+  }
+}

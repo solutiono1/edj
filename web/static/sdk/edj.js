@@ -76,6 +76,10 @@ export class EdjClient {
     return this.#request('/api/me', { headers: this.#headers(false) });
   }
 
+  portfolio() {
+    return this.#request('/api/portfolio', { headers: this.#headers(false) });
+  }
+
   logout() {
     return this.#request('/api/logout', { method: 'POST', headers: this.#headers(false) });
   }

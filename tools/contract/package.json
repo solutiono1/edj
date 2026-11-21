@@ -1,0 +1,17 @@
+{
+  "name": "edj-contract",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "compile": "cashc PrivatePayroll.cash -o PrivatePayroll.json",
+    "test": "npm run compile && node test.mjs"
+  },
+  "dependencies": {
+    "@scure/base": "^2.4.0",
+    "cashaddr": "^1.2.0",
+    "cashscript": "^0.10.0"
+  },
+  "devDependencies": {
+    "cashc": "^0.14.0"
+  }
+}

@@ -90,7 +90,7 @@ const edj = new EdjClient({ baseUrl: location.origin, token })
 const link = await edj.createLink({ amount: 25000, note: 'Invoice 42' })
 ```
 
-Methods: `createLink`, `getLink`, `submitPayroll`, `getPayroll`, `createProof`, `getProof`, `me`, `logout`.
+Methods: `createLink`, `getLink`, `submitPayroll`, `getPayroll`, `createProof`, `getProof`, `me`, `portfolio`, `logout`.
 
 ## Portfolio
 

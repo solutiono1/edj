@@ -1,0 +1,28 @@
+pragma cashscript ^0.14.0;
+
+/*
+ * PrivatePayroll
+ *
+ * A BCH covenant that constrains how a locked payment can leave the contract.
+ * The payee can direct the full amount to their own P2PKH address.
+ * After a fixed block height, the payer can reclaim the same amount.
+ *
+ * This is a BCH Script covenant using native introspection opcodes.
+ * It is not an EVM contract and it does not provide anonymity or ZK proofs.
+ */
+contract PrivatePayroll(bytes20 payeePkh, bytes20 payerPkh, int paymentAmount, int refundAfter) {
+    function pay() {
+        bytes25 destination = new LockingBytecodeP2PKH(payeePkh);
+        require(tx.outputs.length == 1);
+        require(tx.outputs[0].value == paymentAmount);
+        require(tx.outputs[0].lockingBytecode == destination);
+    }
+
+    function refund() {
+        bytes25 destination = new LockingBytecodeP2PKH(payerPkh);
+        require(tx.time >= refundAfter);
+        require(tx.outputs.length == 1);
+        require(tx.outputs[0].value == paymentAmount);
+        require(tx.outputs[0].lockingBytecode == destination);
+    }
+}

@@ -12,3 +12,6 @@
 
 # Local persistent data
 data/
+
+# JavaScript tooling
+node_modules/
