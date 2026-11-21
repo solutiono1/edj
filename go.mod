@@ -1,3 +1,3 @@
 module edj.cash/edj
 
-go 1.27
+go 1.24

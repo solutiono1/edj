@@ -32,6 +32,17 @@ These features run in the current demo build with a real Go server and a local J
 | MCP | Planned | Scope is documented in `DEV-TOOLS.md`. No MCP server is shipped yet. |
 
 
+## BCH BLAZE 2026
+
+| Requirement | Status |
+|---|---|
+| Mainnet track: live demo, real BCH payment, wallet connection | Payment URI flow is wired. Final mainnet demo and txid are part of submission. |
+| Repo and public link | Repo is on GitHub. Public URL added when deployed. |
+| Media track: demo video | To be recorded from the real flow. |
+| Community choice: EMBER address | Not yet added to the top banner. |
+| Deadline | 22 November 2026, 14:00 UTC |
+| Honesty rules | No anonymity claim and no ZK claim. Disclosure statements are signed statements. |
+
 ## What edj does not do
 
 - It does not make a payment anonymous. Bitcoin Cash settlement is public.
