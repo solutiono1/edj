@@ -11,7 +11,7 @@ import (
 
 type Server struct {
 	Chain  chain.Chain
-	Store  *store.Memory
+	Store  store.Store
 	Signer *core.Signer
 }
 

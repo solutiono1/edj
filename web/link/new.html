@@ -7,7 +7,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Edj: private payments. no public amount">
 <meta name="twitter:description" content="Private payments and payroll on Bitcoin Cash. No public amounts. No seed phrase.">
-<meta name="twitter:image" content="https://edj.cash/static/og.png"><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"></head><body>
+<meta name="twitter:image" content="https://edj.cash/static/og.png"><script src="/static/config.js"></script><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"></head><body>
 <a class="skip" href="#main">Skip to content</a>
 <div class="announce"><span>BLAZE 2026 · $8,000 in prizes</span></div>
 <header class="nav-wrap"><nav class="nav"><a class="brand" href="/"><span class="brand-mark"></span>edj</a><div class="nav-links"><a href="/#features">Product</a><a href="/#developers">Developers</a><a href="/#faq">Docs</a></div><a class="btn btn-ink btn-sm" href="/link/new">Get started</a></nav></header>
@@ -25,13 +25,14 @@
 </div></main>
 <footer class="footer"><div class="wrap"><div class="foot-word" aria-hidden="true">edj</div><p class="foot-bottom">© 2026 edj · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></p></div></footer>
 <script>
+const API=window.EDJ_API_BASE||'';
 const token=localStorage.getItem('edj_session');if(!token)location.href='/login';const AH={Authorization:'Bearer '+token};
 document.getElementById('link-form').addEventListener('submit', async (e) => {
  e.preventDefault();
  const amount = Number(document.getElementById('amount').value);
  const token = document.getElementById('asset').value === 'BCH' ? null : 'PUSD';
  const note = document.getElementById('note').value;
- const res = await fetch('/api/links', {method:'POST',headers:{'Content-Type':'application/json',...AH},body:JSON.stringify({amount: amount*100000,token,note})});
+ const res = await fetch(API+'/api/links', {method:'POST',headers:{'Content-Type':'application/json',...AH},body:JSON.stringify({amount: amount*100000,token,note})});
  if(!res.ok){alert('Could not create link');return;}
  const data = await res.json();
  document.getElementById('link-result').style.display='block';

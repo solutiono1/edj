@@ -57,7 +57,9 @@ npm test
 
 ## Chipnet test checklist
 
-This part needs a funded chipnet wallet and is not automated here.
+The deploy script is in `tools/contract/deploy-chipnet.mjs`. It reads a funded WIF from `CHIPNET_WIF` and never writes it to a file. See `DEPLOYMENT.md` for the exact command.
+
+This part needs a funded chipnet wallet and has not been run here yet.
 
 1. Fund the contract address shown by the test output with the exact payment amount plus a fee.
 2. Build a `pay` spend with one output to the payee P2PKH address and no change output.

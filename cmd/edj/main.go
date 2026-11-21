@@ -7,19 +7,37 @@ import (
 
 	"edj.cash/edj/internal/api"
 	"edj.cash/edj/internal/chain"
+	"edj.cash/edj/internal/core"
 	"edj.cash/edj/internal/store"
 )
 
 func main() {
 	addr := os.Getenv("ADDR")
 	if addr == "" {
-		addr = ":8080"
+		if port := os.Getenv("PORT"); port != "" {
+			addr = ":" + port
+		} else {
+			addr = ":8080"
+		}
 	}
-	dataFile := os.Getenv("EDJ_DATA_FILE")
-	if dataFile == "" {
-		dataFile = "data/edj.json"
+	var storeImpl store.Store
+	var signer *core.Signer
+	var err error
+	if supabaseURL := os.Getenv("SUPABASE_URL"); supabaseURL != "" {
+		key := os.Getenv("SUPABASE_SERVICE_ROLE_KEY")
+		if key == "" {
+			log.Fatal("SUPABASE_SERVICE_ROLE_KEY is required when SUPABASE_URL is set")
+		}
+		storeImpl, signer, err = store.NewSupabase(supabaseURL, key)
+	} else {
+		dataFile := os.Getenv("EDJ_DATA_FILE")
+		if dataFile == "" {
+			dataFile = "data/edj.json"
+		}
+		var memory *store.Memory
+		memory, signer, err = store.NewPersistent(dataFile)
+		storeImpl = memory
 	}
-	memory, signer, err := store.NewPersistent(dataFile)
 	if err != nil {
 		log.Fatalf("open store: %v", err)
 	}
@@ -28,7 +46,7 @@ func main() {
 			ReceiveAddress: os.Getenv("EDJ_RECEIVE_ADDRESS"),
 			TokenAddress:   os.Getenv("EDJ_TOKEN_ADDRESS"),
 		},
-		Store:  memory,
+		Store:  storeImpl,
 		Signer: signer,
 	}
 
@@ -76,5 +94,23 @@ func main() {
 	mux.HandleFunc("GET /support", serve("index.html"))
 
 	log.Printf("edj listening on %s", addr)
-	log.Fatal(http.ListenAndServe(addr, mux))
+	origin := os.Getenv("EDJ_PUBLIC_ORIGIN")
+	if origin == "" {
+		origin = "*"
+	}
+	log.Fatal(http.ListenAndServe(addr, withCORS(origin, mux)))
+}
+
+func withCORS(origin string, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Vary", "Origin")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }

@@ -4,7 +4,7 @@
  * This file ships with the app; it is not published to a package registry.
  */
 export class EdjClient {
-  constructor({ baseUrl = '', token = null } = {}) {
+  constructor({ baseUrl = (typeof window !== 'undefined' && window.EDJ_API_BASE) || '', token = null } = {}) {
     this.baseUrl = String(baseUrl).replace(/\/$/, '');
     this.token = token;
   }

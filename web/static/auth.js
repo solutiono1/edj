@@ -1,6 +1,7 @@
 (() => {
   'use strict';
 
+  const API = window.EDJ_API_BASE || '';
   const host = document.getElementById('gbtn');
   const status = document.getElementById('gstatus');
   if (!host) return;
@@ -40,7 +41,7 @@
     }
     setStatus('Verifying your Google account...');
     try {
-      const res = await fetch('/api/auth/google', {
+      const res = await fetch(API+'/api/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idToken: response.credential })
@@ -65,7 +66,7 @@
     setStatus('Loading Google sign-in...');
     let config;
     try {
-      const res = await fetch('/api/config', { cache: 'no-store' });
+      const res = await fetch(API+'/api/config', { cache: 'no-store' });
       config = await res.json();
     } catch (error) {
       setStatus('Could not load the sign-in configuration.', 'error');

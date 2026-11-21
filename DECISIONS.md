@@ -72,3 +72,6 @@ Format: date - decision - rationale - status. Append only; never rewrite history
 - 2026-11-21 - README rewritten as a project front door with quick start, configuration, API, SDK, testing, deployment and honesty notes - LOCKED
 - 2026-11-21 - Smart contract: PrivatePayroll BCH Script covenant compiled with cashc and evaluated with a mock network provider; chipnet steps and audit scope recorded in SMART-CONTRACT.md - LOCKED
 - 2026-11-21 - Dev tools: SDK packaged at sdk/js, CLI added at tools/cli, MCP scope defined in DEV-TOOLS.md, API.md remains source of truth - LOCKED
+- 2026-11-21 - Deployment wiring: CORS, Render config, Cloudflare Pages config, Supabase store and chipnet deploy script added - LOCKED
+- 2026-11-21 - Deployment target changed from Render to Railway; railway.json and DEPLOYMENT.md updated - LOCKED
+- 2026-11-21 - Build-in-public drafts and Telegram note created in build-in-public/ for human approval and publishing - LOCKED

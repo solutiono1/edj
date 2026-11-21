@@ -1,38 +1,53 @@
-<p align="center">
-  <img src="web/static/hero-preview.png" alt="edj landing page" width="720">
-</p>
+<div align="center">
 
 # edj
 
-Private payments and payroll on Bitcoin Cash. Amounts stay out of the public story of a payment, and signed statements let someone check a threshold when needed.
+Private payments and payroll on Bitcoin Cash. Keep amounts out of the public story of a payment, and show a signed threshold when someone needs to check.
 
-[Local app](web/index.html) · [API](API.md) · [SDK](DEV-TOOLS.md) · [Contract](SMART-CONTRACT.md)
+[Local app](web/index.html) · [Developer docs](web/docs.html) · [API](API.md) · [SDK](DEV-TOOLS.md) · [Contract](SMART-CONTRACT.md)
 
-**Prototype running locally. No public deployment yet. No real ZK proofs. No custody of funds.**
+**BCH BLAZE 2026 demo build. Public URL added on submission. Real Google sign-in, persistent records and BCH payment URIs are working. edj does not hold funds.**
+
+</div>
+
+![edj landing page](web/static/hero-preview.png)
+
+---
 
 ## What works today
 
-Everything below runs on localhost with a real Go server and a local JSON store.
+These features run in the current demo build with a real Go server and a local JSON store.
 
 | Feature | Status | What you can do |
 |---|---|---|
-| Private payment links | Local prototype | Create a link with an operator-configured BCH or CashTokens address. The payer opens the link and pays from any BCH wallet. |
-| Payroll drafts | Local prototype | Upload a CSV with name, address and amount. Review recipients and total before any payout. Payout execution stays with the wallet. |
-| Disclosure statements | Local prototype | Create an Ed25519 signed statement with a subject, threshold and expiry. It is not a zero-knowledge proof. The verification page shows the signature and public key. |
-| Google sign-in | Working in local testing | Sign in with Google Identity Services. The server verifies the audience and verified email. The session token stays in localStorage. |
+| Private payment links | Demo build | Create a link with an operator-configured BCH or CashTokens address. The payer opens the link and pays from any BCH wallet. |
+| Payroll drafts | Demo build | Upload a CSV with name, address and amount. Review recipients and total before any payout. Payout execution stays with the wallet. |
+| Disclosure statements | Demo build | Create an Ed25519 signed statement with a subject, threshold and expiry. It is not a zero-knowledge proof. The verification page shows the signature and public key. |
+| Google sign-in | Working | Sign in with Google Identity Services. The server verifies the audience and verified email. The session token stays in localStorage. |
 | Persistent store | Local file | Links, payroll drafts, proofs, users, sessions and the signing key survive a restart in `data/edj.json`. |
 | Portfolio | Local API | The app shows real counts of saved links, payroll runs and proofs from `/api/portfolio`. No invented balance. |
 | SDK | Source package | The client is served at `/static/sdk/edj.js` and packaged at `sdk/js`. It wraps the live HTTP API. |
 | CLI | Local tool | `tools/cli/edj.mjs` calls the same API. Tested with `me`, `portfolio` and `links create`. |
-| BCH covenant | Compiled and mock-tested | `tools/contract/PrivatePayroll.cash` constrains a spend to one output, a fixed amount and a fixed address. Chipnet steps are documented, not run here. |
+| BCH covenant | Compiled and mock-tested | `tools/contract/PrivatePayroll.cash` constrains a spend to one output, a fixed amount and a fixed address. Chipnet deployment is the next step. |
 | MCP | Planned | Scope is documented in `DEV-TOOLS.md`. No MCP server is shipped yet. |
+
+## BCH BLAZE 2026
+
+| Requirement | Status |
+|---|---|
+| Mainnet track: live demo, real BCH payment, wallet connection | Payment URI flow is wired. Final mainnet demo and txid are part of submission. |
+| Repo and public link | Repo is on GitHub. Public URL is added when deployed. |
+| Media track: demo video | To be recorded from the real flow. |
+| Community choice: EMBER address | Not yet added to the top banner. |
+| Deadline | 22 November 2026, 14:00 UTC |
+| Honesty rules | No anonymity claim and no ZK claim. Disclosure statements are signed statements. |
 
 ## What edj does not do
 
 - It does not make a payment anonymous. Bitcoin Cash settlement is public.
-- It does not provide zero-knowledge proofs. Disclosure statements are signed statements with a named reader and an expiry.
+- It does not claim zero-knowledge proofs. BCH has no native ZK verifier for this flow, and the project rules require plain language. Disclosure statements are signed statements with a named reader and an expiry.
 - It does not hold funds or sign payments for the user.
-- It does not deploy a mainnet contract in this repository.
+- It does not deploy a mainnet contract in this repository. The BCH covenant is compiled and tested; chipnet deployment is the next step.
 - It does not use a production database. The local JSON store is a prototype store, not an audited system.
 
 ## Run it locally
@@ -137,29 +152,27 @@ It is compiled and locally evaluated. It has not been deployed to chipnet or mai
 - The signing key is generated locally and stored with the records.
 - The prototype has no independent security audit.
 
-## Docs
+## Developer docs
 
-| File | What it covers |
-|---|---|
-| `SPEC.md` | Scope, honesty rules and hackathon requirements |
-| `API.md` | Endpoints and request shapes |
-| `ARCHITECTURE.md` | Current system boundaries |
-| `SMART-CONTRACT.md` | BCH covenant design, tests and audit scope |
-| `DEV-TOOLS.md` | SDK, CLI and MCP plan |
-| `BRAND.md` | Colors, type and motion tokens |
-| `UIUX.md` | Page order and screen behavior |
-| `MOTION.md` | Animation rules |
-| `ASSETS.md` | Source and license register |
-| `GOOGLE-OAUTH.md` | OAuth setup and authorized origins |
-| `DECISIONS.md` | Decision log |
-| `ROADMAP.md` | Remaining work |
-| `HANDOFF.md` | Repository ownership rules |
+The full reference lives in the app at `/docs` and in [API.md](API.md).
 
-## Contributing
+- **Quickstart.** Create a private link with one request. Amounts are integers in the smallest unit of the asset: satoshis for BCH, cents for PUSD.
+- **Authentication.** Exchange a Google ID token at `/api/auth/google`, then send the returned session token as `Authorization: Bearer`.
+- **Endpoints.** Links, payroll uploads, disclosure statements, portfolio totals, notifications and account reads.
+- **Source client.** `EdjClient` wraps the same API in the browser and in `sdk/js`.
 
-The human is the only author and approver. AI agents may write code and documentation, but they do not stage, commit, push, branch, merge or open pull requests.
+```
+POST /api/links
+{ "amount": 25000, "token": null, "note": "Invoice 42" }
+```
 
-Do not add references to or credits for other products in code, docs, UI copy or commit messages.
+## What's next
+
+- Chipnet deployment and txids for the BCH covenant
+- Public HTTPS link and mainnet demo transaction
+- Demo video and deck for BCH BLAZE 2026
+- General audit and self attack, then fixes and report
+- EMBER address in the top banner
 
 ## License
 
