@@ -464,3 +464,10 @@ html,body{max-width:100%;overflow-x:clip}
 .home #how > .wrap{background:#FFFFFF}
 .home .footer{opacity:var(--fp,0)}
 .preview-k{text-transform:none;letter-spacing:0}
+
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.stat-row>div{padding:12px;border:1px solid var(--hair);border-radius:12px;background:var(--surface)}
+.stat-row b{display:block;font:500 24px/1 'Nunito Sans';color:var(--black);letter-spacing:-.02em}
+.stat-row span{display:block;font-size:11px;color:var(--muted);margin-top:6px}
+.record-note{font-size:11px;color:var(--soft);margin-top:10px}
+@media(max-width:620px){.stat-row{grid-template-columns:1fr 1fr 1fr;gap:8px}.stat-row>div{padding:10px}.stat-row b{font-size:20px}}

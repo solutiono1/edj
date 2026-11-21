@@ -1,89 +1,100 @@
+<p align="center">
+  <img src="web/static/hero-preview.png" alt="edj landing page" width="720">
+</p>
+
 # edj
 
-Private payments and payroll on Bitcoin Cash.
+Private payments and payroll on Bitcoin Cash. Amounts stay out of the public story of a payment, and signed statements let someone check a threshold when needed.
 
-edj is a web app for freelancers and small teams who want to pay and get paid without publishing amounts on a public chain. It creates private payment links, prepares payroll runs from a CSV, and issues signed disclosure statements.
+[Local app](web/index.html) · [API](API.md) · [SDK](DEV-TOOLS.md) · [Contract](SMART-CONTRACT.md)
 
-edj does not hold funds. It is not anonymous, and disclosure statements are not zero-knowledge proofs.
+**Prototype running locally. No public deployment yet. No real ZK proofs. No custody of funds.**
 
-## What it does
+## What works today
 
-- Creates a private payment link with a receiving address you control. The payer opens the link and pays from any BCH wallet.
-- Parses a payroll CSV and shows the recipients and total before anything is sent.
-- Creates a signed statement that a named reader can check, with a threshold and an expiry. The statement does not reveal a balance.
-- Signs users in with Google and keeps a session token in the browser. No cookies are used.
-- Provides a small JavaScript SDK over the same HTTP API used by the app.
+Everything below runs on localhost with a real Go server and a local JSON store.
 
-## How it is built
+| Feature | Status | What you can do |
+|---|---|---|
+| Private payment links | Local prototype | Create a link with an operator-configured BCH or CashTokens address. The payer opens the link and pays from any BCH wallet. |
+| Payroll drafts | Local prototype | Upload a CSV with name, address and amount. Review recipients and total before any payout. Payout execution stays with the wallet. |
+| Disclosure statements | Local prototype | Create an Ed25519 signed statement with a subject, threshold and expiry. It is not a zero-knowledge proof. The verification page shows the signature and public key. |
+| Google sign-in | Working in local testing | Sign in with Google Identity Services. The server verifies the audience and verified email. The session token stays in localStorage. |
+| Persistent store | Local file | Links, payroll drafts, proofs, users, sessions and the signing key survive a restart in `data/edj.json`. |
+| Portfolio | Local API | The app shows real counts of saved links, payroll runs and proofs from `/api/portfolio`. No invented balance. |
+| SDK | Source package | The client is served at `/static/sdk/edj.js` and packaged at `sdk/js`. It wraps the live HTTP API. |
+| CLI | Local tool | `tools/cli/edj.mjs` calls the same API. Tested with `me`, `portfolio` and `links create`. |
+| BCH covenant | Compiled and mock-tested | `tools/contract/PrivatePayroll.cash` constrains a spend to one output, a fixed amount and a fixed address. Chipnet steps are documented, not run here. |
+| MCP | Planned | Scope is documented in `DEV-TOOLS.md`. No MCP server is shipped yet. |
 
-- HTTP server in Go, using the standard library only.
-- Static HTML pages and hand-written CSS in `web/`.
-- htmx is vendored locally. There is no React, TypeScript, or frontend build step.
-- Records are stored in a local JSON file so they survive a restart. The file is ignored by git.
-- Chain addresses come from the environment. edj never generates a random receiving address.
+## What edj does not do
 
-The core packages are:
+- It does not make a payment anonymous. Bitcoin Cash settlement is public.
+- It does not provide zero-knowledge proofs. Disclosure statements are signed statements with a named reader and an expiry.
+- It does not hold funds or sign payments for the user.
+- It does not deploy a mainnet contract in this repository.
+- It does not use a production database. The local JSON store is a prototype store, not an audited system.
 
-| Path | Purpose |
-|---|---|
-| `cmd/edj` | Routes and process startup |
-| `internal/api` | HTTP handlers and session checks |
-| `internal/core` | Links, payroll parsing, and signed statements |
-| `internal/chain` | Bitcoin Cash address adapter |
-| `internal/store` | Persistent record store |
-| `web` | Pages, styles, scripts, icons, and SDK |
+## Run it locally
 
-## Quick start
+Requirements:
 
-You need Go 1.27, a Google Cloud OAuth client ID, and BCH addresses that you control.
+- Go 1.27
+- A Google Cloud OAuth client ID
+- BCH addresses you control
 
 ```bash
 cd /home/solution/edj
 cp .env.example .env
-```
-
-Edit `.env`:
-
-| Variable | Purpose |
-|---|---|
-| `GOOGLE_CLIENT_ID` | Google client ID for sign-in |
-| `EDJ_RECEIVE_ADDRESS` | BCH address for BCH payment links |
-| `EDJ_TOKEN_ADDRESS` | CashTokens address for token payment links |
-| `ADDR` | Listen address, default `:8080` |
-| `EDJ_DATA_FILE` | Store path, default `data/edj.json` |
-
-For Google sign-in, add `http://localhost:8080` and `http://127.0.0.1:8080` as authorized JavaScript origins. See `GOOGLE-OAUTH.md`.
-
-Run the app:
-
-```bash
 ./start.sh
 ```
 
 Open `http://localhost:8080`.
 
-## Development
+`.env` values:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `GOOGLE_CLIENT_ID` | none | Google client ID for sign-in |
+| `EDJ_RECEIVE_ADDRESS` | none | BCH address for BCH links |
+| `EDJ_TOKEN_ADDRESS` | none | CashTokens address for token links |
+| `ADDR` | `:8080` | Listen address |
+| `EDJ_DATA_FILE` | `data/edj.json` | Store path |
+
+For Google sign-in, add `http://localhost:8080` and `http://127.0.0.1:8080` as authorized JavaScript origins. See `GOOGLE-OAUTH.md`.
+
+## Tests
 
 ```bash
 export PATH=$HOME/.local/go/bin:$PATH
 go test ./...
-go build -o /tmp/opencode/edj-server ./cmd/edj
+
+cd tools/contract
+npm install
+npm test
 ```
 
-The server is started by `start.sh`, which loads `.env` and exports the configured addresses.
+The contract test compiles the CashScript source and evaluates the covenant with a mock network provider. Current results:
 
-Useful checks:
+- pay covenant evaluates and constrains the output
+- refund covenant evaluates and constrains the output
+- pay covenant rejects a different recipient
 
-```bash
-curl http://localhost:8080/api/health
-curl http://localhost:8080/api/config
+## Layout
+
 ```
-
-Unauthenticated writes return HTTP 401. A complete list of endpoints is in `API.md`.
+cmd/edj/          server entrypoint and routes
+internal/api/     handlers, session checks, portfolio
+internal/core/    links, payroll parsing, signed statements
+internal/chain/   BCH address adapter
+internal/store/   persistent JSON store
+web/              pages, CSS, scripts, icons, SDK
+sdk/js/           packaged JavaScript client
+tools/cli/        command line client
+tools/contract/   BCH covenant source, artifact and tests
+```
 
 ## SDK
-
-The source client is served at `/static/sdk/edj.js`.
 
 ```js
 import { EdjClient } from '/static/sdk/edj.js'
@@ -94,46 +105,62 @@ const edj = new EdjClient({
 })
 
 const link = await edj.createLink({ amount: 25000, note: 'Invoice 42' })
+console.log(link.claimUrl)
 ```
 
-The client wraps link, payroll, proof, session, and logout calls.
+Methods: `createLink`, `getLink`, `submitPayroll`, `getPayroll`, `createProof`, `getProof`, `me`, `portfolio`, `logout`.
 
-## Deployment
+## CLI
 
-Set the environment variables above, build the binary, and serve it behind HTTPS. Add the public domain as an authorized JavaScript origin for the Google client. Keep `.env` and `data/` out of git.
+```bash
+EDJ_TOKEN=<token> node tools/cli/edj.mjs me
+EDJ_TOKEN=<token> node tools/cli/edj.mjs portfolio
+EDJ_TOKEN=<token> node tools/cli/edj.mjs links create 5000 - 'Invoice 42'
+```
 
-## Security and honesty
+`EDJ_URL` defaults to `http://localhost:8080`.
 
-- Session tokens live in localStorage. There are no cookies and no tracking scripts.
-- Disclosure statements are signed statements with a named reader, threshold, and expiry. They are not zero-knowledge proofs.
-- Settlement on Bitcoin Cash is public. edj reduces what is published for specific flows; it does not make a payment anonymous.
-- The app contains no mock records. The JSON store holds real records created through the app.
-- The prototype has not been audited for custody of funds. Do not treat it as a wallet or exchange.
+## Contract
 
-## Documentation
+`PrivatePayroll` is a BCH Script covenant, not an EVM contract. It restricts a locked payment to one output, a fixed amount and a fixed address, with a refund after a fixed block height.
+
+Source: `tools/contract/PrivatePayroll.cash`
+Design and chipnet checklist: `SMART-CONTRACT.md`
+
+It is compiled and locally evaluated. It has not been deployed to chipnet or mainnet here.
+
+## Trust and limits
+
+- Session tokens live in localStorage. No cookies and no tracking scripts.
+- Write endpoints and account reads require a bearer token. The UI is not the security boundary.
+- The local JSON store is ignored by git.
+- The signing key is generated locally and stored with the records.
+- The prototype has no independent security audit.
+
+## Docs
 
 | File | What it covers |
 |---|---|
-| `SPEC.md` | Scope, honesty rules, and hackathon requirements |
-| `ARCHITECTURE.md` | System boundaries and chain adapter |
+| `SPEC.md` | Scope, honesty rules and hackathon requirements |
 | `API.md` | Endpoints and request shapes |
+| `ARCHITECTURE.md` | Current system boundaries |
+| `SMART-CONTRACT.md` | BCH covenant design, tests and audit scope |
+| `DEV-TOOLS.md` | SDK, CLI and MCP plan |
+| `BRAND.md` | Colors, type and motion tokens |
 | `UIUX.md` | Page order and screen behavior |
-| `BRAND.md` | Colors, type, and motion tokens |
 | `MOTION.md` | Animation rules |
 | `ASSETS.md` | Source and license register |
 | `GOOGLE-OAUTH.md` | OAuth setup and authorized origins |
 | `DECISIONS.md` | Decision log |
 | `ROADMAP.md` | Remaining work |
 | `HANDOFF.md` | Repository ownership rules |
-| `SMART-CONTRACT.md` | BCH covenant design, tests, chipnet checklist, audit scope |
-| `DEV-TOOLS.md` | SDK, CLI, and MCP plan |
 
 ## Contributing
 
-The human is the only author and approver. AI agents may write code and documentation, but they do not stage, commit, push, branch, merge, or open pull requests.
+The human is the only author and approver. AI agents may write code and documentation, but they do not stage, commit, push, branch, merge or open pull requests.
 
-Do not add references to or credits for other products in code, docs, UI copy, or commit messages.
+Do not add references to or credits for other products in code, docs, UI copy or commit messages.
 
-## Assets
+## License
 
-Third-party media and font licenses are recorded in `ASSETS.md`. Do not add analytics, advertising, or tracking SDKs.
+MIT. See the license file in the repository. Third-party media and font licenses are recorded in `ASSETS.md`.
