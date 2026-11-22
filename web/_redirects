@@ -1,0 +1,26 @@
+/            /index.html 200
+/login       /login.html 200
+/signup      /signup.html 200
+/onboarding  /onboarding.html 200
+/docs        /docs.html 200
+/terms       /legal.html 200
+/privacy     /legal.html 200
+/delete      /legal.html 200
+/faq         /index.html 200
+/support     /index.html 200
+
+/portfolio    /app.html 200
+/links        /app.html 200
+/payroll      /app.html 200
+/proofs       /app.html 200
+/transactions /app.html 200
+/wallet       /app.html 200
+/notifications /app.html 200
+/profile      /app.html 200
+/settings     /app.html 200
+
+/link/new    /link/new.html 200
+/payroll/new /payroll/new.html 200
+/proof/new   /proof/new.html 200
+/l/*         /l/claim.html 200
+/proof/*     /proof/view.html 200
