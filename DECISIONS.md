@@ -75,3 +75,4 @@ Format: date - decision - rationale - status. Append only; never rewrite history
 - 2026-11-21 - Deployment wiring: CORS, Render config, Cloudflare Pages config, Supabase store and chipnet deploy script added - LOCKED
 - 2026-11-21 - Deployment target changed from Render to Railway; railway.json and DEPLOYMENT.md updated - LOCKED
 - 2026-11-21 - Build-in-public drafts and Telegram note created in build-in-public/ for human approval and publishing - LOCKED
+- 2026-11-22 - Cloudflare Pages SPA routing: rewrote app shell and dynamic routes to clean URLs in web/_redirects to fix onboarding landing on /portfolio - LOCKED
