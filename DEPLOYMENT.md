@@ -102,7 +102,7 @@ Set `DRY_RUN=1` to print the transaction without broadcasting. On a real run, re
 | Supabase schema | Applied with migration `edj_initial_schema` |
 | Railway project ID | `c93645db-f49e-4f71-9ca2-fa5b29c95b8f` |
 | Railway service ID | `8e2b2810-9d80-45e9-8efa-13db2467cdfa` |
-| Railway API URL | `https://edj-api-production.up.railway.app` |
+| Railway API URL | `https://edj-api-v3-production.up.railway.app` |
 | Cloudflare Pages project | `edj` |
 | Cloudflare Pages URL | `https://edj-b48.pages.dev` |
 
