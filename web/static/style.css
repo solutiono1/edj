@@ -474,3 +474,8 @@ html,body{max-width:100%;overflow-x:clip}
 
 /* Static step icons */
 .icon-3d{animation:none!important;transform:none!important}
+
+/* Real screenshot slots with backdrop */
+.slot{height:auto;min-height:210px;padding:10px;border-radius:16px;background:linear-gradient(180deg,#EAF1FF,#F7F9FC);border:1px solid #E5E9F2;box-shadow:inset 0 1px 0 #fff,0 18px 40px -30px rgba(11,30,63,.4);display:flex}
+.slot img{width:100%;height:210px;object-fit:cover;object-position:top;border-radius:11px;display:block}
+.step-card:hover .slot{border-color:#B9C8E6}
