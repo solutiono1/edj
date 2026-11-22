@@ -471,3 +471,6 @@ html,body{max-width:100%;overflow-x:clip}
 .stat-row span{display:block;font-size:11px;color:var(--muted);margin-top:6px}
 .record-note{font-size:11px;color:var(--soft);margin-top:10px}
 @media(max-width:620px){.stat-row{grid-template-columns:1fr 1fr 1fr;gap:8px}.stat-row>div{padding:10px}.stat-row b{font-size:20px}}
+
+/* Static step icons */
+.icon-3d{animation:none!important;transform:none!important}
