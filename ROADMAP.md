@@ -1,7 +1,13 @@
 # ROADMAP - living
 
-## Now - v1 (hackathon, deadline 2026-11-22 14:00 UTC)
-Freeze spec → design system → UI/UX → build → demo → submit.
+## Status - 22 Nov 2026
+
+BCH BLAZE 2026 ended at 14:00 UTC. edj was not submitted. The build is live at `https://edj-b48.pages.dev` with the API on Railway and Supabase.
+
+Remaining before reuse: Google sign-in smoke test, one real BCH mainnet transaction, chipnet covenant txid, EMBER banner, demo video, deck, build-in-public posts.
+
+## Now - v1 (completed build, not submitted)
+
 
 1. Private claim links with a configured receiving address (xpub-derived fresh addresses post-v1)
 2. CSV payroll with unlinkable payouts
@@ -9,6 +15,12 @@ Freeze spec → design system → UI/UX → build → demo → submit.
 4. Signed disclosure proof
 5. SDK stub
 6. Live demo + banner + deck + Media video + Community Choice address
+
+## Next hackathons
+
+- Shortlist BCH grants, stablecoin B2B payments, privacy, and fintech infrastructure events.
+- Keep the demo, deck and video reusable. Refresh the public link and txid for each submission.
+- Record target event and deadline in `DECISIONS.md` before building.
 
 ## After submission - v2+
 - CashToken-aware mixing / covenanted privacy pools
