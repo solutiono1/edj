@@ -482,7 +482,7 @@ html,body{max-width:100%;overflow-x:clip}
 
 /* Framed wallpaper mockup */
 .steps{gap:24px}
-.step-card{padding:26px;border-radius:26px}
+.step-card{padding:22px;border-radius:26px}
 .step-card p{font-size:14px}
 .shot{margin-top:22px;padding:20px;border-radius:26px;background:radial-gradient(130% 130% at 18% 0%, #5A82F2 0%, #2A5CE6 46%, #123A9E 100%);position:relative;overflow:hidden}
 .shot::after{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/></svg>");background-size:140px 140px;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
@@ -498,11 +498,11 @@ html,body{max-width:100%;overflow-x:clip}
 }
 
 /* Bigger framed screenshots + lightbox */
-.shot{padding:16px}
+.shot{padding:14px}
 .shot-frame{padding:7px 7px 0}
-.shot-frame img{height:264px;cursor:zoom-in}
+.shot-frame img{height:210px;cursor:zoom-in}
 .lightbox{position:fixed;inset:0;z-index:200;background:rgba(11,11,12,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:32px;opacity:0;pointer-events:none;transition:opacity .2s var(--ease)}
 .lightbox.open{opacity:1;pointer-events:auto}
 .lightbox img{max-width:min(940px,92vw);max-height:86vh;border-radius:14px;box-shadow:0 40px 90px -30px rgba(0,0,0,.6)}
 .lb-close{position:absolute;top:22px;right:26px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;font:500 22px/1 Inter;cursor:pointer}
-@media(max-width:620px){.shot-frame img{height:220px}}
+@media(max-width:620px){.shot-frame img{height:190px}}
