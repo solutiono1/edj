@@ -22,6 +22,10 @@ Remaining before reuse: Google sign-in smoke test, one real BCH mainnet transact
 - Keep the demo, deck and video reusable. Refresh the public link and txid for each submission.
 - Record target event and deadline in `DECISIONS.md` before building.
 
+## V2
+
+See `V2-PLAN.md` for the concrete milestones.
+
 ## After submission - v2+
 - CashToken-aware mixing / covenanted privacy pools
 - ZK feasibility research on BCH (verify Verifier.cash claims first)

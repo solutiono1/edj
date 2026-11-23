@@ -36,7 +36,10 @@ document.getElementById('link-form').addEventListener('submit', async (e) => {
  if(!res.ok){alert('Could not create link');return;}
  const data = await res.json();
  document.getElementById('link-result').style.display='block';
- document.getElementById('link-url').textContent = location.origin + data.claimUrl;
+ const url = location.origin + data.claimUrl;
+ const linkEl = document.getElementById('link-url');
+ linkEl.innerHTML = '<a href="'+url+'" target="_blank" rel="noopener" style="color:var(--blue)">'+url+'</a> <button class="btn btn-line btn-sm" type="button" style="margin-left:8px">Copy</button>';
+ linkEl.querySelector('button').onclick = () => { navigator.clipboard.writeText(url).then(()=>{ const b=linkEl.querySelector('button'); b.textContent='Copied'; setTimeout(()=>b.textContent='Copy',1500); }); };
  document.getElementById('link-addr').textContent = data.address;
 });
 </script>

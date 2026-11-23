@@ -5,7 +5,8 @@
   "scripts": {
     "compile": "cashc PrivatePayroll.cash -o PrivatePayroll.json",
     "test": "npm run compile && node test.mjs",
-    "deploy:chipnet": "node deploy-chipnet.mjs"
+    "deploy:chipnet": "node deploy-chipnet.mjs",
+    "wallet": "node chipnet-wallet.mjs"
   },
   "dependencies": {
     "@scure/base": "^2.4.0",

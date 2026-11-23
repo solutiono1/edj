@@ -13,7 +13,7 @@ if (!wif) {
 }
 
 const amount = BigInt(process.env.CONTRACT_SATS || '25000')
-const refundAfter = BigInt(process.env.REFUND_AFTER || '0')
+let refundAfter = BigInt(process.env.REFUND_AFTER || '0')
 const payeePkh = process.env.PAYEE_PKH
 const payerPkh = process.env.PAYER_PKH
 
@@ -22,8 +22,7 @@ if (!payeePkh || !payerPkh) {
   process.exit(1)
 }
 if (refundAfter === 0n) {
-  console.error('Set REFUND_AFTER to a chipnet block height')
-  process.exit(1)
+  refundAfter = BigInt((await provider.getBlockHeight()) + 10)
 }
 
 const provider = new ElectrumNetworkProvider(Network.CHIPNET)

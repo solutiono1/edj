@@ -78,3 +78,4 @@ Format: date - decision - rationale - status. Append only; never rewrite history
 - 2026-11-22 - Cloudflare Pages SPA routing: rewrote app shell and dynamic routes to clean URLs in web/_redirects to fix onboarding landing on /portfolio - LOCKED
 - 2026-11-22 - BCH BLAZE 2026 ended 14:00 UTC without submission. Decision: target future hackathons, keep the reusable demo and docs - LOCKED
 - 2026-11-22 - Added IDEA-BANK.md and RESEARCH.md to capture planned features, integrations, tools, market evidence and open questions - LOCKED
+- 2026-11-23 - v1 build rounded up and committed. Created V2-PLAN.md with privacy core first, then features, integrations, audit and growth - LOCKED
