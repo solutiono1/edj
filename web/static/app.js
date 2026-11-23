@@ -271,6 +271,30 @@
     });
   }
 
+  // Lightbox for the framed screenshots.
+  const shotImages = $$('.shot-frame img');
+  if (shotImages.length) {
+    const lb = document.createElement('div');
+    lb.className = 'lightbox';
+    lb.innerHTML = '<button class="lb-close" type="button" aria-label="Close">×</button><img alt="">';
+    document.body.appendChild(lb);
+    const lbImg = lb.querySelector('img');
+    const close = () => { lb.classList.remove('open'); document.body.style.overflow = ''; };
+    shotImages.forEach((img) => {
+      img.addEventListener('click', () => {
+        lbImg.src = img.src;
+        lb.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+    lb.addEventListener('click', (event) => {
+      if (event.target === lb || event.target.classList.contains('lb-close')) close();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') close();
+    });
+  }
+
   // Back to top.
   $$('[data-top]').forEach((el) => {
     el.addEventListener('click', (event) => {
