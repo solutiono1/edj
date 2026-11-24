@@ -272,7 +272,7 @@
   }
 
   // Lightbox for the framed screenshots.
-  const shotImages = $$('.shot-frame img');
+  const shotImages = $$('.shot img');
   if (shotImages.length) {
     const lb = document.createElement('div');
     lb.className = 'lightbox';

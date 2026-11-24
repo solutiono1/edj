@@ -506,3 +506,9 @@ html,body{max-width:100%;overflow-x:clip}
 .lightbox img{max-width:min(940px,92vw);max-height:86vh;border-radius:14px;box-shadow:0 40px 90px -30px rgba(0,0,0,.6)}
 .lb-close{position:absolute;top:22px;right:26px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;font:500 22px/1 Inter;cursor:pointer}
 @media(max-width:620px){.shot-frame img{height:190px}}
+
+/* Provided backdrop mockups, shown full and uncropped */
+.shot{background:transparent;padding:0;border:0;border-radius:16px;overflow:hidden;box-shadow:0 20px 44px -26px rgba(11,30,63,.4)}
+.shot::after{display:none}
+.shot img{width:100%;height:auto;display:block;border-radius:16px;cursor:zoom-in}
+.shot-frame,.shot-bar{display:none}
