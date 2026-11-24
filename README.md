@@ -167,14 +167,6 @@ POST /api/links
 { "amount": 25000, "token": null, "note": "Invoice 42" }
 ```
 
-## What's next
-
-- Chipnet deployment and txids for the BCH covenant
-- Public HTTPS link and mainnet demo transaction
-- Demo video and deck for BCH BLAZE 2026
-- General audit and self attack, then fixes and report
-- EMBER address in the top banner
-
 ## License
 
 MIT. See the license file in the repository. Third-party media and font licenses are recorded in `ASSETS.md`.
