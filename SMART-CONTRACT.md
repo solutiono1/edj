@@ -55,6 +55,15 @@ npm test
 - PASS refund covenant evaluates and constrains the output
 - PASS pay covenant rejects a different recipient
 
+
+## Deployed (chipnet)
+
+- Transaction: `d34a9391d4ac6eb5ff695bfb9aafa8f4e0aa8aa4cac3702a9c7de957fce0d18a`
+- Contract address: `bchtest:pv5mgtpn73gp9sl7qaxll5augr28rlvuwkqh0cw3n0nemxxcz95c5rxdu0zyl`
+- Owner (funded) address: `bchtest:qrt3gw5d64zwk9hqmxujekeufcj2a3z90sywczl3v5`
+- Date: 23 November 2026
+
+This is a chipnet deployment. It is not mainnet.
 ## Chipnet test checklist
 
 The deploy script is in `tools/contract/deploy-chipnet.mjs`. It reads a funded WIF from `CHIPNET_WIF` and never writes it to a file. See `DEPLOYMENT.md` for the exact command.

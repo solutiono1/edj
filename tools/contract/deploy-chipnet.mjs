@@ -12,6 +12,7 @@ if (!wif) {
   process.exit(1)
 }
 
+const provider = new ElectrumNetworkProvider(Network.CHIPNET)
 const amount = BigInt(process.env.CONTRACT_SATS || '25000')
 let refundAfter = BigInt(process.env.REFUND_AFTER || '0')
 const payeePkh = process.env.PAYEE_PKH
@@ -25,7 +26,6 @@ if (refundAfter === 0n) {
   refundAfter = BigInt((await provider.getBlockHeight()) + 10)
 }
 
-const provider = new ElectrumNetworkProvider(Network.CHIPNET)
 const template = new SignatureTemplate(wif)
 const ownerPkh = hex.encode(hash160(template.getPublicKey()))
 const ownerAddress = Address(TEST_NETWORK).encode({
