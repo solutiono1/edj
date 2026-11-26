@@ -1,0 +1,54 @@
+{
+  "contractName": "PrivatePayrollBatch",
+  "constructorInputs": [
+    { "name": "payee0", "type": "bytes20" },
+    { "name": "payee1", "type": "bytes20" },
+    { "name": "payee2", "type": "bytes20" },
+    { "name": "payee3", "type": "bytes20" },
+    { "name": "amount0", "type": "int" },
+    { "name": "amount1", "type": "int" },
+    { "name": "amount2", "type": "int" },
+    { "name": "amount3", "type": "int" },
+    { "name": "count", "type": "int" },
+    { "name": "total", "type": "int" },
+    { "name": "payerPkh", "type": "bytes20" },
+    { "name": "refundAfter", "type": "int" }
+  ],
+  "abi": [
+    { "name": "pay", "inputs": [] },
+    { "name": "refund", "inputs": [] }
+  ],
+  "bytecode": "OP_12 OP_PICK OP_0 OP_NUMEQUAL OP_IF OP_8 OP_PICK OP_1 OP_GREATERTHANOREQUAL OP_9 OP_PICK OP_4 OP_LESSTHANOREQUAL OP_BOOLAND OP_VERIFY OP_TXOUTPUTCOUNT OP_9 OP_PICK OP_NUMEQUALVERIFY OP_8 OP_PICK OP_1 OP_GREATERTHANOREQUAL OP_IF OP_0 OP_OUTPUTVALUE OP_5 OP_PICK OP_NUMEQUALVERIFY OP_0 OP_OUTPUTBYTECODE 76a914 OP_2 OP_PICK OP_CAT 88ac OP_CAT OP_EQUALVERIFY OP_ENDIF OP_8 OP_PICK OP_2 OP_GREATERTHANOREQUAL OP_IF OP_1 OP_OUTPUTVALUE OP_6 OP_PICK OP_NUMEQUALVERIFY OP_1 OP_OUTPUTBYTECODE 76a914 OP_3 OP_PICK OP_CAT 88ac OP_CAT OP_EQUALVERIFY OP_ENDIF OP_8 OP_PICK OP_3 OP_GREATERTHANOREQUAL OP_IF OP_2 OP_OUTPUTVALUE OP_7 OP_PICK OP_NUMEQUALVERIFY OP_2 OP_OUTPUTBYTECODE 76a914 OP_4 OP_PICK OP_CAT 88ac OP_CAT OP_EQUALVERIFY OP_ENDIF OP_8 OP_ROLL OP_4 OP_GREATERTHANOREQUAL OP_IF OP_3 OP_OUTPUTVALUE OP_8 OP_PICK OP_NUMEQUALVERIFY OP_3 OP_OUTPUTBYTECODE 76a914 OP_5 OP_PICK OP_CAT 88ac OP_CAT OP_EQUALVERIFY OP_ENDIF OP_2DROP OP_2DROP OP_2DROP OP_2DROP OP_2DROP OP_2DROP OP_1 OP_ELSE OP_12 OP_ROLL OP_1 OP_NUMEQUALVERIFY OP_11 OP_ROLL OP_CHECKLOCKTIMEVERIFY OP_DROP OP_TXOUTPUTCOUNT OP_1 OP_NUMEQUALVERIFY OP_0 OP_OUTPUTVALUE OP_10 OP_ROLL OP_NUMEQUALVERIFY OP_0 OP_OUTPUTBYTECODE 76a914 OP_11 OP_ROLL OP_CAT 88ac OP_CAT OP_EQUALVERIFY OP_2DROP OP_2DROP OP_2DROP OP_2DROP OP_DROP OP_1 OP_ENDIF",
+  "source": "pragma cashscript ^0.14.0;\n\n/*\n * PrivatePayrollBatch\n *\n * A BCH covenant that locks funds which may only leave as a fixed set of\n * payouts, in order, to fixed P2PKH recipients with fixed amounts. After a\n * block height the payer can reclaim the full locked amount.\n *\n * Capacity is four recipients because CashScript 0.14 has no array parameters.\n * Unused slots are guarded by `count`. The covenant is permissionless: anyone\n * may call either function, but nobody can redirect a payment.\n *\n * This is BCH Script using native introspection opcodes. It is not an EVM\n * contract and it does not provide anonymity or zero-knowledge proofs.\n */\ncontract PrivatePayrollBatch(\n    bytes20 payee0, bytes20 payee1, bytes20 payee2, bytes20 payee3,\n    int amount0, int amount1, int amount2, int amount3,\n    int count, int total, bytes20 payerPkh, int refundAfter\n) {\n    function pay() {\n        require(count >= 1 && count <= 4);\n        require(tx.outputs.length == count);\n        if (count >= 1) {\n            require(tx.outputs[0].value == amount0);\n            require(tx.outputs[0].lockingBytecode == new LockingBytecodeP2PKH(payee0));\n        }\n        if (count >= 2) {\n            require(tx.outputs[1].value == amount1);\n            require(tx.outputs[1].lockingBytecode == new LockingBytecodeP2PKH(payee1));\n        }\n        if (count >= 3) {\n            require(tx.outputs[2].value == amount2);\n            require(tx.outputs[2].lockingBytecode == new LockingBytecodeP2PKH(payee2));\n        }\n        if (count >= 4) {\n            require(tx.outputs[3].value == amount3);\n            require(tx.outputs[3].lockingBytecode == new LockingBytecodeP2PKH(payee3));\n        }\n    }\n\n    function refund() {\n        require(tx.time >= refundAfter);\n        require(tx.outputs.length == 1);\n        require(tx.outputs[0].value == total);\n        require(tx.outputs[0].lockingBytecode == new LockingBytecodeP2PKH(payerPkh));\n    }\n}\n",
+  "fingerprint": "970d3b27fbba1ffd34016134b2f98dfe8ed823c2dc7ceab47a960f84e242ff19",
+  "debug": {
+    "bytecode": "5c79009c63587951a2597954a19a69c459799d587951a26300cc55799d00cd0376a91452797e0288ac7e8868587952a26351cc56799d51cd0376a91453797e0288ac7e8868587953a26352cc57799d52cd0376a91454797e0288ac7e8868587a54a26353cc58799d53cd0376a91455797e0288ac7e88686d6d6d6d6d6d51675c7a519d5b7ab175c4519d00cc5a7a9d00cd0376a9145b7a7e0288ac7e886d6d6d6d755168",
+    "sourceMap": "22:4:41:5;;;;;23:16:23:21;;:25::26;:16:::1;:30::35:0;;:39::40;:30:::1;:16;:8::42;24:16:24:33:0;:37::42;;:8::44:1;25:12:25:17:0;;:21::22;:12:::1;:24:28:9:0;26:31:26:32;:20::39:1;:43::50:0;;:12::52:1;27:31:27:32:0;:20::49:1;:53::85:0;:78::84;;:53::85:1;;;:12::87;25:24:28:9;29:12:29:17:0;;:21::22;:12:::1;:24:32:9:0;30:31:30:32;:20::39:1;:43::50:0;;:12::52:1;31:31:31:32:0;:20::49:1;:53::85:0;:78::84;;:53::85:1;;;:12::87;29:24:32:9;33:12:33:17:0;;:21::22;:12:::1;:24:36:9:0;34:31:34:32;:20::39:1;:43::50:0;;:12::52:1;35:31:35:32:0;:20::49:1;:53::85:0;:78::84;;:53::85:1;;;:12::87;33:24:36:9;37:12:37:17:0;;:21::22;:12:::1;:24:40:9:0;38:31:38:32;:20::39:1;:43::50:0;;:12::52:1;39:31:39:32:0;:20::49:1;:53::85:0;:78::84;;:53::85:1;;;:12::87;37:24:40:9;22:19:41:5;;;;;;;:4;43::48::0;;;;44:27:44:38;;:8::40:1;;45:16:45:33:0;:37::38;:8::40:1;46:27:46:28:0;:16::35:1;:39::44:0;;:8::46:1;47:27:47:28:0;:16::45:1;:49::83:0;:74::82;;:49::83:1;;;:8::85;43:22:48:5;;;;;;17:0:49:1",
+    "logs": [],
+    "requires": [
+      { "ip": 26, "line": 23 },
+      { "ip": 30, "line": 24 },
+      { "ip": 40, "line": 26 },
+      { "ip": 49, "line": 27 },
+      { "ip": 60, "line": 30 },
+      { "ip": 69, "line": 31 },
+      { "ip": 80, "line": 34 },
+      { "ip": 89, "line": 35 },
+      { "ip": 100, "line": 38 },
+      { "ip": 109, "line": 39 },
+      { "ip": 125, "line": 44 },
+      { "ip": 129, "line": 45 },
+      { "ip": 134, "line": 46 },
+      { "ip": 143, "line": 47 }
+    ]
+  },
+  "compiler": {
+    "name": "cashc",
+    "version": "0.14.0",
+    "options": {
+      "enforceFunctionParameterTypes": true,
+      "enforceLocktimeGuard": true
+    }
+  },
+  "updatedAt": "2026-11-26T14:31:08.316Z"
+}

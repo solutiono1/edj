@@ -99,24 +99,26 @@ func (s *Supabase) request(method, table string, query url.Values, body any, out
 }
 
 type linkRow struct {
-	ID        string    `json:"id"`
-	Address   string    `json:"address"`
-	Amount    int64     `json:"amount"`
-	Token     *string   `json:"token"`
-	Note      string    `json:"note"`
-	CreatedAt time.Time `json:"created_at"`
-	Status    string    `json:"status"`
+	ID              string    `json:"id"`
+	Address         string    `json:"address"`
+	Amount          int64     `json:"amount"`
+	Token           *string   `json:"token"`
+	Note            string    `json:"note"`
+	CreatedAt       time.Time `json:"created_at"`
+	Status          string    `json:"status"`
+	DerivationIndex uint32    `json:"derivation_index"`
 }
 
 func (s *Supabase) PutLink(l *core.Link) {
 	body := map[string]any{
-		"id":         l.ID,
-		"address":    l.Address,
-		"amount":     l.Amount,
-		"token":      l.Token,
-		"note":       l.Note,
-		"created_at": l.CreatedAt,
-		"status":     l.Status,
+		"id":               l.ID,
+		"address":          l.Address,
+		"amount":           l.Amount,
+		"token":            l.Token,
+		"note":             l.Note,
+		"created_at":       l.CreatedAt,
+		"status":           l.Status,
+		"derivation_index": l.DerivationIndex,
 	}
 	if err := s.request(http.MethodPost, "links", url.Values{"on_conflict": {"id"}}, body, nil); err != nil {
 		fmt.Println("PutLink:", err)
@@ -131,6 +133,7 @@ func (s *Supabase) GetLink(id string) (*core.Link, bool) {
 	return &core.Link{
 		ID: out[0].ID, Address: out[0].Address, Amount: out[0].Amount,
 		Token: out[0].Token, Note: out[0].Note, CreatedAt: out[0].CreatedAt, Status: out[0].Status,
+		DerivationIndex: out[0].DerivationIndex,
 	}, true
 }
 
@@ -144,28 +147,31 @@ func (s *Supabase) Links() []*core.Link {
 		links = append(links, &core.Link{
 			ID: row.ID, Address: row.Address, Amount: row.Amount,
 			Token: row.Token, Note: row.Note, CreatedAt: row.CreatedAt, Status: row.Status,
+			DerivationIndex: row.DerivationIndex,
 		})
 	}
 	return links
 }
 
 type payrollRow struct {
-	ID        string            `json:"id"`
-	RowsJSON  []core.PayrollRow `json:"rows_json"`
-	Total     int64             `json:"total"`
-	PlanJSON  []core.PayoutStep `json:"plan_json"`
-	Status    string            `json:"status"`
-	CreatedAt time.Time         `json:"created_at"`
+	ID          string              `json:"id"`
+	RowsJSON    []core.PayrollRow   `json:"rows_json"`
+	Total       int64               `json:"total"`
+	PlanJSON    []core.PayoutStep   `json:"plan_json"`
+	Status      string              `json:"status"`
+	CreatedAt   time.Time           `json:"created_at"`
+	ResultsJSON []core.PayoutResult `json:"results_json"`
 }
 
 func (r payrollRow) toRun() *core.PayrollRun {
-	return &core.PayrollRun{ID: r.ID, Rows: r.RowsJSON, Total: r.Total, Plan: r.PlanJSON, Status: r.Status}
+	return &core.PayrollRun{ID: r.ID, Rows: r.RowsJSON, Total: r.Total, Plan: r.PlanJSON, Status: r.Status, Results: r.ResultsJSON}
 }
 
 func (s *Supabase) PutRun(r *core.PayrollRun) {
 	body := map[string]any{
 		"id": r.ID, "rows_json": r.Rows, "total": r.Total,
 		"plan_json": r.Plan, "status": r.Status, "created_at": time.Now().UTC(),
+		"results_json": r.Results,
 	}
 	_ = s.request(http.MethodPost, "payroll_runs", url.Values{"on_conflict": {"id"}}, body, nil)
 }

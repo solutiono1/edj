@@ -21,12 +21,23 @@ type PayoutStep struct {
 	Note string `json:"note"`
 }
 
+type PayoutResult struct {
+	Index   int    `json:"index"`
+	Name    string `json:"name"`
+	Address string `json:"address"`
+	Amount  int64  `json:"amount"`
+	Status  string `json:"status"` // pending | signed | broadcast | failed
+	Txid    string `json:"txid,omitempty"`
+	Error   string `json:"error,omitempty"`
+}
+
 type PayrollRun struct {
-	ID     string       `json:"id"`
-	Rows   []PayrollRow `json:"rows"`
-	Total  int64        `json:"total"`
-	Plan   []PayoutStep `json:"plan"`
-	Status string       `json:"status"`
+	ID      string         `json:"id"`
+	Rows    []PayrollRow   `json:"rows"`
+	Total   int64          `json:"total"`
+	Plan    []PayoutStep   `json:"plan"`
+	Status  string         `json:"status"`
+	Results []PayoutResult `json:"results"`
 }
 
 // ParsePayroll strictly parses name,address,amount CSV. No formula evaluation.
@@ -62,14 +73,77 @@ func NewPayrollRun(rows []PayrollRow) *PayrollRun {
 	b := make([]byte, 8)
 	_, _ = rand.Read(b)
 	total := int64(0)
-	for _, r := range rows {
+	results := make([]PayoutResult, 0, len(rows))
+	for i, r := range rows {
 		total += r.Amount
+		results = append(results, PayoutResult{
+			Index: i, Name: r.Name, Address: r.Address, Amount: r.Amount, Status: "pending",
+		})
 	}
 	return &PayrollRun{
-		ID:     "PR_" + hex.EncodeToString(b),
-		Rows:   rows,
-		Total:  total,
-		Plan:   []PayoutStep{{Kind: "swap", Note: "PUSD to BCH for privacy route"}, {Kind: "mix", Note: "CashFusion on BCH leg"}, {Kind: "transfer", Note: "one-time output per recipient"}},
-		Status: "draft",
+		ID:      "PR_" + hex.EncodeToString(b),
+		Rows:    rows,
+		Total:   total,
+		Plan:    []PayoutStep{{Kind: "swap", Note: "PUSD to BCH for privacy route"}, {Kind: "mix", Note: "CashFusion on BCH leg"}, {Kind: "transfer", Note: "one-time output per recipient"}},
+		Status:  "draft",
+		Results: results,
 	}
+}
+
+// RecordResult applies a wallet-reported payout outcome. A completed result is
+// never overwritten, so a retry after a crash cannot double-record a payment.
+func (r *PayrollRun) RecordResult(index int, status, txid, errText string) bool {
+	if index < 0 || index >= len(r.Results) {
+		return false
+	}
+	current := &r.Results[index]
+	if current.Status == "broadcast" && current.Txid != "" {
+		return false
+	}
+	switch status {
+	case "signed", "broadcast", "failed":
+	default:
+		return false
+	}
+	current.Status = status
+	if txid != "" {
+		current.Txid = txid
+	}
+	if errText != "" {
+		current.Error = errText
+	}
+	return true
+}
+
+// Done reports whether every payout has reached a terminal broadcast state.
+func (r *PayrollRun) Done() bool {
+	if len(r.Results) == 0 {
+		return false
+	}
+	for _, result := range r.Results {
+		if result.Status != "broadcast" {
+			return false
+		}
+	}
+	return true
+}
+
+// ExportPayrollCSV writes the current payout outcomes as CSV.
+func ExportPayrollCSV(run *PayrollRun) string {
+	var b strings.Builder
+	b.WriteString("name,address,amount,status,txid,error\n")
+	for _, result := range run.Results {
+		fields := []string{
+			result.Name, result.Address, strconv.FormatInt(result.Amount, 10),
+			result.Status, result.Txid, result.Error,
+		}
+		for i, field := range fields {
+			if i > 0 {
+				b.WriteByte(',')
+			}
+			b.WriteString(`"` + strings.ReplaceAll(field, `"`, `""`) + `"`)
+		}
+		b.WriteByte('\n')
+	}
+	return b.String()
 }

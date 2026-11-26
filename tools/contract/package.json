@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "compile": "cashc PrivatePayroll.cash -o PrivatePayroll.json",
-    "test": "npm run compile && node test.mjs",
+    "compile": "cashc PrivatePayroll.cash -o PrivatePayroll.json && cashc PrivatePayrollBatch.cash -o PrivatePayrollBatch.json",
+    "test": "npm run compile && node test.mjs && node test-batch.mjs",
     "deploy:chipnet": "node deploy-chipnet.mjs",
     "wallet": "node chipnet-wallet.mjs"
   },

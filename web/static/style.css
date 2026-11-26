@@ -265,6 +265,8 @@
 .auth-card .field span{font-size:13px}
 @media(max-width:900px){.auth{grid-template-columns:1fr}.auth-art{display:none}}
 [hidden]{display:none!important}
+.claim-review{margin-top:16px;padding:14px;border:1px solid var(--hair);border-radius:12px;background:#F7F8FA}
+.claim-review p{font-size:13px;line-height:1.5;margin-bottom:12px;color:var(--black)}
 
 /* INNER PAGES ------------------------------------------------ */
 .nav-links>a{font-size:14px;color:rgba(255,255,255,.76);padding:9px 13px;border-radius:999px;transition:background .2s var(--ease),color .2s var(--ease)}

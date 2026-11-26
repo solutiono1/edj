@@ -25,8 +25,9 @@
   <p class="claim-note" id="claim-note">Loading the request...</p>
   <div class="claim-row"><span>Amount published by pagor</span><b>No</b></div>
   <div class="claim-row"><span>Destination</span><b>Sender receiving address</b></div>
-  <button class="btn btn-blue" id="pay-btn" type="button">Pay with wallet</button>
+  <button class="btn btn-blue" id="pay-btn" type="button" style="width:100%">Pay with wallet</button>
   <button class="btn btn-line" id="connect-wallet" type="button" style="width:100%;margin-top:10px">Connect wallet to see your address</button>
+  <div id="review-box" class="claim-review" hidden><p id="review-text"></p><button class="btn btn-blue" id="broadcast-btn" type="button" style="width:100%">Broadcast signed transaction</button></div>
   <p class="claim-status" id="pay-status">Connect a BCH wallet to complete this payment on mainnet.</p>
  </div>
  <p class="claim-foot">Anyone with this link can pay. Do not share it more widely than needed.</p>
@@ -38,14 +39,18 @@
  </div>
 </div></footer>
 <script>
-const API=window.EDJ_API_BASE||'';
+const API = window.EDJ_API_BASE || '';
 (() => {
   const id = decodeURIComponent(location.pathname.split('/').pop() || '');
   const amountEl = document.getElementById('claim-amount');
   const noteEl = document.getElementById('claim-note');
   const statusEl = document.getElementById('pay-status');
   const payBtn = document.getElementById('pay-btn');
+  const reviewBox = document.getElementById('review-box');
+  const reviewText = document.getElementById('review-text');
+  const broadcastBtn = document.getElementById('broadcast-btn');
   let claim = null;
+  let signedTx = null;
 
   const money = (value, token) => {
     const n = Number(value);
@@ -54,7 +59,9 @@ const API=window.EDJ_API_BASE||'';
     return (n / 100000000).toFixed(8) + ' BCH';
   };
 
-  fetch(API+'/api/links/' + encodeURIComponent(id))
+  const setStatus = (text) => { statusEl.textContent = text; };
+
+  fetch(API + '/api/links/' + encodeURIComponent(id))
     .then((r) => r.json())
     .then((d) => {
       if (d.error) {
@@ -66,10 +73,10 @@ const API=window.EDJ_API_BASE||'';
       claim = d;
       amountEl.textContent = money(d.amount, d.token);
       noteEl.textContent = d.note || 'Private payment via pagor';
-      if (d.token) statusEl.textContent = 'This request is for PUSD. A CashTokens-enabled BCH wallet is required.';
+      if (d.token) setStatus('This request is for PUSD. A CashTokens-enabled BCH wallet is required.');
       if (d.status && d.status !== 'open') {
         payBtn.disabled = true;
-        statusEl.textContent = 'This request is ' + d.status + '.';
+        setStatus('This request is ' + d.status + '.');
       }
     })
     .catch(() => {
@@ -78,23 +85,65 @@ const API=window.EDJ_API_BASE||'';
       payBtn.disabled = true;
     });
 
-  payBtn.addEventListener('click', () => {
-    if (!claim) {
-      statusEl.textContent = 'Link data is unavailable.';
-      return;
-    }
-    if (claim.token) {
-      statusEl.textContent = 'This request is for PUSD. Open it in a CashTokens-enabled BCH wallet to pay.';
-      return;
-    }
+  const fallbackUri = () => {
     const bch = (Number(claim.amount) / 100000000).toFixed(8);
     const address = String(claim.address || '').replace(/^bitcoincash:/, '');
     if (!address) {
-      statusEl.textContent = 'The receiving address is missing. Ask the sender for a new link.';
+      setStatus('The receiving address is missing. Ask the sender for a new link.');
       return;
     }
     window.location.href = 'bitcoincash:' + address + '?amount=' + bch;
-    statusEl.textContent = 'Opening your BCH wallet with the payment prefilled. Confirm to send on mainnet.';
+    setStatus('Opening your BCH wallet with the payment prefilled. Confirm to send on mainnet.');
+  };
+
+  payBtn.addEventListener('click', async () => {
+    if (!claim) {
+      setStatus('Link data is unavailable.');
+      return;
+    }
+    if (claim.token) {
+      setStatus('This request is for PUSD. Open it in a CashTokens-enabled BCH wallet to pay.');
+      return;
+    }
+    const signer = window.PagorSigner;
+    const canSign = Boolean(signer && window.PagorWallet && window.PagorWallet.connected && window.EDJ_SIGNER_ENABLED === true);
+    if (!canSign) {
+      if (signer && window.PagorWallet && window.PagorWallet.connected) {
+        setStatus('In-app signing is not enabled yet. Opening your wallet instead.');
+      }
+      fallbackUri();
+      return;
+    }
+    try {
+      payBtn.disabled = true;
+      setStatus('Preparing the payment for review...');
+      const review = await signer.review({ to: claim.address, amountSats: claim.amount });
+      const built = await signer.build(review);
+      setStatus('Approve the signature in your wallet. Nothing is broadcast yet.');
+      signedTx = await signer.sign(review, built);
+      reviewText.textContent = review.summary + ' The transaction is signed but not broadcast.';
+      reviewBox.hidden = false;
+      setStatus('Signed. Review the details, then broadcast when you are ready.');
+    } catch (error) {
+      setStatus(error?.message || 'Could not prepare the payment. Your wallet app can still pay by URI.');
+      payBtn.disabled = false;
+    }
+  });
+
+  broadcastBtn.addEventListener('click', async () => {
+    if (!signedTx) return;
+    broadcastBtn.disabled = true;
+    setStatus('Broadcasting...');
+    try {
+      const txid = await window.PagorSigner.broadcast(signedTx);
+      signedTx = null;
+      reviewBox.hidden = true;
+      payBtn.disabled = true;
+      setStatus('Broadcast. Transaction id: ' + txid);
+    } catch (error) {
+      setStatus(error?.message || 'Broadcast failed. You can retry with your wallet.');
+      broadcastBtn.disabled = false;
+    }
   });
 })();
 </script>

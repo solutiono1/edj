@@ -18,10 +18,18 @@ import (
 )
 
 func (s *Server) Config(w http.ResponseWriter, r *http.Request) {
+	feeRate := os.Getenv("EDJ_FEE_RATE")
+	if feeRate == "" {
+		feeRate = "1"
+	}
 	writeJSON(w, http.StatusOK, map[string]any{
-		"googleClientId": os.Getenv("GOOGLE_CLIENT_ID"),
-		"receiveAddress": os.Getenv("EDJ_RECEIVE_ADDRESS"),
-		"tokenAddress":   os.Getenv("EDJ_TOKEN_ADDRESS"),
+		"googleClientId":  os.Getenv("GOOGLE_CLIENT_ID"),
+		"receiveAddress":  os.Getenv("EDJ_RECEIVE_ADDRESS"),
+		"tokenAddress":    os.Getenv("EDJ_TOKEN_ADDRESS"),
+		"derivedAddress":  os.Getenv("EDJ_XPUB") != "",
+		"tokenDerivation": os.Getenv("EDJ_TOKEN_XPUB") != "",
+		"feeRate":         feeRate,
+		"network":         "mainnet",
 	})
 }
 

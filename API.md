@@ -9,9 +9,17 @@ JSON API served by the Go process. Base path: `/api`. All responses are JSON.
 {
   "googleClientId": "146518974987-...apps.googleusercontent.com",
   "receiveAddress": "bitcoincash:q...",
-  "tokenAddress": "bitcoincash:z..."
+  "tokenAddress": "bitcoincash:z...",
+  "derivedAddress": true,
+  "tokenDerivation": false,
+  "feeRate": "1",
+  "network": "mainnet"
 }
 ```
+
+`derivedAddress` means `EDJ_XPUB` is configured and links get a fresh `m/0/index` address. `feeRate` is the satoshi-per-virtual-byte rate used by the review step.
+
+`POST /api/links` derives a new address for every link when an xpub is configured. The response includes `derivationIndex`, which is `0` when the configured fallback address was used instead. Without an xpub the old single-address behaviour remains.
 
 `POST /api/auth/signup`
 ```json
@@ -65,6 +73,16 @@ Amounts are positive integers in the smallest unit: satoshis for BCH, cents for 
 { "id": "PR_...", "rows": 5, "total": 21500, "reviewUrl": "/payroll/PR_..." }
 ```
 
+Each row starts with a `pending` result. `GET /api/payroll/{id}` returns the run with its `results`.
+
+`POST /api/payroll/{id}/result` requires the bearer token and records a wallet-reported outcome:
+```json
+{ "index": 0, "status": "broadcast", "txid": "<wallet txid>", "error": "" }
+```
+Valid statuses are `signed`, `broadcast` and `failed`. A result already marked `broadcast` cannot be overwritten, so retrying after a crash cannot double-record a payout. The run becomes `complete` when every result is `broadcast`. This endpoint does not sign or broadcast anything.
+
+`GET /api/payroll/{id}/export` requires the bearer token and returns CSV with columns `name,address,amount,status,txid,error`.
+
 `GET /api/payroll/{id}` requires the bearer token and returns the draft run and payout plan. Uploading does not send funds.
 
 ## Disclosure
@@ -90,7 +108,7 @@ Amounts are positive integers in the smallest unit: satoshis for BCH, cents for 
 { "error": { "code": "ERROR", "message": "invalid amount" } }
 ```
 
-Payroll uploads are capped at 8 MB. The prototype stores links, runs and proofs in memory, so state resets when the server restarts.
+Payroll uploads are capped at 8 MB. Records are stored in Supabase when configured, otherwise in a local JSON file.
 
 ## Source client
 

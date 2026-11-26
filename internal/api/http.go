@@ -1,8 +1,12 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"os"
 
 	"edj.cash/edj/internal/chain"
 	"edj.cash/edj/internal/core"
@@ -36,20 +40,57 @@ type linkRequest struct {
 	Note   string  `json:"note"`
 }
 
+// freshAddress derives a new xpub child per link when an xpub is configured.
+// Without an xpub it falls back to the operator's configured address, which is
+// the v1 behaviour. It never reuses an address already assigned to a link.
+func (s *Server) freshAddress(ctx context.Context, token *string) (string, uint32, error) {
+	xpub := os.Getenv("EDJ_XPUB")
+	tokenAware := false
+	if token != nil {
+		xpub = os.Getenv("EDJ_TOKEN_XPUB")
+		tokenAware = true
+	}
+	if xpub == "" {
+		addr, err := s.Chain.AddressFor(ctx, token)
+		return addr, 0, err
+	}
+	used := make(map[string]bool)
+	for _, existing := range s.Store.Links() {
+		used[existing.Address] = true
+	}
+	for attempt := 0; attempt < 12; attempt++ {
+		index, err := chain.RandomDerivationIndex()
+		if err != nil {
+			return "", 0, err
+		}
+		addr, err := chain.DeriveAddress(xpub, index, tokenAware)
+		if err != nil {
+			return "", 0, err
+		}
+		if !used[addr] {
+			return addr, index, nil
+		}
+	}
+	return "", 0, fmt.Errorf("could not derive an unused address")
+}
+
 func (s *Server) CreateLink(w http.ResponseWriter, r *http.Request) {
 	var req linkRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Amount <= 0 {
 		fail(w, http.StatusBadRequest, "invalid amount")
 		return
 	}
-	addr, err := s.Chain.AddressFor(r.Context(), req.Token)
+	addr, index, err := s.freshAddress(r.Context(), req.Token)
 	if err != nil {
 		fail(w, http.StatusInternalServerError, "address generation failed")
 		return
 	}
-	l := core.NewLink(addr, req.Amount, req.Token, req.Note)
+	l := core.NewLinkWithIndex(addr, index, req.Amount, req.Token, req.Note)
 	s.Store.PutLink(l)
-	writeJSON(w, http.StatusCreated, map[string]any{"id": l.ID, "claimUrl": "/l/" + l.ID, "address": l.Address, "status": l.Status})
+	writeJSON(w, http.StatusCreated, map[string]any{
+		"id": l.ID, "claimUrl": "/l/" + l.ID, "address": l.Address,
+		"derivationIndex": l.DerivationIndex, "status": l.Status,
+	})
 }
 
 func (s *Server) GetLink(w http.ResponseWriter, r *http.Request) {
@@ -90,6 +131,52 @@ func (s *Server) GetPayroll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, run)
+}
+
+// PayrollResult records a wallet-reported payout outcome. It is deliberately
+// not a signing endpoint: the wallet signs and broadcasts, the server only
+// keeps a resume-safe record of what happened.
+func (s *Server) PayrollResult(w http.ResponseWriter, r *http.Request) {
+	run, ok := s.Store.GetRun(r.PathValue("id"))
+	if !ok {
+		fail(w, http.StatusNotFound, "run not found")
+		return
+	}
+	var req struct {
+		Index  int    `json:"index"`
+		Status string `json:"status"`
+		Txid   string `json:"txid"`
+		Error  string `json:"error"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		fail(w, http.StatusBadRequest, "invalid result")
+		return
+	}
+	if !run.RecordResult(req.Index, req.Status, req.Txid, req.Error) {
+		fail(w, http.StatusBadRequest, "invalid or already recorded result")
+		return
+	}
+	if run.Done() {
+		run.Status = "complete"
+	} else if run.Status == "draft" {
+		run.Status = "in progress"
+	}
+	s.Store.PutRun(run)
+	writeJSON(w, http.StatusOK, map[string]any{
+		"id": run.ID, "status": run.Status, "done": run.Done(), "result": run.Results[req.Index],
+	})
+}
+
+func (s *Server) PayrollExport(w http.ResponseWriter, r *http.Request) {
+	run, ok := s.Store.GetRun(r.PathValue("id"))
+	if !ok {
+		fail(w, http.StatusNotFound, "run not found")
+		return
+	}
+	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
+	w.Header().Set("Content-Disposition", "attachment; filename=\"pagor-payroll-"+run.ID+".csv\"")
+	w.WriteHeader(http.StatusOK)
+	_, _ = io.WriteString(w, core.ExportPayrollCSV(run))
 }
 
 type proofRequest struct {
@@ -135,10 +222,10 @@ func (s *Server) Portfolio(w http.ResponseWriter, r *http.Request) {
 		payrollTotal += run.Total
 	}
 	writeJSON(w, http.StatusOK, map[string]any{
-		"links":       len(links),
-		"payrollRuns": len(runs),
-		"proofs":      len(proofs),
-		"linkTotal":   linkTotal,
+		"links":        len(links),
+		"payrollRuns":  len(runs),
+		"proofs":       len(proofs),
+		"linkTotal":    linkTotal,
 		"payrollTotal": payrollTotal,
 	})
 }

@@ -37,7 +37,7 @@ The covenant proves that a locked BCH amount can only leave the contract as a si
 - It does not mix funds. CashFusion remains a separate user-chosen step.
 - It does not have a multi-output payroll engine yet.
 - It does not handle CashTokens yet.
-- It has not been deployed to mainnet or chipnet in this repository.
+- It has been deployed to chipnet only. It has not been deployed to mainnet.
 
 ## Local test
 
@@ -55,6 +55,31 @@ npm test
 - PASS refund covenant evaluates and constrains the output
 - PASS pay covenant rejects a different recipient
 
+
+## Contract: PrivatePayrollBatch
+
+Source: `tools/contract/PrivatePayrollBatch.cash`
+Compiled artifact: `tools/contract/PrivatePayrollBatch.json`
+
+CashScript 0.14 has no array parameters, so capacity is four recipients passed as individual arguments. Constructor arguments:
+
+| Argument | Type | Meaning |
+|---|---|---|
+| `payee0` to `payee3` | bytes20 | P2PKH hashes allowed to receive payouts, in order |
+| `amount0` to `amount3` | int | Exact payout amount for each slot |
+| `count` | int | Number of active slots, 1 to 4 |
+| `total` | int | Full locked amount, used by the refund path |
+| `payerPkh` | bytes20 | Hash allowed to receive the refund |
+| `refundAfter` | int | Block height after which refund is allowed |
+
+Functions:
+
+- `pay` requires `count` outputs, each with the exact amount and P2PKH of its slot.
+- `refund` requires the refund height, one output of exactly `total`, and the payer P2PKH.
+
+Both functions are permissionless because every destination and amount is fixed in the script. Tests in `tools/contract/test-batch.mjs` cover two and four recipients, wrong recipient, wrong amount, wrong output count, early refund, and refund to the wrong address. `npm test` compiles both contracts and runs both suites.
+
+This version has not been deployed to chipnet or mainnet.
 
 ## Deployed (chipnet)
 

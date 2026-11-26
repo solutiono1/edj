@@ -25,6 +25,10 @@ Set these environment variables:
 | `GOOGLE_CLIENT_ID` | Optional. Google sign-in client ID. Email sign-in works without it |
 | `EDJ_RECEIVE_ADDRESS` | BCH address for BCH links |
 | `EDJ_TOKEN_ADDRESS` | CashTokens address for token links |
+| `EDJ_XPUB` | Optional mainnet xpub. When set, each link gets a fresh `m/0/index` address |
+| `EDJ_TOKEN_XPUB` | Optional token-aware mainnet xpub for CashToken links |
+| `EDJ_FEE_RATE` | Optional sat/vB for review, defaults to `1` |
+| `EDJ_ELECTRUM_HOST` | Electrum host:port for UTXO reads and broadcast |
 | `EDJ_PUBLIC_ORIGIN` | Cloudflare Pages origin, for CORS |
 | `SUPABASE_URL` | Supabase project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key |

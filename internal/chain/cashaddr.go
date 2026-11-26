@@ -57,7 +57,11 @@ func convertBits(data []byte, from, to uint, pad bool) ([]byte, error) {
 // EncodeCashaddr builds a mainnet P2PKH cashaddr from a 20-byte pubkey hash.
 // version 0 = P2PKH; token-aware addresses use version 8 prefix bits variant.
 func EncodeCashaddr(hash20 [20]byte, tokenAware bool) (string, error) {
-	prefix := "bitcoincash"
+	return EncodeCashaddrForNetwork(hash20, "bitcoincash", tokenAware)
+}
+
+// EncodeCashaddrForNetwork builds a P2PKH cashaddr for an explicit network prefix.
+func EncodeCashaddrForNetwork(hash20 [20]byte, prefix string, tokenAware bool) (string, error) {
 	version := byte(0)
 	if tokenAware {
 		version = 16 // 0x10 -> first 5-bit group = 2 ('z'), token-aware P2PKH

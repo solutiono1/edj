@@ -1,0 +1,49 @@
+pragma cashscript ^0.14.0;
+
+/*
+ * PrivatePayrollBatch
+ *
+ * A BCH covenant that locks funds which may only leave as a fixed set of
+ * payouts, in order, to fixed P2PKH recipients with fixed amounts. After a
+ * block height the payer can reclaim the full locked amount.
+ *
+ * Capacity is four recipients because CashScript 0.14 has no array parameters.
+ * Unused slots are guarded by `count`. The covenant is permissionless: anyone
+ * may call either function, but nobody can redirect a payment.
+ *
+ * This is BCH Script using native introspection opcodes. It is not an EVM
+ * contract and it does not provide anonymity or zero-knowledge proofs.
+ */
+contract PrivatePayrollBatch(
+    bytes20 payee0, bytes20 payee1, bytes20 payee2, bytes20 payee3,
+    int amount0, int amount1, int amount2, int amount3,
+    int count, int total, bytes20 payerPkh, int refundAfter
+) {
+    function pay() {
+        require(count >= 1 && count <= 4);
+        require(tx.outputs.length == count);
+        if (count >= 1) {
+            require(tx.outputs[0].value == amount0);
+            require(tx.outputs[0].lockingBytecode == new LockingBytecodeP2PKH(payee0));
+        }
+        if (count >= 2) {
+            require(tx.outputs[1].value == amount1);
+            require(tx.outputs[1].lockingBytecode == new LockingBytecodeP2PKH(payee1));
+        }
+        if (count >= 3) {
+            require(tx.outputs[2].value == amount2);
+            require(tx.outputs[2].lockingBytecode == new LockingBytecodeP2PKH(payee2));
+        }
+        if (count >= 4) {
+            require(tx.outputs[3].value == amount3);
+            require(tx.outputs[3].lockingBytecode == new LockingBytecodeP2PKH(payee3));
+        }
+    }
+
+    function refund() {
+        require(tx.time >= refundAfter);
+        require(tx.outputs.length == 1);
+        require(tx.outputs[0].value == total);
+        require(tx.outputs[0].lockingBytecode == new LockingBytecodeP2PKH(payerPkh));
+    }
+}

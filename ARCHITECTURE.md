@@ -18,17 +18,19 @@ data/pagor.json             local records and signing key, ignored by git
 ## Request flow
 
 1. The browser loads a static page from `web/`.
-2. Sign-in uses Google Identity Services. The Google ID token is posted to `/api/auth/google`.
-3. The server verifies the token with Google, checks the audience and verified email, then returns a session token. The browser stores it in localStorage.
+2. Sign-in uses email and password, or optionally Google Identity Services.
+3. Email credentials are verified on the server with bcrypt. Google ID tokens are verified with Google. Both paths return a session token that the browser stores in localStorage.
 4. Authenticated requests send `Authorization: Bearer <token>`.
 5. Write endpoints and account reads require that header. Public reads are limited to a link id or a proof id.
-6. Chain addresses come from environment variables. The app never generates a random receiving address.
+6. Chain addresses come from an operator xpub when configured. Each link derives a fresh `m/0/index` P2PKH address and records the index. Without an xpub the app uses the configured fallback address. It never invents a random address.
 
 ## Chain model
 
 Bitcoin Cash settlement is public. pagor does not hold funds and does not broadcast transactions. The claim page opens a BCH payment URI in the user's wallet. Payout execution is handled by the wallet and an external privacy step.
 
-The chain adapter in `internal/chain` keeps chain details out of core logic. v1 supports one adapter: BCH with an operator-configured receiving address and CashTokens address. There is no multi-chain support in v1.
+The chain adapter in `internal/chain` keeps chain details out of core logic. BCH is the only adapter. It can derive addresses from a mainnet xpub or use operator-configured fallback addresses. There is no multi-chain support.
+
+Payments are planned in the browser by `web/static/payment-math.js`: coin selection, fee estimation and dust handling are pure functions with Node tests. `web/static/signer.js` builds a transaction, asks the connected WizardConnect wallet to sign it with `broadcast: false`, and only broadcasts when the user presses a separate button. In-app signing stays disabled until chipnet verification.
 
 Privacy claims are limited:
 

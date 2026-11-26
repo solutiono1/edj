@@ -70,6 +70,8 @@ func main() {
 	mux.HandleFunc("GET /api/links/{id}", s.GetLink)
 	mux.HandleFunc("POST /api/payroll/upload", s.RequireUser(s.UploadPayroll))
 	mux.HandleFunc("GET /api/payroll/{id}", s.RequireUser(s.GetPayroll))
+	mux.HandleFunc("POST /api/payroll/{id}/result", s.RequireUser(s.PayrollResult))
+	mux.HandleFunc("GET /api/payroll/{id}/export", s.RequireUser(s.PayrollExport))
 	mux.HandleFunc("POST /api/disclose", s.RequireUser(s.CreateProof))
 	mux.HandleFunc("GET /api/proofs/{id}", s.GetProof)
 

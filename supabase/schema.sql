@@ -8,7 +8,8 @@ create table if not exists public.links (
   token text,
   note text,
   created_at timestamptz not null,
-  status text not null
+  status text not null,
+  derivation_index bigint not null default 0
 );
 
 create table if not exists public.payroll_runs (
@@ -17,7 +18,8 @@ create table if not exists public.payroll_runs (
   total bigint not null,
   plan_json jsonb not null,
   status text not null,
-  created_at timestamptz not null
+  created_at timestamptz not null,
+  results_json jsonb not null default '[]'::jsonb
 );
 
 create table if not exists public.proofs (
