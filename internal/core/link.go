@@ -9,6 +9,7 @@ import (
 // Link is a one-time private payment request.
 type Link struct {
 	ID              string    `json:"id"`
+	OwnerSub        string    `json:"-"`
 	Address         string    `json:"address"`
 	Amount          int64     `json:"amount"`
 	Token           *string   `json:"token,omitempty"`

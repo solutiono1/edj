@@ -25,12 +25,40 @@ func TestParsePayrollRejectsBadAmount(t *testing.T) {
 
 func TestProofSignVerify(t *testing.T) {
 	s := NewSigner()
-	p := s.NewProof("Lender X", 1000, 30)
-	if !s.Verify(p) {
+	anchor := &ProofAnchor{Txid: "d34a9391d4ac6eb5ff695bfb9aafa8f4e0aa8aa4cac3702a9c7de957fce0d18a", Vout: 0, Amount: 25000}
+	p := s.NewProof("Lender X", 1000, 30, anchor)
+	if !VerifyProof(p) {
 		t.Fatal("signature failed")
 	}
+	if p.SignerFingerprint != s.Fingerprint() || len(p.SignerFingerprint) != 64 {
+		t.Fatalf("bad fingerprint: %s", p.SignerFingerprint)
+	}
+	if !strings.Contains(p.Claim, anchor.Txid) {
+		t.Fatal("anchor is not inside the signed claim")
+	}
 	p.Claim += " tampered"
-	if s.Verify(p) {
+	if VerifyProof(p) {
 		t.Fatal("tampered claim verified")
+	}
+}
+
+func TestProofFingerprintMismatchIsRejected(t *testing.T) {
+	s := NewSigner()
+	p := s.NewProof("Lender X", 1000, 30, nil)
+	p.SignerFingerprint = "0000000000000000000000000000000000000000000000000000000000000000"
+	if VerifyProof(p) {
+		t.Fatal("fingerprint mismatch was accepted")
+	}
+}
+
+func TestVerificationUsesEmbeddedKey(t *testing.T) {
+	a := NewSigner()
+	b := NewSigner()
+	p := a.NewProof("Lender X", 1000, 30, nil)
+	if !VerifyProof(p) {
+		t.Fatal("public verification should use the embedded key")
+	}
+	if !b.Verify(p) {
+		t.Fatal("a verifier without the private key should still verify the signature")
 	}
 }

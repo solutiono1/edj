@@ -45,6 +45,14 @@ Google sign-in reuses an existing account when the verified email already belong
 
 `GET /api/me` and `POST /api/logout` require `Authorization: Bearer <token>`.
 
+Account lifecycle:
+- `GET /api/account` returns status and the scheduled deletion date.
+- `POST /api/account/disable` revokes all sessions immediately.
+- `POST /api/account/delete` marks the account deleted, revokes sessions, and sets a 30-day recovery date.
+- `POST /api/account/restore` works after signing in again, inside the 30-day window. It returns a new session token.
+
+A background job purges users, sessions and their records after the window closes.
+
 ## Health
 
 `GET /api/health` returns `{"status":"ok","engine":"pagor"}`.
@@ -65,6 +73,14 @@ Amounts are positive integers in the smallest unit: satoshis for BCH, cents for 
 `GET /api/links/{id}` returns the link state. It is public because the claim URL is the secret the payer receives.
 
 ## Payroll
+
+`POST /api/private-payroll` requires the bearer token and accepts an opaque blob encrypted on the device:
+```json
+{ "salt": "<base64>", "iv": "<base64>", "ciphertext": "<base64>", "rowCount": 5 }
+```
+The server never receives names, addresses or amounts in this flow. It stores only the blob. `GET /api/private-payroll/{id}` requires the bearer token and returns the blob to its owner only. The browser decrypts it with the user's passphrase.
+
+`POST /api/payroll/upload` is the older plaintext flow and is kept for compatibility. Prefer the private endpoint.
 
 `POST /api/payroll/upload` requires the bearer token and is multipart with field `csv`. The CSV header is exactly `name,address,amount`, and amounts are integers.
 

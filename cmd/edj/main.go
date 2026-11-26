@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"edj.cash/edj/internal/api"
 	"edj.cash/edj/internal/chain"
@@ -56,10 +57,15 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/health", s.Health)
 	mux.HandleFunc("GET /api/config", s.Config)
+	mux.HandleFunc("GET /api/keys", s.SigningKey)
 	mux.HandleFunc("POST /api/auth/google", s.GoogleAuth)
 	mux.HandleFunc("POST /api/auth/signup", s.EmailSignup)
 	mux.HandleFunc("POST /api/auth/login", s.EmailLogin)
 	mux.HandleFunc("GET /api/me", s.Me)
+	mux.HandleFunc("GET /api/account", s.GetAccount)
+	mux.HandleFunc("POST /api/account/disable", s.RequireUser(s.DisableAccount))
+	mux.HandleFunc("POST /api/account/delete", s.RequireUser(s.ScheduleDelete))
+	mux.HandleFunc("POST /api/account/restore", s.RestoreAccount)
 	mux.HandleFunc("GET /api/portfolio", s.RequireUser(s.Portfolio))
 	mux.HandleFunc("GET /api/wallet/utxos", s.WalletUtxos)
 	mux.HandleFunc("POST /api/wallet/broadcast", s.WalletBroadcast)
@@ -69,6 +75,8 @@ func main() {
 	mux.HandleFunc("POST /api/links", s.RequireUser(s.CreateLink))
 	mux.HandleFunc("GET /api/links/{id}", s.GetLink)
 	mux.HandleFunc("POST /api/payroll/upload", s.RequireUser(s.UploadPayroll))
+	mux.HandleFunc("POST /api/private-payroll", s.RequireUser(s.UploadPrivatePayroll))
+	mux.HandleFunc("GET /api/private-payroll/{id}", s.RequireUser(s.GetPrivatePayroll))
 	mux.HandleFunc("GET /api/payroll/{id}", s.RequireUser(s.GetPayroll))
 	mux.HandleFunc("POST /api/payroll/{id}/result", s.RequireUser(s.PayrollResult))
 	mux.HandleFunc("GET /api/payroll/{id}/export", s.RequireUser(s.PayrollExport))
@@ -101,6 +109,17 @@ func main() {
 	mux.HandleFunc("GET /docs", serve("docs.html"))
 	mux.HandleFunc("GET /faq", serve("index.html"))
 	mux.HandleFunc("GET /support", serve("index.html"))
+
+	go func() {
+		ticker := time.NewTicker(time.Hour)
+		defer ticker.Stop()
+		for range ticker.C {
+			cutoff := time.Now().UTC().Add(-30 * 24 * time.Hour)
+			if n := storeImpl.PurgeAccountsBefore(cutoff); n > 0 {
+				log.Printf("purged %d accounts after the 30-day window", n)
+			}
+		}
+	}()
 
 	log.Printf("pagor listening on %s", addr)
 	origin := os.Getenv("EDJ_PUBLIC_ORIGIN")

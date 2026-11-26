@@ -267,6 +267,7 @@
 [hidden]{display:none!important}
 .claim-review{margin-top:16px;padding:14px;border:1px solid var(--hair);border-radius:12px;background:#F7F8FA}
 .claim-review p{font-size:13px;line-height:1.5;margin-bottom:12px;color:var(--black)}
+.balance-figure{font:600 26px 'Nunito Sans',Inter,sans-serif;color:var(--black);margin:10px 0 14px;word-break:break-all}
 
 /* INNER PAGES ------------------------------------------------ */
 .nav-links>a{font-size:14px;color:rgba(255,255,255,.76);padding:9px 13px;border-radius:999px;transition:background .2s var(--ease),color .2s var(--ease)}

@@ -107,6 +107,7 @@ type linkRow struct {
 	CreatedAt       time.Time `json:"created_at"`
 	Status          string    `json:"status"`
 	DerivationIndex uint32    `json:"derivation_index"`
+	OwnerSub        string    `json:"owner_sub"`
 }
 
 func (s *Supabase) PutLink(l *core.Link) {
@@ -119,6 +120,7 @@ func (s *Supabase) PutLink(l *core.Link) {
 		"created_at":       l.CreatedAt,
 		"status":           l.Status,
 		"derivation_index": l.DerivationIndex,
+		"owner_sub":        l.OwnerSub,
 	}
 	if err := s.request(http.MethodPost, "links", url.Values{"on_conflict": {"id"}}, body, nil); err != nil {
 		fmt.Println("PutLink:", err)
@@ -134,6 +136,7 @@ func (s *Supabase) GetLink(id string) (*core.Link, bool) {
 		ID: out[0].ID, Address: out[0].Address, Amount: out[0].Amount,
 		Token: out[0].Token, Note: out[0].Note, CreatedAt: out[0].CreatedAt, Status: out[0].Status,
 		DerivationIndex: out[0].DerivationIndex,
+		OwnerSub:        out[0].OwnerSub,
 	}, true
 }
 
@@ -148,6 +151,7 @@ func (s *Supabase) Links() []*core.Link {
 			ID: row.ID, Address: row.Address, Amount: row.Amount,
 			Token: row.Token, Note: row.Note, CreatedAt: row.CreatedAt, Status: row.Status,
 			DerivationIndex: row.DerivationIndex,
+			OwnerSub:        row.OwnerSub,
 		})
 	}
 	return links
@@ -161,10 +165,11 @@ type payrollRow struct {
 	Status      string              `json:"status"`
 	CreatedAt   time.Time           `json:"created_at"`
 	ResultsJSON []core.PayoutResult `json:"results_json"`
+	OwnerSub    string              `json:"owner_sub"`
 }
 
 func (r payrollRow) toRun() *core.PayrollRun {
-	return &core.PayrollRun{ID: r.ID, Rows: r.RowsJSON, Total: r.Total, Plan: r.PlanJSON, Status: r.Status, Results: r.ResultsJSON}
+	return &core.PayrollRun{ID: r.ID, Rows: r.RowsJSON, Total: r.Total, Plan: r.PlanJSON, Status: r.Status, Results: r.ResultsJSON, OwnerSub: r.OwnerSub}
 }
 
 func (s *Supabase) PutRun(r *core.PayrollRun) {
@@ -172,6 +177,7 @@ func (s *Supabase) PutRun(r *core.PayrollRun) {
 		"id": r.ID, "rows_json": r.Rows, "total": r.Total,
 		"plan_json": r.Plan, "status": r.Status, "created_at": time.Now().UTC(),
 		"results_json": r.Results,
+		"owner_sub":    r.OwnerSub,
 	}
 	_ = s.request(http.MethodPost, "payroll_runs", url.Values{"on_conflict": {"id"}}, body, nil)
 }
@@ -197,13 +203,47 @@ func (s *Supabase) Runs() []*core.PayrollRun {
 }
 
 type proofRow struct {
-	ID        string    `json:"id"`
-	Subject   string    `json:"subject"`
-	Threshold int64     `json:"threshold"`
-	ExpiresAt time.Time `json:"expires_at"`
-	Signature string    `json:"signature"`
-	PublicKey string    `json:"public_key"`
-	Claim     string    `json:"claim"`
+	ID                string            `json:"id"`
+	Subject           string            `json:"subject"`
+	Threshold         int64             `json:"threshold"`
+	ExpiresAt         time.Time         `json:"expires_at"`
+	Signature         string            `json:"signature"`
+	PublicKey         string            `json:"public_key"`
+	Claim             string            `json:"claim"`
+	OwnerSub          string            `json:"owner_sub"`
+	SignerFingerprint string            `json:"signer_fingerprint"`
+	Anchor            *core.ProofAnchor `json:"anchor"`
+}
+
+type privatePayrollRow struct {
+	ID         string    `json:"id"`
+	OwnerSub   string    `json:"owner_sub"`
+	Salt       string    `json:"salt"`
+	IV         string    `json:"iv"`
+	Ciphertext string    `json:"ciphertext"`
+	RowCount   int       `json:"row_count"`
+	Status     string    `json:"status"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
+func (s *Supabase) PutPrivatePayroll(p *core.PrivatePayroll) {
+	_ = s.request(http.MethodPost, "private_payrolls", url.Values{"on_conflict": {"id"}}, map[string]any{
+		"id": p.ID, "owner_sub": p.OwnerSub, "salt": p.Salt, "iv": p.IV,
+		"ciphertext": p.Ciphertext, "row_count": p.RowCount, "status": p.Status,
+		"created_at": p.CreatedAt,
+	}, nil)
+}
+
+func (s *Supabase) GetPrivatePayroll(id string) (*core.PrivatePayroll, bool) {
+	var out []privatePayrollRow
+	if err := s.request(http.MethodGet, "private_payrolls", url.Values{"id": {"eq." + id}}, nil, &out); err != nil || len(out) == 0 {
+		return nil, false
+	}
+	return &core.PrivatePayroll{
+		ID: out[0].ID, OwnerSub: out[0].OwnerSub, Salt: out[0].Salt, IV: out[0].IV,
+		Ciphertext: out[0].Ciphertext, RowCount: out[0].RowCount, Status: out[0].Status,
+		CreatedAt: out[0].CreatedAt,
+	}, true
 }
 
 func (s *Supabase) PutProof(p *core.DisclosureProof) {
@@ -211,6 +251,8 @@ func (s *Supabase) PutProof(p *core.DisclosureProof) {
 		"id": p.ID, "subject": p.Subject, "threshold": p.Threshold,
 		"expires_at": p.ExpiresAt, "signature": p.Signature,
 		"public_key": p.PublicKey, "claim": p.Claim,
+		"owner_sub": p.OwnerSub, "signer_fingerprint": p.SignerFingerprint,
+		"anchor": p.Anchor,
 	}
 	_ = s.request(http.MethodPost, "proofs", url.Values{"on_conflict": {"id"}}, body, nil)
 }
@@ -223,7 +265,8 @@ func (s *Supabase) GetProof(id string) (*core.DisclosureProof, bool) {
 	return &core.DisclosureProof{
 		ID: out[0].ID, Subject: out[0].Subject, Threshold: out[0].Threshold,
 		ExpiresAt: out[0].ExpiresAt, Signature: out[0].Signature,
-		PublicKey: out[0].PublicKey, Claim: out[0].Claim,
+		PublicKey: out[0].PublicKey, Claim: out[0].Claim, OwnerSub: out[0].OwnerSub,
+		SignerFingerprint: out[0].SignerFingerprint, Anchor: out[0].Anchor,
 	}, true
 }
 
@@ -237,7 +280,8 @@ func (s *Supabase) Proofs() []*core.DisclosureProof {
 		proofs = append(proofs, &core.DisclosureProof{
 			ID: row.ID, Subject: row.Subject, Threshold: row.Threshold,
 			ExpiresAt: row.ExpiresAt, Signature: row.Signature,
-			PublicKey: row.PublicKey, Claim: row.Claim,
+			PublicKey: row.PublicKey, Claim: row.Claim, OwnerSub: row.OwnerSub,
+			SignerFingerprint: row.SignerFingerprint, Anchor: row.Anchor,
 		})
 	}
 	return proofs
@@ -246,14 +290,23 @@ func (s *Supabase) Proofs() []*core.DisclosureProof {
 // userRow includes the password hash, which is deliberately not part of User
 // because User is serialized to the browser by /api/me.
 type userRow struct {
-	Sub          string `json:"sub"`
-	Email        string `json:"email"`
-	Name         string `json:"name"`
-	PasswordHash string `json:"password_hash"`
+	Sub          string     `json:"sub"`
+	Email        string     `json:"email"`
+	Name         string     `json:"name"`
+	PasswordHash string     `json:"password_hash"`
+	Status       string     `json:"status"`
+	DeletedAt    *time.Time `json:"deleted_at"`
 }
 
 func (r userRow) user() *User {
-	return &User{Sub: r.Sub, Email: r.Email, Name: r.Name}
+	return &User{Sub: r.Sub, Email: r.Email, Name: r.Name, Status: r.Status, DeletedAt: r.DeletedAt}
+}
+
+func (u *User) rowWithHash(hash string) userRow {
+	return userRow{
+		Sub: u.Sub, Email: u.Email, Name: u.Name, PasswordHash: hash,
+		Status: u.Status, DeletedAt: u.DeletedAt,
+	}
 }
 
 func (s *Supabase) UpsertUser(u *User) (*User, bool) {
@@ -262,12 +315,23 @@ func (s *Supabase) UpsertUser(u *User) (*User, bool) {
 		return u, false
 	}
 	hash := ""
+	status := ""
+	var deletedAt *time.Time
 	if len(existing) > 0 {
 		hash = existing[0].PasswordHash
+		status = existing[0].Status
+		deletedAt = existing[0].DeletedAt
 	}
-	_ = s.request(http.MethodPost, "users", url.Values{"on_conflict": {"sub"}}, userRow{
+	if status == "" {
+		status = "active"
+	}
+	u.Status = status
+	u.DeletedAt = deletedAt
+	row := userRow{
 		Sub: u.Sub, Email: u.Email, Name: u.Name, PasswordHash: hash,
-	}, nil)
+		Status: status, DeletedAt: deletedAt,
+	}
+	_ = s.request(http.MethodPost, "users", url.Values{"on_conflict": {"sub"}}, row, nil)
 	return u, len(existing) == 0
 }
 
@@ -296,9 +360,10 @@ func (s *Supabase) CreateEmailUser(u *User, hash string) (*User, bool) {
 	if err := s.request(http.MethodGet, "users", url.Values{"email": {"eq." + u.Email}}, nil, &byEmail); err != nil || len(byEmail) > 0 {
 		return nil, false
 	}
-	err := s.request(http.MethodPost, "users", url.Values{"on_conflict": {"sub"}}, userRow{
-		Sub: u.Sub, Email: u.Email, Name: u.Name, PasswordHash: hash,
-	}, nil)
+	if u.Status == "" {
+		u.Status = "active"
+	}
+	err := s.request(http.MethodPost, "users", url.Values{"on_conflict": {"sub"}}, u.rowWithHash(hash), nil)
 	if err != nil {
 		return nil, false
 	}
@@ -332,6 +397,46 @@ func (s *Supabase) Session(token string) (string, bool) {
 
 func (s *Supabase) DeleteSession(token string) {
 	_ = s.request(http.MethodDelete, "sessions", url.Values{"token": {"eq." + token}}, nil, nil)
+}
+
+func (s *Supabase) UpdateUser(u *User) {
+	var existing []userRow
+	hash := ""
+	if err := s.request(http.MethodGet, "users", url.Values{"sub": {"eq." + u.Sub}}, nil, &existing); err == nil && len(existing) > 0 {
+		hash = existing[0].PasswordHash
+	}
+	_ = s.request(http.MethodPost, "users", url.Values{"on_conflict": {"sub"}}, u.rowWithHash(hash), nil)
+}
+
+func (s *Supabase) DeleteSessionsForSub(sub string) {
+	var sessions []struct {
+		Token string `json:"token"`
+	}
+	if err := s.request(http.MethodGet, "sessions", url.Values{"sub": {"eq." + sub}}, nil, &sessions); err != nil {
+		return
+	}
+	for _, session := range sessions {
+		s.DeleteSession(session.Token)
+	}
+}
+
+func (s *Supabase) PurgeAccountsBefore(before time.Time) int {
+	var expired []userRow
+	q := url.Values{
+		"status":     {"eq.deleted"},
+		"deleted_at": {"lt." + before.UTC().Format(time.RFC3339Nano)},
+	}
+	if err := s.request(http.MethodGet, "users", q, nil, &expired); err != nil {
+		return 0
+	}
+	for _, row := range expired {
+		s.DeleteSessionsForSub(row.Sub)
+		for _, table := range []string{"links", "payroll_runs", "proofs", "private_payrolls"} {
+			_ = s.request(http.MethodDelete, table, url.Values{"owner_sub": {"eq." + row.Sub}}, nil, nil)
+		}
+		_ = s.request(http.MethodDelete, "users", url.Values{"sub": {"eq." + row.Sub}}, nil, nil)
+	}
+	return len(expired)
 }
 
 type notificationRow struct {

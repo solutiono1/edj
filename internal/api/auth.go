@@ -268,6 +268,25 @@ func (s *Server) userFromRequest(r *http.Request) (*store.User, string, bool) {
 		return nil, "", false
 	}
 	u, ok := s.Store.User(sub)
+	if !ok || !u.Active() {
+		return nil, "", false
+	}
+	return u, token, ok
+}
+
+// userIgnoringStatus resolves a session even for a disabled or scheduled-for-
+// deletion account, so the restore endpoint can still be reached.
+func (s *Server) userIgnoringStatus(r *http.Request) (*store.User, string, bool) {
+	auth := r.Header.Get("Authorization")
+	if !strings.HasPrefix(auth, "Bearer ") {
+		return nil, "", false
+	}
+	token := strings.TrimPrefix(auth, "Bearer ")
+	sub, ok := s.Store.Session(token)
+	if !ok {
+		return nil, "", false
+	}
+	u, ok := s.Store.User(sub)
 	return u, token, ok
 }
 
@@ -286,6 +305,76 @@ func (s *Server) Logout(w http.ResponseWriter, r *http.Request) {
 		s.Store.DeleteSession(token)
 	}
 	writeJSON(w, http.StatusOK, map[string]string{"status": "logged out"})
+}
+
+const accountRecoveryWindow = 30 * 24 * time.Hour
+
+func (s *Server) GetAccount(w http.ResponseWriter, r *http.Request) {
+	u, _, ok := s.userIgnoringStatus(r)
+	if !ok {
+		fail(w, http.StatusUnauthorized, "not signed in")
+		return
+	}
+	status := u.Status
+	if status == "" {
+		status = "active"
+	}
+	writeJSON(w, http.StatusOK, map[string]any{
+		"status": status, "deletedAt": u.DeletedAt, "recoveryWindowHours": 720,
+	})
+}
+
+func (s *Server) DisableAccount(w http.ResponseWriter, r *http.Request) {
+	u, _, ok := s.userFromRequest(r)
+	if !ok {
+		fail(w, http.StatusUnauthorized, "not signed in")
+		return
+	}
+	u.Status = "disabled"
+	u.DeletedAt = nil
+	s.Store.UpdateUser(u)
+	s.Store.DeleteSessionsForSub(u.Sub)
+	writeJSON(w, http.StatusOK, map[string]string{"status": "disabled"})
+}
+
+func (s *Server) ScheduleDelete(w http.ResponseWriter, r *http.Request) {
+	u, _, ok := s.userFromRequest(r)
+	if !ok {
+		fail(w, http.StatusUnauthorized, "not signed in")
+		return
+	}
+	when := time.Now().UTC().Add(accountRecoveryWindow)
+	u.Status = "deleted"
+	u.DeletedAt = &when
+	s.Store.UpdateUser(u)
+	s.Store.DeleteSessionsForSub(u.Sub)
+	writeJSON(w, http.StatusOK, map[string]any{
+		"status": "deleted", "deletedAt": when, "message": "Your account can be restored for 30 days.",
+	})
+}
+
+func (s *Server) RestoreAccount(w http.ResponseWriter, r *http.Request) {
+	u, _, ok := s.userIgnoringStatus(r)
+	if !ok {
+		fail(w, http.StatusUnauthorized, "not signed in")
+		return
+	}
+	if u.Active() {
+		fail(w, http.StatusBadRequest, "account is already active")
+		return
+	}
+	if u.Status == "deleted" && u.DeletedAt != nil && time.Now().After(*u.DeletedAt) {
+		fail(w, http.StatusGone, "the 30-day recovery window has closed")
+		return
+	}
+	u.Status = "active"
+	u.DeletedAt = nil
+	s.Store.UpdateUser(u)
+	b := make([]byte, 24)
+	_, _ = rand.Read(b)
+	token := hex.EncodeToString(b)
+	s.Store.PutSession(token, u.Sub)
+	writeJSON(w, http.StatusOK, map[string]any{"token": token, "status": "active"})
 }
 
 func (s *Server) Notifications(w http.ResponseWriter, r *http.Request) {

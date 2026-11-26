@@ -32,12 +32,13 @@ type PayoutResult struct {
 }
 
 type PayrollRun struct {
-	ID      string         `json:"id"`
-	Rows    []PayrollRow   `json:"rows"`
-	Total   int64          `json:"total"`
-	Plan    []PayoutStep   `json:"plan"`
-	Status  string         `json:"status"`
-	Results []PayoutResult `json:"results"`
+	ID       string         `json:"id"`
+	OwnerSub string         `json:"-"`
+	Rows     []PayrollRow   `json:"rows"`
+	Total    int64          `json:"total"`
+	Plan     []PayoutStep   `json:"plan"`
+	Status   string         `json:"status"`
+	Results  []PayoutResult `json:"results"`
 }
 
 // ParsePayroll strictly parses name,address,amount CSV. No formula evaluation.

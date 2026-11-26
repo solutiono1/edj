@@ -47,9 +47,9 @@ This is a prototype store, not an audited database. It gives restart survival wi
 
 ## Trust boundaries
 
-- No custodian, no admin withdrawal, no committee key.
+- No custodian, no admin withdrawal, no committee key. Pagor never holds funds.
 - The browser holds the session token and the derived key fingerprint.
-- The server holds links, payroll drafts, proofs, users, sessions, and the disclosure signing key.
+- The server holds links, proofs, users, sessions, opaque encrypted payroll blobs, and the disclosure signing key. It does not hold payroll amounts in the private flow and never holds a user's wallet balance.
 - The wallet holds funds and signs payments.
 - External privacy tooling is reported for what it actually does.
 

@@ -14,6 +14,7 @@ import (
 type snapshot struct {
 	Links         map[string]*core.Link            `json:"links"`
 	Runs          map[string]*core.PayrollRun      `json:"runs"`
+	PrivateRuns   map[string]*core.PrivatePayroll  `json:"privateRuns"`
 	Proofs        map[string]*core.DisclosureProof `json:"proofs"`
 	Users         map[string]*User                 `json:"users"`
 	Passwords     map[string]string                `json:"passwords"`
@@ -37,6 +38,12 @@ func NewPersistent(path string) (*Memory, *core.Signer, error) {
 		}
 		if snap.Runs != nil {
 			m.runs = snap.Runs
+		}
+		if snap.PrivateRuns != nil {
+			m.privateRuns = snap.PrivateRuns
+		}
+		if snap.PrivateRuns != nil {
+			m.privateRuns = snap.PrivateRuns
 		}
 		if snap.Proofs != nil {
 			m.proofs = snap.Proofs
@@ -84,6 +91,7 @@ func (m *Memory) saveLocked() error {
 	snap := snapshot{
 		Links:         m.links,
 		Runs:          m.runs,
+		PrivateRuns:   m.privateRuns,
 		Proofs:        m.proofs,
 		Users:         m.users,
 		Passwords:     m.passwords,

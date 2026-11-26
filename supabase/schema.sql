@@ -9,7 +9,8 @@ create table if not exists public.links (
   note text,
   created_at timestamptz not null,
   status text not null,
-  derivation_index bigint not null default 0
+  derivation_index bigint not null default 0,
+  owner_sub text
 );
 
 create table if not exists public.payroll_runs (
@@ -19,7 +20,19 @@ create table if not exists public.payroll_runs (
   plan_json jsonb not null,
   status text not null,
   created_at timestamptz not null,
-  results_json jsonb not null default '[]'::jsonb
+  results_json jsonb not null default '[]'::jsonb,
+  owner_sub text
+);
+
+create table if not exists public.private_payrolls (
+  id text primary key,
+  owner_sub text,
+  salt text not null,
+  iv text not null,
+  ciphertext text not null,
+  row_count integer not null,
+  status text not null,
+  created_at timestamptz not null
 );
 
 create table if not exists public.proofs (
@@ -29,14 +42,17 @@ create table if not exists public.proofs (
   expires_at timestamptz not null,
   signature text not null,
   public_key text not null,
-  claim text not null
+  claim text not null,
+  owner_sub text
 );
 
 create table if not exists public.users (
   sub text primary key,
   email text not null,
   name text not null,
-  password_hash text
+  password_hash text,
+  status text not null default 'active',
+  deleted_at timestamptz
 );
 
 create index if not exists users_email_idx on public.users (email);
@@ -62,6 +78,7 @@ create table if not exists public.meta (
 
 alter table public.links enable row level security;
 alter table public.payroll_runs enable row level security;
+alter table public.private_payrolls enable row level security;
 alter table public.proofs enable row level security;
 alter table public.users enable row level security;
 alter table public.sessions enable row level security;

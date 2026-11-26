@@ -9,9 +9,15 @@ import (
 )
 
 type User struct {
-	Sub   string `json:"sub"`
-	Email string `json:"email"`
-	Name  string `json:"name"`
+	Sub       string     `json:"sub"`
+	Email     string     `json:"email"`
+	Name      string     `json:"name"`
+	Status    string     `json:"status,omitempty"`
+	DeletedAt *time.Time `json:"deletedAt,omitempty"`
+}
+
+func (u *User) Active() bool {
+	return u != nil && (u.Status == "" || u.Status == "active")
 }
 
 type Notification struct {
@@ -28,6 +34,7 @@ type Memory struct {
 	signerKey     string
 	links         map[string]*core.Link
 	runs          map[string]*core.PayrollRun
+	privateRuns   map[string]*core.PrivatePayroll
 	proofs        map[string]*core.DisclosureProof
 	users         map[string]*User
 	passwords     map[string]string
@@ -37,12 +44,13 @@ type Memory struct {
 
 func New() *Memory {
 	return &Memory{
-		links:     map[string]*core.Link{},
-		runs:      map[string]*core.PayrollRun{},
-		proofs:    map[string]*core.DisclosureProof{},
-		users:     map[string]*User{},
-		passwords: map[string]string{},
-		sessions:  map[string]string{},
+		links:       map[string]*core.Link{},
+		runs:        map[string]*core.PayrollRun{},
+		privateRuns: map[string]*core.PrivatePayroll{},
+		proofs:      map[string]*core.DisclosureProof{},
+		users:       map[string]*User{},
+		passwords:   map[string]string{},
+		sessions:    map[string]string{},
 		notifications: []Notification{
 			{ID: "N_1", Title: "Welcome to pagor", Body: "Your private receiving address is ready in Wallet settings.", CreatedAt: time.Now().UTC(), Read: false},
 			{ID: "N_2", Title: "BLAZE 2026", Body: "Submissions close 22 November, 14:00 UTC. Ship early and post your demo.", CreatedAt: time.Now().UTC(), Read: false},
@@ -96,6 +104,20 @@ func (m *Memory) Runs() []*core.PayrollRun {
 		out = append(out, r)
 	}
 	return out
+}
+
+func (m *Memory) PutPrivatePayroll(p *core.PrivatePayroll) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.privateRuns[p.ID] = p
+	_ = m.saveLocked()
+}
+
+func (m *Memory) GetPrivatePayroll(id string) (*core.PrivatePayroll, bool) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	p, ok := m.privateRuns[id]
+	return p, ok
 }
 
 func (m *Memory) PutProof(p *core.DisclosureProof) {
@@ -192,6 +214,69 @@ func (m *Memory) DeleteSession(token string) {
 	defer m.mu.Unlock()
 	delete(m.sessions, token)
 	m.saveLocked()
+}
+
+func (m *Memory) UpdateUser(u *User) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, ok := m.users[u.Sub]; !ok {
+		return
+	}
+	m.users[u.Sub] = u
+	_ = m.saveLocked()
+}
+
+func (m *Memory) DeleteSessionsForSub(sub string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for token, owner := range m.sessions {
+		if owner == sub {
+			delete(m.sessions, token)
+		}
+	}
+	_ = m.saveLocked()
+}
+
+func (m *Memory) PurgeAccountsBefore(before time.Time) int {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	count := 0
+	for sub, u := range m.users {
+		if u.Status != "deleted" || u.DeletedAt == nil || !u.DeletedAt.Before(before) {
+			continue
+		}
+		delete(m.users, sub)
+		for token, owner := range m.sessions {
+			if owner == sub {
+				delete(m.sessions, token)
+			}
+		}
+		for id, link := range m.links {
+			if link.OwnerSub == sub {
+				delete(m.links, id)
+			}
+		}
+		for id, run := range m.runs {
+			if run.OwnerSub == sub {
+				delete(m.runs, id)
+			}
+		}
+		for id, proof := range m.proofs {
+			if proof.OwnerSub == sub {
+				delete(m.proofs, id)
+			}
+		}
+		for id, run := range m.privateRuns {
+			if run.OwnerSub == sub {
+				delete(m.privateRuns, id)
+			}
+		}
+		count++
+	}
+	if count > 0 {
+		_ = m.saveLocked()
+	}
+	return count
 }
 
 func (m *Memory) Notifications() []Notification {

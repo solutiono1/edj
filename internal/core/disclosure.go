@@ -2,22 +2,38 @@ package core
 
 import (
 	"crypto/ed25519"
-	"fmt"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
+	"fmt"
 	"strconv"
 	"time"
 )
 
 // DisclosureProof is a signed statement, NOT a zero-knowledge proof.
+// It carries the signer's key fingerprint and an optional anchor to a
+// confirmed on-chain output, so a verifier can check both who signed and
+// which UTXO the statement claims to relate to. No central registry is
+// implied: the verifier decides which keys they trust.
 type DisclosureProof struct {
-	ID        string    `json:"id"`
-	Subject   string    `json:"subject"`
-	Threshold int64     `json:"threshold"`
-	ExpiresAt time.Time `json:"expiresAt"`
-	Signature string    `json:"signature"`
-	PublicKey string    `json:"publicKey"`
-	Claim     string    `json:"claim"`
+	ID                string       `json:"id"`
+	OwnerSub          string       `json:"-"`
+	Subject           string       `json:"subject"`
+	Threshold         int64        `json:"threshold"`
+	ExpiresAt         time.Time    `json:"expiresAt"`
+	Signature         string       `json:"signature"`
+	PublicKey         string       `json:"publicKey"`
+	SignerFingerprint string       `json:"signerFingerprint"`
+	Anchor            *ProofAnchor `json:"anchor,omitempty"`
+	Claim             string       `json:"claim"`
+}
+
+// ProofAnchor points to an on-chain output. The amount is in satoshis.
+type ProofAnchor struct {
+	Txid   string `json:"txid"`
+	Vout   int    `json:"vout"`
+	Amount int64  `json:"amount"`
 }
 
 type Signer struct {
@@ -50,32 +66,71 @@ func NewSignerFromKey(priv ed25519.PrivateKey) (*Signer, error) {
 	return &Signer{pub: pub, priv: append(ed25519.PrivateKey(nil), priv...)}, nil
 }
 
-// NewProof signs "holds at least X for subject until expiry".
-func (s *Signer) NewProof(subject string, threshold int64, days int) *DisclosureProof {
+// Fingerprint identifies a signing key without exposing a central authority.
+func Fingerprint(pub ed25519.PublicKey) string {
+	sum := sha256.Sum256(pub)
+	return hex.EncodeToString(sum[:])
+}
+
+// PublicKeyBase64 returns the raw public key for /api/keys.
+func (s *Signer) PublicKeyBase64() string {
+	return base64.RawURLEncoding.EncodeToString(s.pub)
+}
+
+func (s *Signer) Fingerprint() string {
+	return Fingerprint(s.pub)
+}
+
+func anchorText(anchor *ProofAnchor) string {
+	if anchor == nil || anchor.Txid == "" {
+		return "anchor:none"
+	}
+	return "anchor:" + anchor.Txid + ":" + strconv.Itoa(anchor.Vout) + ":" + strconv.FormatInt(anchor.Amount, 10)
+}
+
+// NewProof signs "holds at least X for subject until expiry" with an optional
+// on-chain anchor. The anchor is inside the signed claim, so changing it
+// invalidates the signature.
+func (s *Signer) NewProof(subject string, threshold int64, days int, anchor *ProofAnchor) *DisclosureProof {
 	b := make([]byte, 8)
 	_, _ = rand.Read(b)
 	exp := time.Now().UTC().Add(time.Duration(days) * 24 * time.Hour)
-	claim := "holds at least " + strconvI64(threshold) + " for " + subject + " until " + exp.Format(time.RFC3339)
+	claim := "holds at least " + strconv.FormatInt(threshold, 10) + " for " + subject + " until " + exp.Format(time.RFC3339) + " " + anchorText(anchor)
 	sig := ed25519.Sign(s.priv, []byte(claim))
 	return &DisclosureProof{
-		ID:        "DP_" + base64.RawURLEncoding.EncodeToString(b),
-		Subject:   subject,
-		Threshold: threshold,
-		ExpiresAt: exp,
-		Signature: base64.RawURLEncoding.EncodeToString(sig),
-		PublicKey: base64.RawURLEncoding.EncodeToString(s.pub),
-		Claim:     claim,
+		ID:                "DP_" + base64.RawURLEncoding.EncodeToString(b),
+		Subject:           subject,
+		Threshold:         threshold,
+		ExpiresAt:         exp,
+		Signature:         base64.RawURLEncoding.EncodeToString(sig),
+		PublicKey:         base64.RawURLEncoding.EncodeToString(s.pub),
+		SignerFingerprint: s.Fingerprint(),
+		Anchor:            anchor,
+		Claim:             claim,
 	}
 }
 
-func (s *Signer) Verify(p *DisclosureProof) bool {
+// VerifyProof checks the signature against the key embedded in the proof and
+// confirms the fingerprint matches that key. It does not decide whether the
+// verifier trusts the key or the anchor.
+func VerifyProof(p *DisclosureProof) bool {
+	if p == nil {
+		return false
+	}
+	pub, err := base64.RawURLEncoding.DecodeString(p.PublicKey)
+	if err != nil || len(pub) != ed25519.PublicKeySize {
+		return false
+	}
+	if Fingerprint(pub) != p.SignerFingerprint {
+		return false
+	}
 	sig, err := base64.RawURLEncoding.DecodeString(p.Signature)
 	if err != nil {
 		return false
 	}
-	return ed25519.Verify(s.pub, []byte(p.Claim), sig)
+	return ed25519.Verify(pub, []byte(p.Claim), sig)
 }
 
-func strconvI64(v int64) string {
-	return strconv.FormatInt(v, 10)
+func (s *Signer) Verify(p *DisclosureProof) bool {
+	return VerifyProof(p)
 }

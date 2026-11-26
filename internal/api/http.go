@@ -86,6 +86,9 @@ func (s *Server) CreateLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	l := core.NewLinkWithIndex(addr, index, req.Amount, req.Token, req.Note)
+	if u, _, ok := s.userFromRequest(r); ok {
+		l.OwnerSub = u.Sub
+	}
 	s.Store.PutLink(l)
 	writeJSON(w, http.StatusCreated, map[string]any{
 		"id": l.ID, "claimUrl": "/l/" + l.ID, "address": l.Address,
@@ -120,8 +123,57 @@ func (s *Server) UploadPayroll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	run := core.NewPayrollRun(rows)
+	if u, _, ok := s.userFromRequest(r); ok {
+		run.OwnerSub = u.Sub
+	}
 	s.Store.PutRun(run)
 	writeJSON(w, http.StatusCreated, map[string]any{"id": run.ID, "rows": len(rows), "total": run.Total, "reviewUrl": "/payroll/" + run.ID})
+}
+
+type privatePayrollRequest struct {
+	Salt       string `json:"salt"`
+	IV         string `json:"iv"`
+	Ciphertext string `json:"ciphertext"`
+	RowCount   int    `json:"rowCount"`
+}
+
+// UploadPrivatePayroll accepts an opaque blob encrypted on the device. The
+// server never receives names, addresses or amounts in this flow.
+func (s *Server) UploadPrivatePayroll(w http.ResponseWriter, r *http.Request) {
+	var req privatePayrollRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		fail(w, http.StatusBadRequest, "invalid request")
+		return
+	}
+	if req.Salt == "" || req.IV == "" || req.Ciphertext == "" || req.RowCount < 1 || req.RowCount > 1000 {
+		fail(w, http.StatusBadRequest, "invalid encrypted payroll")
+		return
+	}
+	u, _, ok := s.userFromRequest(r)
+	if !ok {
+		fail(w, http.StatusUnauthorized, "not signed in")
+		return
+	}
+	p := core.NewPrivatePayroll(req.Salt, req.IV, req.Ciphertext, req.RowCount)
+	p.OwnerSub = u.Sub
+	s.Store.PutPrivatePayroll(p)
+	writeJSON(w, http.StatusCreated, map[string]any{
+		"id": p.ID, "rowCount": p.RowCount, "status": p.Status,
+	})
+}
+
+func (s *Server) GetPrivatePayroll(w http.ResponseWriter, r *http.Request) {
+	u, _, ok := s.userFromRequest(r)
+	if !ok {
+		fail(w, http.StatusUnauthorized, "not signed in")
+		return
+	}
+	p, ok := s.Store.GetPrivatePayroll(r.PathValue("id"))
+	if !ok || p.OwnerSub != u.Sub {
+		fail(w, http.StatusNotFound, "payroll not found")
+		return
+	}
+	writeJSON(w, http.StatusOK, p)
 }
 
 func (s *Server) GetPayroll(w http.ResponseWriter, r *http.Request) {
@@ -180,9 +232,22 @@ func (s *Server) PayrollExport(w http.ResponseWriter, r *http.Request) {
 }
 
 type proofRequest struct {
-	Subject   string `json:"subject"`
-	Threshold int64  `json:"threshold"`
-	Days      int    `json:"expiresInDays"`
+	Subject   string            `json:"subject"`
+	Threshold int64             `json:"threshold"`
+	Days      int               `json:"expiresInDays"`
+	Anchor    *core.ProofAnchor `json:"anchor"`
+}
+
+func (s *Server) SigningKey(w http.ResponseWriter, r *http.Request) {
+	if s.Signer == nil {
+		fail(w, http.StatusServiceUnavailable, "signing key not configured")
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{
+		"publicKey":   s.Signer.PublicKeyBase64(),
+		"fingerprint": s.Signer.Fingerprint(),
+		"note":        "A verifier must decide whether to trust this key. Pin it on first use.",
+	})
 }
 
 func (s *Server) CreateProof(w http.ResponseWriter, r *http.Request) {
@@ -194,7 +259,10 @@ func (s *Server) CreateProof(w http.ResponseWriter, r *http.Request) {
 	if req.Days <= 0 {
 		req.Days = 30
 	}
-	p := s.Signer.NewProof(req.Subject, req.Threshold, req.Days)
+	p := s.Signer.NewProof(req.Subject, req.Threshold, req.Days, req.Anchor)
+	if u, _, ok := s.userFromRequest(r); ok {
+		p.OwnerSub = u.Sub
+	}
 	s.Store.PutProof(p)
 	writeJSON(w, http.StatusCreated, map[string]any{"id": p.ID, "proof": p.Signature, "verifyUrl": "/proof/" + p.ID})
 }
@@ -210,23 +278,15 @@ func (s *Server) GetProof(w http.ResponseWriter, r *http.Request) {
 
 // Portfolio reports real saved data. No balance is invented: pagor does not
 // hold funds, so the amounts are the totals of created requests and drafts.
+// Portfolio returns counts only. Balances and amounts are deliberately not
+// computed here: the browser reads the user's own UTXOs, and Pagor must not
+// be able to see how much a user holds or was paid.
 func (s *Server) Portfolio(w http.ResponseWriter, r *http.Request) {
-	links := s.Store.Links()
-	runs := s.Store.Runs()
-	proofs := s.Store.Proofs()
-	var linkTotal, payrollTotal int64
-	for _, l := range links {
-		linkTotal += l.Amount
-	}
-	for _, run := range runs {
-		payrollTotal += run.Total
-	}
 	writeJSON(w, http.StatusOK, map[string]any{
-		"links":        len(links),
-		"payrollRuns":  len(runs),
-		"proofs":       len(proofs),
-		"linkTotal":    linkTotal,
-		"payrollTotal": payrollTotal,
+		"links":       len(s.Store.Links()),
+		"payrollRuns": len(s.Store.Runs()),
+		"proofs":      len(s.Store.Proofs()),
+		"balances":    "local-only",
 	})
 }
 
