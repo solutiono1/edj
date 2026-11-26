@@ -83,3 +83,5 @@ Format: date - decision - rationale - status. Append only; never rewrite history
 - 2026-11-24 - npm scope changed from @pagor to @solution_o1 because the account does not own the @pagor scope - LOCKED
 - 2026-11-25 - npm scope set to @pagor (organization); package is @pagor/sdk - LOCKED
 - 2026-11-26 - WizardConnect integration started: vendor bundle, connect modal, address display, and an Electrum client with utxos and broadcast endpoints as the signing foundation - LOCKED
+- 2026-11-26 - Domain usepagor.xyz acquired; all page metadata and example links use it - LOCKED
+- 2026-11-26 - External review response recorded in REVIEW-RESPONSE.md. Proofs carry signer fingerprints and optional on-chain anchors; verification is client-side with key pinning, no central registry - LOCKED

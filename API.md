@@ -43,6 +43,8 @@ The server verifies the token with Google, checks `aud`, `email_verified` and `s
 ```
 Google sign-in reuses an existing account when the verified email already belongs to an email signup, so a person has one account across both methods. No cookie is set. The browser stores the session token in localStorage.
 
+`GET /api/keys` is public and returns the current signing key and its SHA-256 fingerprint. A verifier must decide separately whether to trust that key.
+
 `GET /api/me` and `POST /api/logout` require `Authorization: Bearer <token>`.
 
 Account lifecycle:
@@ -105,14 +107,19 @@ Valid statuses are `signed`, `broadcast` and `failed`. A result already marked `
 
 `POST /api/disclose` requires the bearer token.
 ```json
-{ "subject": "Lender X", "threshold": 1000000, "expiresInDays": 30 }
+{
+  "subject": "Lender X",
+  "threshold": 1000000,
+  "expiresInDays": 30,
+  "anchor": { "txid": "<confirmed txid>", "vout": 0, "amount": 25000 }
+}
 ```
-`201` response:
+The `anchor` is optional. When present, the txid, output index and amount are inside the signed claim, so changing them invalidates the signature. `201` response:
 ```json
 { "id": "DP_...", "proof": "<Ed25519 signature>", "verifyUrl": "/proof/DP_..." }
 ```
 
-`GET /api/proofs/{id}` returns the statement, subject, threshold, expiry, signature and public key. It never returns a balance. This is a signed statement, not a zero-knowledge proof.
+`GET /api/proofs/{id}` returns the statement, subject, threshold, expiry, signature, public key, signer fingerprint and optional anchor. It never returns a balance. The public verification page checks the signature in the browser. A valid signature only proves who signed it; the verifier must still trust that key and check the anchor. This is a signed statement, not a zero-knowledge proof.
 
 ## Guide
 

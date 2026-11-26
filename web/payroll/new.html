@@ -17,6 +17,7 @@
 <label style="display:grid;gap:8px"><span style="font-size:13px;color:var(--ink);font-weight:500">CSV file - columns: name,address,amount</span><input name="csv" type="file" accept=".csv,text/csv" required style="padding:14px;border:1px solid var(--hair);border-radius:12px;background:#fff"></label>
 <label style="display:grid;gap:8px"><span style="font-size:13px;color:var(--ink);font-weight:500">Encryption passphrase</span><input id="pay-passphrase" type="password" minlength="10" required placeholder="At least 10 characters" style="padding:14px;border:1px solid var(--hair);border-radius:12px;background:#fff"></label>
 <p class="sub" style="font-size:12px">The CSV is encrypted in your browser before upload. pagor stores only the encrypted blob. Keep this passphrase: it is not recoverable.</p>
+<p class="sub" style="font-size:12px">On-chain reality: funding many payouts from one treasury UTXO links them on a block explorer. Fund each payout from a separate UTXO when recipient privacy matters.</p>
 <a href="/static/example-payroll.csv" download style="font-size:13px;text-decoration:underline">Download example CSV</a>
 <button class="btn btn-ink" type="submit" style="margin-top:6px">Encrypt and review payroll</button>
 </form>

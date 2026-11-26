@@ -102,6 +102,10 @@ This part needs a funded chipnet wallet and has not been run here yet.
 5. Try a spend to a different address and confirm the node rejects it.
 6. Record the txids and the rejection reason in a review file.
 
+## Linkability note
+
+A fresh address per link does not hide on-chain amounts. Funding many payouts from one treasury UTXO links those payouts publicly. Prefer one funding UTXO per recipient, or a covenant per recipient, when recipient privacy matters. pagor does not claim this is anonymity.
+
 ## Audit scope
 
 Before any mainnet use, review:

@@ -8,7 +8,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Pagor: private payments. no public amount">
 <meta name="twitter:description" content="A signed disclosure statement from pagor. Not a zero-knowledge proof.">
-<meta name="twitter:image" content="https://usepagor.xyz/static/og.png"><script src="/static/config.js"></script><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"></head><body class="page-light">
+<meta name="twitter:image" content="https://usepagor.xyz/static/og.png"><script src="/static/config.js"></script><link rel="stylesheet" href="/static/style.css"><script type="module" src="/static/proof-verifier-page.js"></script><script src="/static/app.js" defer></script><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"></head><body class="page-light">
 <a class="skip" href="#main">Skip to content</a>
 <header class="nav-wrap"><nav class="nav nav-page" id="nav" aria-label="Main">
  <a class="brand" href="/"><span class="brand-mark"></span>pagor</a>
@@ -29,6 +29,11 @@
   <pre class="proof-signature" id="signature">-</pre>
   <p class="claim-k" style="margin-top:16px">Public key</p>
   <pre class="proof-signature" id="publickey">-</pre>
+  <div class="claim-row"><span>Signer fingerprint</span><b id="fingerprint">-</b></div>
+  <p class="claim-note" id="verify-status">Checking the signature...</p>
+  <p class="claim-note" id="anchor-note">-</p>
+  <p class="claim-note" id="trust-note">A valid signature only proves who signed it. You must decide whether you trust that key and check the on-chain anchor yourself. There is no central registry.</p>
+  <button class="btn btn-line btn-sm" id="pin-key" type="button" hidden>Pin this signing key</button>
   <p class="claim-status">This is a signed statement, not a zero-knowledge proof. Verify the signature against the public key before relying on it.</p>
  </div>
  <p class="claim-foot">The verifier learns the threshold, the subject and the expiry, never the balance.</p>
@@ -39,28 +44,5 @@
   <div class="foot-mini"><a href="/">Home</a><a href="/docs">Docs</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a></div>
  </div>
 </div></footer>
-<script>
-const API=window.EDJ_API_BASE||'';
-(() => {
-  const id = decodeURIComponent(location.pathname.split('/').pop() || '');
-  const claimEl = document.getElementById('claim');
-  fetch(API+'/api/proofs/' + encodeURIComponent(id))
-    .then((r) => r.json())
-    .then((d) => {
-      if (d.error) {
-        claimEl.textContent = 'Statement not found. The link may be wrong or the server may have restarted.';
-        return;
-      }
-      claimEl.textContent = d.claim ? 'The account ' + d.claim : 'Signed statement';
-      document.getElementById('subject').textContent = d.subject || '-';
-      document.getElementById('threshold').textContent = String(d.threshold ?? '-');
-      document.getElementById('expires').textContent = d.expiresAt ? new Date(d.expiresAt).toLocaleString() : '-';
-      document.getElementById('signature').textContent = d.signature || '-';
-      document.getElementById('publickey').textContent = d.publicKey || '-';
-    })
-    .catch(() => {
-      claimEl.textContent = 'The statement could not be loaded. Check your connection and reload.';
-    });
-})();
-</script>
+
 </body></html>

@@ -43,7 +43,9 @@ create table if not exists public.proofs (
   signature text not null,
   public_key text not null,
   claim text not null,
-  owner_sub text
+  owner_sub text,
+  signer_fingerprint text,
+  anchor jsonb
 );
 
 create table if not exists public.users (
