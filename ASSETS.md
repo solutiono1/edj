@@ -35,9 +35,9 @@
 | Auth art poster frame | Frame from Pexels video 7709365, 1400px wide | Pexels License, no attribution required | No | `web/static/auth-art-poster.jpg` |
 | Phone mockup frame | Mobile FIRST, Apple iPhone 16 transparent PNG mockup, 393 × 800 px | Free for personal and commercial use, no attribution required | No | `web/static/iphone-16-mockup.png`, Start private section |
 | Portfolio screen | Original UI rendered from the project design system | Original project asset | n/a | `web/static/portfolio-screen.png`, placed behind the phone mockup |
-| Links screen | Screenshot of the live pagor app | Original project asset | n/a | `web/static/shots/links.png` |
-| Payroll screen | Screenshot of the live pagor app | Original project asset | n/a | `web/static/shots/payroll.png` |
-| Proofs screen | Screenshot of the live pagor app | Original project asset | n/a | `web/static/shots/proofs.png` |
+| Links screen | Product screen composed on a backdrop | Original project asset | n/a | `web/static/shots/links.png` |
+| Payroll screen | Product screen composed on a backdrop | Original project asset | n/a | `web/static/shots/payroll.png` |
+| Proofs screen | Product screen composed on a backdrop | Original project asset | n/a | `web/static/shots/proofs.png` |
 | Favicon and touch icon | Original SVG and ICO derived from the pagor mark | Original project asset | n/a | `web/static/favicon.svg`, `web/static/favicon.ico`, `web/static/apple-touch-icon.png`, linked on every page |
 | Ed mascot | Pending generation by the human, clean 3D character | To be confirmed | n/a | Planned `web/static/ed-mascot.png`, floating Ed button in app shell |
 
