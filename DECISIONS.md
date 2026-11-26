@@ -80,3 +80,5 @@ Format: date - decision - rationale - status. Append only; never rewrite history
 - 2026-11-22 - Added IDEA-BANK.md and RESEARCH.md to capture planned features, integrations, tools, market evidence and open questions - LOCKED
 - 2026-11-23 - v1 build rounded up and committed. Created V2-PLAN.md with privacy core first, then features, integrations, audit and growth - LOCKED
 - 2026-11-23 - PrivatePayroll covenant deployed on chipnet. txid d34a9391d4ac6eb5ff695bfb9aafa8f4e0aa8aa4cac3702a9c7de957fce0d18a - LOCKED
+- 2026-11-24 - npm scope changed from @edj to @solution_o1 because the account does not own the @edj scope - LOCKED
+- 2026-11-25 - npm scope set to @edjlabs (organization); package is @edjlabs/sdk - LOCKED

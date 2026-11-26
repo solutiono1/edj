@@ -1,4 +1,4 @@
-# @edj/sdk
+# @edjlabs/sdk
 
 A dependency-free JavaScript client for the edj HTTP API.
 
@@ -7,13 +7,13 @@ The same source is served by the app at `/static/sdk/edj.js` and published here 
 ## Install
 
 ```bash
-npm install @edj/sdk
+npm install @edjlabs/sdk
 ```
 
 ## Use
 
 ```js
-import { EdjClient } from '@edj/sdk'
+import { EdjClient } from '@edjlabs/sdk'
 
 const edj = new EdjClient({
   baseUrl: 'https://edj.cash',

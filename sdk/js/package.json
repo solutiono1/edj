@@ -1,5 +1,5 @@
 {
-  "name": "@edj/sdk",
+  "name": "@edjlabs/sdk",
   "version": "0.1.0",
   "description": "Small client for the edj HTTP API",
   "type": "module",
@@ -11,5 +11,8 @@
     "edj.js",
     "README.md"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@edjlabs/sdk": "^0.1.0"
+  }
 }
