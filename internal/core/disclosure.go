@@ -25,7 +25,9 @@ type DisclosureProof struct {
 	Signature         string       `json:"signature"`
 	PublicKey         string       `json:"publicKey"`
 	SignerFingerprint string       `json:"signerFingerprint"`
+	AnchorCommitment  string       `json:"anchorCommitment,omitempty"`
 	Anchor            *ProofAnchor `json:"anchor,omitempty"`
+	Revealed          bool         `json:"revealed,omitempty"`
 	Claim             string       `json:"claim"`
 }
 
@@ -81,11 +83,31 @@ func (s *Signer) Fingerprint() string {
 	return Fingerprint(s.pub)
 }
 
-func anchorText(anchor *ProofAnchor) string {
+func AnchorCommitment(anchor *ProofAnchor) string {
 	if anchor == nil || anchor.Txid == "" {
+		return ""
+	}
+	raw := anchor.Txid + ":" + strconv.Itoa(anchor.Vout) + ":" + strconv.FormatInt(anchor.Amount, 10)
+	sum := sha256.Sum256([]byte(raw))
+	return hex.EncodeToString(sum[:])
+}
+
+func anchorText(anchor *ProofAnchor) string {
+	commitment := AnchorCommitment(anchor)
+	if commitment == "" {
 		return "anchor:none"
 	}
-	return "anchor:" + anchor.Txid + ":" + strconv.Itoa(anchor.Vout) + ":" + strconv.FormatInt(anchor.Amount, 10)
+	return "anchor:" + commitment
+}
+
+// VerifyAnchor checks a revealed anchor against the commitment inside the
+// signed claim. It does not check that the output exists; the verifier does
+// that on a block explorer of their choice.
+func VerifyAnchor(p *DisclosureProof, anchor *ProofAnchor) bool {
+	if p == nil || p.AnchorCommitment == "" || anchor == nil {
+		return false
+	}
+	return AnchorCommitment(anchor) == p.AnchorCommitment
 }
 
 // NewProof signs "holds at least X for subject until expiry" with an optional
@@ -105,6 +127,7 @@ func (s *Signer) NewProof(subject string, threshold int64, days int, anchor *Pro
 		Signature:         base64.RawURLEncoding.EncodeToString(sig),
 		PublicKey:         base64.RawURLEncoding.EncodeToString(s.pub),
 		SignerFingerprint: s.Fingerprint(),
+		AnchorCommitment:  AnchorCommitment(anchor),
 		Anchor:            anchor,
 		Claim:             claim,
 	}

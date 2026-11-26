@@ -24,6 +24,15 @@ type snapshot struct {
 }
 
 func NewPersistent(path string) (*Memory, *core.Signer, error) {
+	return newPersistent(path, true)
+}
+
+func NewPersistentNoSigner(path string) (*Memory, error) {
+	m, _, err := newPersistent(path, false)
+	return m, err
+}
+
+func newPersistent(path string, withSigner bool) (*Memory, *core.Signer, error) {
 	m := New()
 	m.path = path
 
@@ -60,7 +69,7 @@ func NewPersistent(path string) (*Memory, *core.Signer, error) {
 		if snap.Notifications != nil {
 			m.notifications = snap.Notifications
 		}
-		if snap.SignerKey != "" {
+		if withSigner && snap.SignerKey != "" {
 			raw, err := base64.RawURLEncoding.DecodeString(snap.SignerKey)
 			if err != nil {
 				return nil, nil, fmt.Errorf("read signing key: %w", err)
@@ -74,10 +83,12 @@ func NewPersistent(path string) (*Memory, *core.Signer, error) {
 		return nil, nil, fmt.Errorf("open store: %w", err)
 	}
 
-	if signer == nil {
-		signer = core.NewSigner()
+	if withSigner {
+		if signer == nil {
+			signer = core.NewSigner()
+		}
+		m.signerKey = base64.RawURLEncoding.EncodeToString(signer.PrivateKey())
 	}
-	m.signerKey = base64.RawURLEncoding.EncodeToString(signer.PrivateKey())
 	if err := m.saveLocked(); err != nil {
 		return nil, nil, err
 	}

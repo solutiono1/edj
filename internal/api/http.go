@@ -16,7 +16,7 @@ import (
 type Server struct {
 	Chain    chain.Chain
 	Store    store.Store
-	Signer   *core.Signer
+	Signer   core.ProofSigner
 	Electrum *chain.Electrum
 }
 
@@ -259,7 +259,11 @@ func (s *Server) CreateProof(w http.ResponseWriter, r *http.Request) {
 	if req.Days <= 0 {
 		req.Days = 30
 	}
-	p := s.Signer.NewProof(req.Subject, req.Threshold, req.Days, req.Anchor)
+	p, err := core.NewProof(s.Signer, req.Subject, req.Threshold, req.Days, req.Anchor)
+	if err != nil {
+		fail(w, http.StatusServiceUnavailable, "proof signing failed")
+		return
+	}
 	if u, _, ok := s.userFromRequest(r); ok {
 		p.OwnerSub = u.Sub
 	}
@@ -273,7 +277,36 @@ func (s *Server) GetProof(w http.ResponseWriter, r *http.Request) {
 		fail(w, http.StatusNotFound, "proof not found")
 		return
 	}
-	writeJSON(w, http.StatusOK, p)
+	out := *p
+	if !p.Revealed {
+		// The raw txid stays private until the owner reveals it on dispute.
+		out.Anchor = nil
+	}
+	writeJSON(w, http.StatusOK, out)
+}
+
+// RevealProof discloses the raw anchor behind a commitment. Only the owner
+// can do this, and the act is recorded so a verifier knows it was disclosed.
+func (s *Server) RevealProof(w http.ResponseWriter, r *http.Request) {
+	u, _, ok := s.userFromRequest(r)
+	if !ok {
+		fail(w, http.StatusUnauthorized, "not signed in")
+		return
+	}
+	p, ok := s.Store.GetProof(r.PathValue("id"))
+	if !ok || p.OwnerSub != u.Sub {
+		fail(w, http.StatusNotFound, "proof not found")
+		return
+	}
+	if p.Anchor == nil || p.Anchor.Txid == "" {
+		fail(w, http.StatusBadRequest, "this proof has no anchor")
+		return
+	}
+	p.Revealed = true
+	s.Store.PutProof(p)
+	writeJSON(w, http.StatusOK, map[string]any{
+		"anchor": p.Anchor, "anchorCommitment": p.AnchorCommitment, "revealed": true,
+	})
 }
 
 // Portfolio reports real saved data. No balance is invented: pagor does not

@@ -2,6 +2,10 @@
 
 Build decisions recorded from the product owner on 26 Nov 2026. These are user decisions, not inferred features.
 
+## Production storage answer
+
+Supabase **is** PostgreSQL. Production already uses it through the service-role key, so `data/pagor.json` is local development only. The remaining part of the 90-day upgrade was key custody: `ProofSigner` now supports an HTTP KMS/HSM endpoint via `EDJ_KMS_SIGN_URL`. When set, the app does not generate or store a local signing key. The actual KMS endpoint and credentials must be supplied by the operator.
+
 ## Custody decision
 
 **LOCKED: Path A.** "Balance" means the user's own addresses aggregated into a displayed balance. Pagor never holds funds. Any off-ramp is a handoff to a regulated partner, not an in-app conversion run by Pagor. We do not become a custodian, do not hold keys, and do not claim to.
@@ -53,6 +57,13 @@ Every public-ledger chain must be described honestly. We do not claim private pa
 - Account lifecycle: done. Disable, delete with 30-day recovery, restore, session revocation, and background purge of user records.
 - Payroll privacy: done. CSV is parsed and encrypted in the browser; the server stores only an opaque blob it cannot read.
 - Chain adapters for Arc, Base, Solana, Stellar and XRPL: not started.
+- Remote signing: done. `ProofSigner` interface with local Ed25519 and HTTP KMS implementations. KMS mode avoids generating or storing a local signing key.
+- Selective disclosure: done. Proofs carry an anchor commitment inside the signed claim; raw txid is visible only after the owner calls the reveal endpoint.
+- MCP server: done in `mcp/`, with a hard per-agent spending ceiling.
+- Batch covenant tooling: done. `tools/contract/payroll-covenant.mjs` builds up to four recipients from CSV.
+- SDK encryption: done. `createPrivatePayroll` and `decryptPayroll` added to `@pagor/sdk` and the served source client.
+
+Still open: key import, chipnet signature verification with a real wallet, mainnet transaction, independent audit, and chain adapters after BCH.
 
 ## Explicitly out of scope
 

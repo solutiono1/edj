@@ -38,7 +38,10 @@ export async function verifyProof(proof) {
 }
 
 export function anchorSummary(proof) {
-  const anchor = proof?.anchor;
-  if (!anchor || !anchor.txid) return 'No on-chain anchor was supplied. This statement is not backed by a checkable output.';
-  return 'Anchor: ' + anchor.txid + ' output ' + anchor.vout + ', ' + anchor.amount + ' sats. Check this output on a block explorer of your choice.';
+  const commitment = proof?.anchorCommitment;
+  if (!commitment) return 'No on-chain anchor was supplied. This statement is not backed by a checkable output.';
+  if (proof.revealed && proof.anchor?.txid) {
+    return 'Anchor disclosed after dispute: ' + proof.anchor.txid + ' output ' + proof.anchor.vout + ', ' + proof.anchor.amount + ' sats. Its hash must equal ' + commitment + '.';
+  }
+  return 'The signed claim commits to anchor ' + commitment + '. The raw transaction id is private until the owner discloses it on dispute.';
 }

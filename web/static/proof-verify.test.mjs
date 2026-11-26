@@ -29,7 +29,11 @@ test('fingerprint mismatch fails', async () => {
   assert.equal(await verifyProof(proof), false);
 });
 
-test('anchor text is explicit about missing anchors', () => {
+test('anchor text hides the txid until disclosed', () => {
   assert.match(anchorSummary({}), /No on-chain anchor/);
-  assert.match(anchorSummary({ anchor: { txid: 'abc', vout: 1, amount: 100 } }), /abc output 1/);
+  const hidden = anchorSummary({ anchorCommitment: 'deadbeef' });
+  assert.match(hidden, /commits to anchor deadbeef/);
+  assert.doesNotMatch(hidden, /abc/);
+  const shown = anchorSummary({ anchorCommitment: 'deadbeef', revealed: true, anchor: { txid: 'abc', vout: 1, amount: 100 } });
+  assert.match(shown, /abc output 1/);
 });

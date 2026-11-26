@@ -27,6 +27,7 @@ if (claimEl) {
       setText('signature', proof.signature || '-');
       setText('publickey', proof.publicKey || '-');
       setText('fingerprint', proof.signerFingerprint || 'not supplied');
+      setText('commitment', proof.anchorCommitment || 'none');
       setText('anchor-note', anchorSummary(proof));
 
       const valid = await verifyProof(proof);

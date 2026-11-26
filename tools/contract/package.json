@@ -4,9 +4,10 @@
   "type": "module",
   "scripts": {
     "compile": "cashc PrivatePayroll.cash -o PrivatePayroll.json && cashc PrivatePayrollBatch.cash -o PrivatePayrollBatch.json",
-    "test": "npm run compile && node test.mjs && node test-batch.mjs",
+    "test": "npm run compile && node test.mjs && node test-batch.mjs && node --test payroll-covenant.test.mjs",
     "deploy:chipnet": "node deploy-chipnet.mjs",
-    "wallet": "node chipnet-wallet.mjs"
+    "wallet": "node chipnet-wallet.mjs",
+    "batch": "node payroll-covenant.mjs"
   },
   "dependencies": {
     "@scure/base": "^2.4.0",

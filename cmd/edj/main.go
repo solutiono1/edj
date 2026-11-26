@@ -22,25 +22,44 @@ func main() {
 		}
 	}
 	var storeImpl store.Store
-	var signer *core.Signer
+	var signer core.ProofSigner
 	var err error
+	kmsURL := os.Getenv("EDJ_KMS_SIGN_URL")
 	if supabaseURL := os.Getenv("SUPABASE_URL"); supabaseURL != "" {
 		key := os.Getenv("SUPABASE_SERVICE_ROLE_KEY")
 		if key == "" {
 			log.Fatal("SUPABASE_SERVICE_ROLE_KEY is required when SUPABASE_URL is set")
 		}
-		storeImpl, signer, err = store.NewSupabase(supabaseURL, key)
+		if kmsURL != "" {
+			storeImpl, err = store.NewSupabaseNoSigner(supabaseURL, key)
+		} else {
+			var local *core.Signer
+			storeImpl, local, err = store.NewSupabase(supabaseURL, key)
+			signer = local
+		}
 	} else {
 		dataFile := os.Getenv("EDJ_DATA_FILE")
 		if dataFile == "" {
 			dataFile = "data/edj.json"
 		}
-		var memory *store.Memory
-		memory, signer, err = store.NewPersistent(dataFile)
-		storeImpl = memory
+		if kmsURL != "" {
+			storeImpl, err = store.NewPersistentNoSigner(dataFile)
+		} else {
+			var memory *store.Memory
+			var local *core.Signer
+			memory, local, err = store.NewPersistent(dataFile)
+			storeImpl = memory
+			signer = local
+		}
 	}
 	if err != nil {
 		log.Fatalf("open store: %v", err)
+	}
+	if kmsURL != "" {
+		signer = core.NewKMSClient(kmsURL, os.Getenv("EDJ_KMS_TOKEN"))
+		if signer.PublicKeyBase64() == "" {
+			log.Fatal("KMS signer did not return a public key")
+		}
 	}
 	s := &api.Server{
 		Chain: chain.BCH{
@@ -82,6 +101,7 @@ func main() {
 	mux.HandleFunc("GET /api/payroll/{id}/export", s.RequireUser(s.PayrollExport))
 	mux.HandleFunc("POST /api/disclose", s.RequireUser(s.CreateProof))
 	mux.HandleFunc("GET /api/proofs/{id}", s.GetProof)
+	mux.HandleFunc("POST /api/proofs/{id}/reveal", s.RequireUser(s.RevealProof))
 
 	static := http.FileServer(http.Dir("web/static"))
 	mux.Handle("GET /static/", http.StripPrefix("/static/", static))

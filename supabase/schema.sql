@@ -45,7 +45,9 @@ create table if not exists public.proofs (
   claim text not null,
   owner_sub text,
   signer_fingerprint text,
-  anchor jsonb
+  anchor_commitment text,
+  anchor jsonb,
+  revealed boolean not null default false
 );
 
 create table if not exists public.users (

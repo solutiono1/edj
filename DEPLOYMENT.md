@@ -28,6 +28,8 @@ Set these environment variables:
 | `EDJ_XPUB` | Optional mainnet xpub. When set, each link gets a fresh `m/0/index` address |
 | `EDJ_TOKEN_XPUB` | Optional token-aware mainnet xpub for CashToken links |
 | `EDJ_FEE_RATE` | Optional sat/vB for review, defaults to `1` |
+| `EDJ_KMS_SIGN_URL` | Optional remote signer endpoint. When set, no local signing key is used |
+| `EDJ_KMS_TOKEN` | Optional bearer token for the KMS endpoint |
 | `EDJ_ELECTRUM_HOST` | Electrum host:port for UTXO reads and broadcast |
 | `EDJ_PUBLIC_ORIGIN` | Cloudflare Pages origin, for CORS |
 | `SUPABASE_URL` | Supabase project URL |

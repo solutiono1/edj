@@ -24,10 +24,22 @@ type Supabase struct {
 }
 
 func NewSupabase(baseURL, key string) (*Supabase, *core.Signer, error) {
+	return newSupabase(baseURL, key, true)
+}
+
+func NewSupabaseNoSigner(baseURL, key string) (*Supabase, error) {
+	s, _, err := newSupabase(baseURL, key, false)
+	return s, err
+}
+
+func newSupabase(baseURL, key string, withSigner bool) (*Supabase, *core.Signer, error) {
 	s := &Supabase{
 		baseURL: baseURL,
 		key:     key,
 		client:  &http.Client{Timeout: 10 * time.Second},
+	}
+	if !withSigner {
+		return s, nil, nil
 	}
 
 	var meta []struct {
@@ -212,7 +224,9 @@ type proofRow struct {
 	Claim             string            `json:"claim"`
 	OwnerSub          string            `json:"owner_sub"`
 	SignerFingerprint string            `json:"signer_fingerprint"`
+	AnchorCommitment  string            `json:"anchor_commitment"`
 	Anchor            *core.ProofAnchor `json:"anchor"`
+	Revealed          bool              `json:"revealed"`
 }
 
 type privatePayrollRow struct {
@@ -252,7 +266,8 @@ func (s *Supabase) PutProof(p *core.DisclosureProof) {
 		"expires_at": p.ExpiresAt, "signature": p.Signature,
 		"public_key": p.PublicKey, "claim": p.Claim,
 		"owner_sub": p.OwnerSub, "signer_fingerprint": p.SignerFingerprint,
-		"anchor": p.Anchor,
+		"anchor": p.Anchor, "revealed": p.Revealed,
+		"anchor_commitment": p.AnchorCommitment,
 	}
 	_ = s.request(http.MethodPost, "proofs", url.Values{"on_conflict": {"id"}}, body, nil)
 }
@@ -267,6 +282,7 @@ func (s *Supabase) GetProof(id string) (*core.DisclosureProof, bool) {
 		ExpiresAt: out[0].ExpiresAt, Signature: out[0].Signature,
 		PublicKey: out[0].PublicKey, Claim: out[0].Claim, OwnerSub: out[0].OwnerSub,
 		SignerFingerprint: out[0].SignerFingerprint, Anchor: out[0].Anchor,
+		AnchorCommitment: out[0].AnchorCommitment, Revealed: out[0].Revealed,
 	}, true
 }
 
@@ -282,6 +298,7 @@ func (s *Supabase) Proofs() []*core.DisclosureProof {
 			ExpiresAt: row.ExpiresAt, Signature: row.Signature,
 			PublicKey: row.PublicKey, Claim: row.Claim, OwnerSub: row.OwnerSub,
 			SignerFingerprint: row.SignerFingerprint, Anchor: row.Anchor,
+			AnchorCommitment: row.AnchorCommitment, Revealed: row.Revealed,
 		})
 	}
 	return proofs

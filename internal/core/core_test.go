@@ -33,8 +33,17 @@ func TestProofSignVerify(t *testing.T) {
 	if p.SignerFingerprint != s.Fingerprint() || len(p.SignerFingerprint) != 64 {
 		t.Fatalf("bad fingerprint: %s", p.SignerFingerprint)
 	}
-	if !strings.Contains(p.Claim, anchor.Txid) {
-		t.Fatal("anchor is not inside the signed claim")
+	if !strings.Contains(p.Claim, p.AnchorCommitment) {
+		t.Fatal("anchor commitment is not inside the signed claim")
+	}
+	if strings.Contains(p.Claim, anchor.Txid) {
+		t.Fatal("raw anchor txid should not be inside the public claim")
+	}
+	if !VerifyAnchor(p, anchor) {
+		t.Fatal("revealed anchor does not match the commitment")
+	}
+	if VerifyAnchor(p, &ProofAnchor{Txid: "other", Vout: 0, Amount: 1}) {
+		t.Fatal("wrong anchor matched the commitment")
 	}
 	p.Claim += " tampered"
 	if VerifyProof(p) {

@@ -119,7 +119,11 @@ The `anchor` is optional. When present, the txid, output index and amount are in
 { "id": "DP_...", "proof": "<Ed25519 signature>", "verifyUrl": "/proof/DP_..." }
 ```
 
-`GET /api/proofs/{id}` returns the statement, subject, threshold, expiry, signature, public key, signer fingerprint and optional anchor. It never returns a balance. The public verification page checks the signature in the browser. A valid signature only proves who signed it; the verifier must still trust that key and check the anchor. This is a signed statement, not a zero-knowledge proof.
+`GET /api/proofs/{id}` returns the statement, subject, threshold, expiry, signature, public key, signer fingerprint and `anchorCommitment`. It never returns a balance or the raw anchor before disclosure. The signed claim contains the commitment, not the txid.
+
+`POST /api/proofs/{id}/reveal` requires the bearer token and must be called by the proof owner. It discloses the raw anchor and marks the proof `revealed`, so a verifier can hash it and compare with `anchorCommitment`. This is the dispute path, not the default.
+
+The public verification page checks the signature in the browser. A valid signature only proves who signed it; the verifier must still trust that key and check the anchor. This is a signed statement, not a zero-knowledge proof.
 
 ## Guide
 
