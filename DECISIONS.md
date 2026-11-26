@@ -81,5 +81,5 @@ Format: date - decision - rationale - status. Append only; never rewrite history
 - 2026-11-23 - v1 build rounded up and committed. Created V2-PLAN.md with privacy core first, then features, integrations, audit and growth - LOCKED
 - 2026-11-23 - PrivatePayroll covenant deployed on chipnet. txid d34a9391d4ac6eb5ff695bfb9aafa8f4e0aa8aa4cac3702a9c7de957fce0d18a - LOCKED
 - 2026-11-24 - npm scope changed from @pagor to @solution_o1 because the account does not own the @pagor scope - LOCKED
-- 2026-11-25 - npm scope set to @pagorpay (organization); package is @pagorpay/sdk - LOCKED
+- 2026-11-25 - npm scope set to @pagor (organization); package is @pagor/sdk - LOCKED
 - 2026-11-26 - WizardConnect integration started: vendor bundle, connect modal, address display, and an Electrum client with utxos and broadcast endpoints as the signing foundation - LOCKED

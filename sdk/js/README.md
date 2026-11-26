@@ -1,4 +1,4 @@
-# @pagorpay/sdk
+# @pagor/sdk
 
 A dependency-free JavaScript client for the pagor HTTP API.
 
@@ -7,13 +7,13 @@ The same source is served by the app at `/static/sdk/pagor.js` and published her
 ## Install
 
 ```bash
-npm install @pagorpay/sdk
+npm install @pagor/sdk
 ```
 
 ## Use
 
 ```js
-import { PagorClient } from '@pagorpay/sdk'
+import { PagorClient } from '@pagor/sdk'
 
 const pagor = new PagorClient({
   baseUrl: 'https://pagor.finance',

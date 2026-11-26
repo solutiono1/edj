@@ -1,7 +1,7 @@
 {
-  "name": "@pagorpay/sdk",
+  "name": "@pagor/sdk",
   "version": "0.1.0",
-  "description": "Small client for the pagor HTTP API",
+  "description": "Small client for the Pagor HTTP API",
   "type": "module",
   "main": "pagor.js",
   "exports": {
@@ -11,8 +11,5 @@
     "pagor.js",
     "README.md"
   ],
-  "license": "MIT",
-  "dependencies": {
-    "@pagorpay/sdk": "^0.1.0"
-  }
+  "license": "MIT"
 }

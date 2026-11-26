@@ -38,7 +38,7 @@ In:
 2. CSV payroll with unlinkable payouts
 3. PUSD support via automated token → BCH → CashFusion → BCH → token flow
 4. Signed (non-ZK) disclosure proof - prove a threshold without revealing a number
-5. SDK client (`@pagorpay/sdk` on npm) exposing link creation, payroll submission, proof verification
+5. SDK client (`@pagor/sdk` on npm) exposing link creation, payroll submission, proof verification
 6. Simple onboarding and UI: create link / upload CSV / done
 
 Out (explicitly, for v1):
