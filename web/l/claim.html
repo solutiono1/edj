@@ -8,7 +8,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Edj: private payments. no public amount">
 <meta name="twitter:description" content="A private payment request on Bitcoin Cash. The amount stays private. Settlement is public.">
-<meta name="twitter:image" content="https://edj.cash/static/og.png"><script src="/static/config.js"></script><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"></head><body class="page-light">
+<meta name="twitter:image" content="https://edj.cash/static/og.png"><script src="/static/config.js"></script><link rel="stylesheet" href="/static/style.css"><script type="module" src="/static/wallet.js"></script><script type="module" src="/static/signer.js"></script><script src="/static/app.js" defer></script><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"></head><body class="page-light">
 <a class="skip" href="#main">Skip to content</a>
 <header class="nav-wrap"><nav class="nav nav-page" id="nav" aria-label="Main">
  <a class="brand" href="/"><span class="brand-mark"></span>edj</a>
@@ -26,6 +26,7 @@
   <div class="claim-row"><span>Amount published by edj</span><b>No</b></div>
   <div class="claim-row"><span>Destination</span><b>Sender receiving address</b></div>
   <button class="btn btn-blue" id="pay-btn" type="button">Pay with wallet</button>
+  <button class="btn btn-line" id="connect-wallet" type="button" style="width:100%;margin-top:10px">Connect wallet to see your address</button>
   <p class="claim-status" id="pay-status">Connect a BCH wallet to complete this payment on mainnet.</p>
  </div>
  <p class="claim-foot">Anyone with this link can pay. Do not share it more widely than needed.</p>

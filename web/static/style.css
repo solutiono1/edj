@@ -512,3 +512,14 @@ html,body{max-width:100%;overflow-x:clip}
 .shot::after{display:none}
 .shot img{width:100%;height:auto;display:block;border-radius:16px;cursor:zoom-in}
 .shot-frame,.shot-bar{display:none}
+
+
+/* Wallet connect modal */
+.wallet-modal{position:fixed;inset:0;z-index:210;background:rgba(11,11,12,.6);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .2s var(--ease)}
+.wallet-modal.open{opacity:1;pointer-events:auto}
+.wallet-card{position:relative;background:#fff;border-radius:18px;padding:26px;max-width:360px;width:100%;text-align:center;box-shadow:0 40px 90px -30px rgba(0,0,0,.5)}
+.wallet-card h3{font-size:20px;color:var(--black)}
+.wallet-sub{font-size:13px;color:var(--muted);margin-top:8px}
+.wallet-qr{width:260px;height:260px;margin:18px auto 8px;display:block}
+.wallet-uri{font-size:11px;color:var(--soft);word-break:break-all}
+.wallet-close{position:absolute;top:14px;right:16px;width:32px;height:32px;border-radius:50%;border:0;background:var(--surface);color:var(--black);font:500 20px/1 Inter;cursor:pointer}

@@ -49,6 +49,9 @@ func main() {
 		Store:  storeImpl,
 		Signer: signer,
 	}
+	if host := os.Getenv("EDJ_ELECTRUM_HOST"); host != "" {
+		s.Electrum = &chain.Electrum{Host: host}
+	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/health", s.Health)
@@ -56,6 +59,8 @@ func main() {
 	mux.HandleFunc("POST /api/auth/google", s.GoogleAuth)
 	mux.HandleFunc("GET /api/me", s.Me)
 	mux.HandleFunc("GET /api/portfolio", s.RequireUser(s.Portfolio))
+	mux.HandleFunc("GET /api/wallet/utxos", s.WalletUtxos)
+	mux.HandleFunc("POST /api/wallet/broadcast", s.WalletBroadcast)
 	mux.HandleFunc("POST /api/logout", s.Logout)
 	mux.HandleFunc("GET /api/notifications", s.RequireUser(s.Notifications))
 	mux.HandleFunc("POST /api/assistant", s.Assistant)

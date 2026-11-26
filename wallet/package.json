@@ -1,0 +1,16 @@
+{
+  "name": "edj-wallet-bundle",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild index.js --bundle --format=esm --outfile=../web/static/vendor/wizardconnect.js --minify"
+  },
+  "dependencies": {
+    "@wizardconnect/core": "latest",
+    "@wizardconnect/dapp": "latest",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}

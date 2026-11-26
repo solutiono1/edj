@@ -295,6 +295,42 @@
     });
   }
 
+  // WizardConnect wallet modal.
+  const connectWalletBtn = document.getElementById('connect-wallet');
+  if (connectWalletBtn && window.EdjWallet) {
+    const modal = document.createElement('div');
+    modal.className = 'wallet-modal';
+    modal.innerHTML = '<div class="wallet-card"><button class="wallet-close" type="button" aria-label="Close">×</button><h3>Connect your wallet</h3><p class="wallet-sub">Scan with a WizardConnect wallet to link your BCH address.</p><img class="wallet-qr" alt="QR code"><p class="wallet-uri"></p></div>';
+    document.body.appendChild(modal);
+    const qr = modal.querySelector('.wallet-qr');
+    const close = modal.querySelector('.wallet-close');
+    const open = async () => {
+      modal.classList.add('open');
+      try {
+        const res = await window.EdjWallet.connect();
+        qr.src = res.qr;
+      } catch (error) {
+        modal.classList.remove('open');
+      }
+    };
+    connectWalletBtn.addEventListener('click', open);
+    close.addEventListener('click', () => modal.classList.remove('open'));
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) modal.classList.remove('open');
+    });
+    window.addEventListener('edj-wallet-ready', (event) => {
+      modal.classList.remove('open');
+      const address = event.detail.address || '';
+      connectWalletBtn.textContent = address ? address.slice(0, 10) + '...' + address.slice(-6) : 'Wallet connected';
+      connectWalletBtn.title = address;
+      connectWalletBtn.classList.add('connected');
+    });
+    window.addEventListener('edj-wallet-disconnect', () => {
+      connectWalletBtn.textContent = 'Connect wallet';
+      connectWalletBtn.classList.remove('connected');
+    });
+  }
+
   // Back to top.
   $$('[data-top]').forEach((el) => {
     el.addEventListener('click', (event) => {

@@ -10,9 +10,10 @@ import (
 )
 
 type Server struct {
-	Chain  chain.Chain
-	Store  store.Store
-	Signer *core.Signer
+	Chain    chain.Chain
+	Store    store.Store
+	Signer   *core.Signer
+	Electrum *chain.Electrum
 }
 
 func writeJSON(w http.ResponseWriter, code int, v any) {
@@ -140,4 +141,42 @@ func (s *Server) Portfolio(w http.ResponseWriter, r *http.Request) {
 		"linkTotal":   linkTotal,
 		"payrollTotal": payrollTotal,
 	})
+}
+
+func (s *Server) WalletUtxos(w http.ResponseWriter, r *http.Request) {
+	if s.Electrum == nil {
+		fail(w, http.StatusServiceUnavailable, "electrum not configured")
+		return
+	}
+	address := r.URL.Query().Get("address")
+	if address == "" {
+		fail(w, http.StatusBadRequest, "address is required")
+		return
+	}
+	utxos, err := s.Electrum.GetUtxos(address)
+	if err != nil {
+		fail(w, http.StatusBadGateway, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, utxos)
+}
+
+func (s *Server) WalletBroadcast(w http.ResponseWriter, r *http.Request) {
+	if s.Electrum == nil {
+		fail(w, http.StatusServiceUnavailable, "electrum not configured")
+		return
+	}
+	var req struct {
+		RawTx string `json:"rawTx"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.RawTx == "" {
+		fail(w, http.StatusBadRequest, "rawTx is required")
+		return
+	}
+	txid, err := s.Electrum.Broadcast(req.RawTx)
+	if err != nil {
+		fail(w, http.StatusBadGateway, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]string{"txid": txid})
 }
