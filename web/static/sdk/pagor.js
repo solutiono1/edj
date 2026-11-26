@@ -1,9 +1,9 @@
 /**
- * edj v1 source client.
+ * pagor v1 source client.
  * Thin fetch wrapper over the live HTTP API. No dependencies, no build step.
  * This file ships with the app; it is not published to a package registry.
  */
-export class EdjClient {
+export class PagorClient {
   constructor({ baseUrl = (typeof window !== 'undefined' && window.EDJ_API_BASE) || '', token = null } = {}) {
     this.baseUrl = String(baseUrl).replace(/\/$/, '');
     this.token = token;
@@ -85,4 +85,4 @@ export class EdjClient {
   }
 }
 
-export const createClient = (options) => new EdjClient(options);
+export const createClient = (options) => new PagorClient(options);

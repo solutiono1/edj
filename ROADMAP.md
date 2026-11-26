@@ -2,7 +2,7 @@
 
 ## Status - 22 Nov 2026
 
-BCH BLAZE 2026 ended at 14:00 UTC. edj was not submitted. The build is live at `https://edj-b48.pages.dev` with the API on Railway and Supabase.
+BCH BLAZE 2026 ended at 14:00 UTC. pagor was not submitted. The build is live at `https://pagor-b48.pages.dev` with the API on Railway and Supabase.
 
 Remaining before reuse: Google sign-in smoke test, one real BCH mainnet transaction, chipnet covenant txid, EMBER banner, demo video, deck, build-in-public posts.
 

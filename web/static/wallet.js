@@ -5,11 +5,11 @@ async function ensureModule() {
   return state.mod;
 }
 
-window.EdjWallet = {
+window.PagorWallet = {
   async connect() {
     const mod = await ensureModule();
     if (!state.mgr) {
-      state.mgr = new mod.DappConnectionManager('edj');
+      state.mgr = new mod.DappConnectionManager('pagor');
       state.mgr.on('walletready', (msg) => {
         state.connected = true;
         try {
@@ -17,14 +17,14 @@ window.EdjWallet = {
         } catch (error) {
           state.address = null;
         }
-        window.dispatchEvent(new CustomEvent('edj-wallet-ready', {
+        window.dispatchEvent(new CustomEvent('pagor-wallet-ready', {
           detail: { name: msg.wallet_name, address: state.address }
         }));
       });
       state.mgr.on('disconnect', () => {
         state.connected = false;
         state.address = null;
-        window.dispatchEvent(new CustomEvent('edj-wallet-disconnect'));
+        window.dispatchEvent(new CustomEvent('pagor-wallet-disconnect'));
       });
     }
     state.relay = mod.initiateDappRelay((payload) => state.mgr.updateConnection(payload.client, payload.status));

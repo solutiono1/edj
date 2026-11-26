@@ -1,26 +1,26 @@
-# @edjlabs/sdk
+# @pagorpay/sdk
 
-A dependency-free JavaScript client for the edj HTTP API.
+A dependency-free JavaScript client for the pagor HTTP API.
 
-The same source is served by the app at `/static/sdk/edj.js` and published here as a package for local tooling. API shapes are defined in `API.md`.
+The same source is served by the app at `/static/sdk/pagor.js` and published here as a package for local tooling. API shapes are defined in `API.md`.
 
 ## Install
 
 ```bash
-npm install @edjlabs/sdk
+npm install @pagorpay/sdk
 ```
 
 ## Use
 
 ```js
-import { EdjClient } from '@edjlabs/sdk'
+import { PagorClient } from '@pagorpay/sdk'
 
-const edj = new EdjClient({
-  baseUrl: 'https://edj.cash',
+const pagor = new PagorClient({
+  baseUrl: 'https://pagor.finance',
   token: localStorage.getItem('edj_session')
 })
 
-const link = await edj.createLink({ amount: 25000, note: 'Invoice 42' })
+const link = await pagor.createLink({ amount: 25000, note: 'Invoice 42' })
 console.log(link.claimUrl)
 ```
 

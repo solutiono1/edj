@@ -1,16 +1,16 @@
-# BRAND - edj (FROZEN v1)
+# BRAND - pagor (FROZEN v1)
 
 **Pronunciation:** "edge". Playful respelling, like `6lack` / `bnxn`: the word is ordinary, the spelling is the signature.
 
 ## Identity
-- Name: **edj**
-- Tagline: **"Keep your edj off the ledger."**
-- Domain: `edj.cash` · GitHub: `edj-cash` · npm scope: `@edj`
+- Name: **pagor**
+- Tagline: **"Keep the amount off the ledger."**
+- Domain: `pagor.finance` · GitHub: `pagor-cash` · npm scope: `@pagor`
 - Concept: **the sealed envelope** - calm, precise, human. Privacy you can feel, never a dark-web aesthetic.
 - Motif: a break / gap in a continuous line - the part of the record that isn't there. Envelope and route line-art, thin stroke, low opacity.
 
 ## Positioning
-> On a public chain, every payment leaks your edge - what you pay suppliers, what you pay your team, what you have left. edj is the edge you keep. Private stablecoin payments and payroll on Bitcoin Cash.
+> On a public chain, every payment leaks your edge - what you pay suppliers, what you pay your team, what you have left. pagor is the edge you keep. Private stablecoin payments and payroll on Bitcoin Cash.
 
 ## Color tokens (light-first - v2, user override)
 | Token | Hex | Use |
@@ -58,7 +58,7 @@ Calm, precise, adult. Short sentences. Concrete nouns. Explain the mechanism in 
 ## v2 additions (binding)
 - Brand direction: **The Sealed Envelope**. Short landing, app-like product, one character.
 - Mascot: **Ed** - a minimal folded-envelope character (white paper, one blue wax dot, two black dot eyes). See `CREATIVE-DIRECTION.md` F for the prompt.
-- Landing hero: "Keep your edj off the ledger." + "Private payments. No public amounts."
+- Landing hero: "Keep the amount off the ledger." + "Private payments. No public amounts."
 - Nav: normal at top → glossy island on scroll down → restores on scroll up.
 - Auth: real Google OAuth only (no mock data). Log in + Get started routes.
 - Developer surface: SDK in v1; MCP deferred to post-hackathon.

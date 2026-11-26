@@ -6,7 +6,7 @@ Format: date - decision - rationale - status. Append only; never rewrite history
 - 2026-11-19 - Enter Mainnet + Media + Community Choice - extra shots without mutually excluding - LOCKED
 - 2026-11-19 - Go backend, HTMX + Go templ + Tailwind frontend - user prefers Go, avoids React/TS - LOCKED
 - 2026-11-19 - Orchestration: human-bridge patch flow, human sole git author - avoids drift and preserves authorship - LOCKED
-- 2026-11-19 - Name **edj**, tagline "Keep your edj off the ledger." - user chose playful respelling - LOCKED
+- 2026-11-19 - Name **pagor**, tagline "Keep the amount off the ledger." - user chose playful respelling - LOCKED
 - 2026-11-19 - No credits or references to any other project/product anywhere - user instruction - LOCKED
 - 2026-11-19 - v1 uses an operator-configured receiving address + CashFusion + signed attestations, not ZK - BCH has no native ZK; honesty rule - LOCKED
 - 2026-11-19 - Core logic chain-agnostic behind adapter, no multi-chain features in v1 - future optionality at near-zero cost - LOCKED
@@ -36,7 +36,7 @@ Format: date - decision - rationale - status. Append only; never rewrite history
 - 2026-11-20 - Avatar dropdown includes Logout, matching reference - LOCKED
 - 2026-11-20 - Design review pass applied to landing. Audit removed floating loop, radial wash, cursor glow, uppercase tracked labels; added real product preview, sourced Pexels imagery, developer surface, screenshot slots - LOCKED
 - 2026-11-20 - Fonts changed to Nunito Sans display and Inter body, both open-licensed. No commercial font files are copied - LOCKED
-- 2026-11-20 - Browser tab title across all pages: "Edj: private payments. no public amount" - LOCKED
+- 2026-11-20 - Browser tab title across all pages: "Pagor: private payments. no public amount" - LOCKED
 - 2026-11-20 - Zero em/en dashes in all project text files - verified - LOCKED
 - 2026-11-20 - Wallet addresses configured: BCH qrzp600axt2j5e92ardqg8sas9tvdn7h4sgxftwggj, CashTokens zrzp600axt2j5e92ardqg8sas9tvdn7h4s0v64qwhp - LOCKED
 - 2026-11-20 - Link preview metadata added to every page with locally rendered OG card at /static/og.png - LOCKED
@@ -44,14 +44,14 @@ Format: date - decision - rationale - status. Append only; never rewrite history
 - 2026-11-20 - start.sh added with configured addresses and optional .env for GOOGLE_CLIENT_ID - LOCKED
 - 2026-11-20 - Nav rebuilt: airy full-width bar at top, morphs to a centered rounded island on scroll, restores on return to top - LOCKED
 - 2026-11-20 - Nav dropdown rebuilt: one white panel with per-item icon rows that swap on hover or click - LOCKED
-- 2026-11-20 - Footer rebuilt with reveal: giant outlined edj wordmark fades and rises into view, product phone rises in CTA band - LOCKED
+- 2026-11-20 - Footer rebuilt with reveal: giant outlined pagor wordmark fades and rises into view, product phone rises in CTA band - LOCKED
 - 2026-11-20 - Hero video replaced with sourced Pexels 7681386 lifestyle clip used full-bleed with blue overlay - LOCKED (retired on 2026-11-21)
-- 2026-11-21 - Landing v4: transparent nav over the hero, compact glossy island after 24px of scroll, centered white icon dropdowns, dark abstract 3D hero, blue Get edj band, outlined footer wordmark - LOCKED
+- 2026-11-21 - Landing v4: transparent nav over the hero, compact glossy island after 24px of scroll, centered white icon dropdowns, dark abstract 3D hero, blue Get pagor band, outlined footer wordmark - LOCKED
 - 2026-11-21 - Hero media final: Pexels 34127918 abstract metallic 3D torus clip, 1280x720 H.264, 5.2MB, poster frame at `web/static/hero-poster.jpg`, recorded in `ASSETS.md`; lifestyle clip retired - LOCKED
 - 2026-11-21 - Auth pages share `web/static/auth.js`: waits for Google Identity Services, renders the official button, posts the credential to `/api/auth/google`, stores the session token in localStorage, and routes to onboarding or portfolio - LOCKED
-- 2026-11-21 - User-directed scope: FAQ placed under Start private, real edj favicon added, contact support section added, nav and footer link to both - LOCKED
+- 2026-11-21 - User-directed scope: FAQ placed under Start private, real pagor favicon added, contact support section added, nav and footer link to both - LOCKED
 - 2026-11-21 - Hero video reverted to Pexels 7681386 lifestyle clip with greenery after user rejected the abstract torus clip - LOCKED
-- 2026-11-21 - Portfolio visual changed from a hand-drawn card to a sourced transparent iPhone 16 mockup with an original edj UI screen behind it - LOCKED
+- 2026-11-21 - Portfolio visual changed from a hand-drawn card to a sourced transparent iPhone 16 mockup with an original pagor UI screen behind it - LOCKED
 - 2026-11-21 - Login and signup art changed from flat blue to a dark metallic 3D motion loop with a dark scrim; Google OAuth button still rendered by Google Identity Services - LOCKED
 - 2026-11-21 - User feedback: hero and auth art videos brightened by raising video opacity, adding brightness, and reducing the scrim while keeping copy legible - LOCKED
 - 2026-11-21 - Hero video brightened again to match the lighter reference look; floating 3D icons removed from hero - LOCKED
@@ -80,6 +80,6 @@ Format: date - decision - rationale - status. Append only; never rewrite history
 - 2026-11-22 - Added IDEA-BANK.md and RESEARCH.md to capture planned features, integrations, tools, market evidence and open questions - LOCKED
 - 2026-11-23 - v1 build rounded up and committed. Created V2-PLAN.md with privacy core first, then features, integrations, audit and growth - LOCKED
 - 2026-11-23 - PrivatePayroll covenant deployed on chipnet. txid d34a9391d4ac6eb5ff695bfb9aafa8f4e0aa8aa4cac3702a9c7de957fce0d18a - LOCKED
-- 2026-11-24 - npm scope changed from @edj to @solution_o1 because the account does not own the @edj scope - LOCKED
-- 2026-11-25 - npm scope set to @edjlabs (organization); package is @edjlabs/sdk - LOCKED
+- 2026-11-24 - npm scope changed from @pagor to @solution_o1 because the account does not own the @pagor scope - LOCKED
+- 2026-11-25 - npm scope set to @pagorpay (organization); package is @pagorpay/sdk - LOCKED
 - 2026-11-26 - WizardConnect integration started: vendor bundle, connect modal, address display, and an Electrum client with utxos and broadcast endpoints as the signing foundation - LOCKED

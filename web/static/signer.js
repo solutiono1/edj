@@ -1,4 +1,4 @@
-// edj signer: review-first BCH payment via WizardConnect and the Electrum backend.
+// pagor signer: review-first BCH payment via WizardConnect and the Electrum backend.
 // The actual signature path is disabled until EDJ_SIGNER_ENABLED is true and it
 // has been verified on chipnet. Until then, review() works and pay() refuses.
 
@@ -35,12 +35,12 @@ function selectInputs(utxos, needed) {
   return { picked, sum };
 }
 
-window.EdjSigner = {
+window.PagorSigner = {
   async review({ to, amountSats }) {
-    if (!window.EdjWallet || !window.EdjWallet.connected) {
+    if (!window.PagorWallet || !window.PagorWallet.connected) {
       throw new Error('Connect a wallet first');
     }
-    const address = window.EdjWallet.address;
+    const address = window.PagorWallet.address;
     const utxos = await fetchUtxos(address);
     if (!utxos.length) {
       throw new Error('No spendable funds at this address');
@@ -77,8 +77,8 @@ window.EdjSigner = {
     if (window.EDJ_SIGNER_ENABLED !== true) {
       throw new Error('Signer is not enabled. Use your wallet payment URI instead.');
     }
-    const mod = window.EdjWallet.module();
-    const mgr = window.EdjWallet.manager();
+    const mod = window.PagorWallet.module();
+    const mgr = window.PagorWallet.manager();
     const review = await this.review({ to, amountSats });
 
     // Map each input address to its derivation path.

@@ -12,16 +12,16 @@ A non-crypto person can do everything in three actions: **create a link**, **upl
 ## Screen inventory (v1)
 
 ### 1. Landing `/` (current implementation)
-1. Transparent nav over the hero at the top: wordmark `edj`, centered Product / Developers triggers, a Support link in the inner-page nav, Log in, and a white Get started pill. Hover opens one white panel whose icon rows swap per section.
+1. Transparent nav over the hero at the top: wordmark `pagor`, centered Product / Developers triggers, a Support link in the inner-page nav, Log in, and a white Get started pill. Hover opens one white panel whose icon rows swap per section.
 2. On scroll the nav compacts into a slim glossy dark island; it returns to transparent at the top of the page.
-3. Dark hero: full-bleed lifestyle clip of a person working at a cafe with greenery, dark scrim, oversized display **"Keep your edj off the ledger."**, one-line sub "Private payments and payroll on Bitcoin Cash.", two buttons **Get started** / **See how it works**, and a white product preview card with a Public/Private blur toggle. No floating decorative objects in the hero.
+3. Dark hero: full-bleed lifestyle clip of a person working at a cafe with greenery, dark scrim, oversized display **"Keep the amount off the ledger."**, one-line sub "Private payments and payroll on Bitcoin Cash.", two buttons **Get started** / **See how it works**, and a white product preview card with a Public/Private blur toggle. No floating decorative objects in the hero.
 4. Three steps: Create a link · Get paid · Prove it - each with a sourced 3D icon and a labeled screenshot slot.
 5. Photography section: real people - freelancers · small teams · DAOs - with gradient overlays and card hover lift.
 6. Developer band on black: SDK code panel, MCP and CLI listed as next.
-7. Blue CTA band **"Get edj."** with a real iPhone mockup rising into view, its screen showing an original edj portfolio UI, white primary button, and explicit privacy points.
+7. Blue CTA band **"Get pagor."** with a real iPhone mockup rising into view, its screen showing an original pagor portfolio UI, white primary button, and explicit privacy points.
 8. FAQ accordion inside the blue Start private band, below the copy and phone, with short honest answers.
 9. Support section with a direct email action and a plain note about reply time.
-10. Footer: link columns with FAQ and Support, giant outlined `edj` wordmark reveal, plain disclosure note, asset credit, back to top.
+10. Footer: link columns with FAQ and Support, giant outlined `pagor` wordmark reveal, plain disclosure note, asset credit, back to top.
 - No hero jargon, no token tickers, no price charts. Minimal copy throughout.
 
 ### 2. Create link `/link/new`
@@ -44,7 +44,7 @@ Three fields only: **Amount**, **Asset** (BCH / PUSD), **Note (optional)**.
 
 ### 5. Proof `/proof/new` and `/proof/{id}`
 - Create: who it is for, threshold, expiry
-- View: "This proof confirms [subject] holds at least [X] until [date]." Signed by edj key. Explicit note: "This is a signed statement, not a zero-knowledge proof."
+- View: "This proof confirms [subject] holds at least [X] until [date]." Signed by pagor key. Explicit note: "This is a signed statement, not a zero-knowledge proof."
 
 ## Visual tokens (FROZEN v1 - see BRAND.md)
 - Canvas `#FFFFFF`, surface `#F2F4F8`, ink `#0B0B0C`, body `#5C6B7A`, hairline `#E5E9F2`

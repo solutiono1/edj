@@ -98,7 +98,7 @@ func main() {
 	mux.HandleFunc("GET /faq", serve("index.html"))
 	mux.HandleFunc("GET /support", serve("index.html"))
 
-	log.Printf("edj listening on %s", addr)
+	log.Printf("pagor listening on %s", addr)
 	origin := os.Getenv("EDJ_PUBLIC_ORIGIN")
 	if origin == "" {
 		origin = "*"

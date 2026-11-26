@@ -9,11 +9,11 @@
 The project lives inside WSL Ubuntu. From Windows/Devin, open:
 
 ```
-\\wsl.localhost\Ubuntu\home\solution\edj
+\\wsl.localhost\Ubuntu\home\solution\pagor
 ```
-Alternative: `\\wsl$\Ubuntu\home\solution\edj`
+Alternative: `\\wsl$\Ubuntu\home\solution\pagor`
 
-Linux path (for me): `/home/solution/edj`
+Linux path (for me): `/home/solution/pagor`
 
 ## Flow
 1. Planner freezes a TASK in `TASKS/` and the human sends it to the frontend builder.

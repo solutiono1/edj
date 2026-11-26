@@ -6,11 +6,11 @@ This task was completed directly in `web/index.html`, `web/app.html` and the aut
 
 ---
 
-TASK-001 - frontend skeleton and static flows for edj. The design is now FROZEN.
+TASK-001 - frontend skeleton and static flows for pagor. The design is now FROZEN.
 
 Read first, in this order: `BRAND.md`, `UIUX.md`, `MOTION.md`, `ASSETS.md`, `SPEC.md`, `ARCHITECTURE.md`, `HANDOFF.md`. These are the source of truth. The quality bar is binding: "I can't believe AI designed and built this." No generic templates, no default fade-ins, no unlicensed assets.
 
-Your scope: `web/**` ONLY. Write files directly into the project folder at `\\wsl.localhost\Ubuntu\home\solution\edj` (Windows) / `/home/solution/edj` (WSL). Do not create or edit any file outside `web/`. Do not touch git. Do not run a build or install packages.
+Your scope: `web/**` ONLY. Write files directly into the project folder at `\\wsl.localhost\Ubuntu\home\solution\pagor` (Windows) / `/home/solution/pagor` (WSL). Do not create or edit any file outside `web/`. Do not touch git. Do not run a build or install packages.
 
 Stack: **Go templ + HTMX + Tailwind**. No React, no TypeScript, no heavy JS.
 
@@ -21,7 +21,7 @@ Stack: **Go templ + HTMX + Tailwind**. No React, no TypeScript, no heavy JS.
 - Pill buttons `9999px`, 48px height; cards 16px/24px radius with two-layer micro shadows; inputs 12px radius, 1px hairline.
 
 ## Deliverables (templates)
-1. `web/templates/layout.templ` - shared layout: skip link, sticky translucent pill nav (wordmark `edj`, links / Product / Developers / Docs, "Get started" pill), thin dark announcement bar, aria-live region, footer with giant `edj` wordmark + Privacy / Terms / Delete account / EMBER address.
+1. `web/templates/layout.templ` - shared layout: skip link, sticky translucent pill nav (wordmark `pagor`, links / Product / Developers / Docs, "Get started" pill), thin dark announcement bar, aria-live region, footer with giant `pagor` wordmark + Privacy / Terms / Delete account / EMBER address.
 2. `web/templates/landing.templ` - full section order from UIUX.md §1: hero with living cyan gradient + faint drifting envelope/route line-art (CSS-only ambient animation, no heavy canvas lib) and a floating private-link card; bento tiles; three interactive demo cards with the **Public / Private** toggle (digits blur to dots when toggled); dark comparison band; photography sections with gradient-overlay cards (use temporary placeholder `<img>` with descriptive alt - do NOT source final images yet); dark developer band with a code-panel mockup; FAQ accordion.
 3. `web/templates/link_new.templ` - `/link/new`: Amount, Asset (BCH/PUSD), Note; button "Create link".
 4. `web/templates/link_created.templ` - HTMX partial: link, QR placeholder, one-time address, copy button with pulse.

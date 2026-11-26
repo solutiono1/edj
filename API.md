@@ -19,7 +19,7 @@ JSON API served by the Go process. Base path: `/api`. All responses are JSON.
 ```
 The server verifies the token with Google, checks `aud`, `email_verified` and `sub`, then returns:
 ```json
-{ "token": "<edj session>", "user": { "sub": "...", "email": "...", "name": "..." }, "isNew": true }
+{ "token": "<pagor session>", "user": { "sub": "...", "email": "...", "name": "..." }, "isNew": true }
 ```
 No cookie is set. The browser stores the session token in localStorage.
 
@@ -27,7 +27,7 @@ No cookie is set. The browser stores the session token in localStorage.
 
 ## Health
 
-`GET /api/health` returns `{"status":"ok","engine":"edj"}`.
+`GET /api/health` returns `{"status":"ok","engine":"pagor"}`.
 
 ## Links
 
@@ -82,12 +82,12 @@ Payroll uploads are capped at 8 MB. The prototype stores links, runs and proofs 
 
 ## Source client
 
-`web/static/sdk/edj.js` is a dependency-free ES module over this API. It is served at `/static/sdk/edj.js` and is not published to a package registry.
+`web/static/sdk/pagor.js` is a dependency-free ES module over this API. It is served at `/static/sdk/pagor.js` and is not published to a package registry.
 
 ```js
-import { EdjClient } from '/static/sdk/edj.js'
-const edj = new EdjClient({ baseUrl: location.origin, token })
-const link = await edj.createLink({ amount: 25000, note: 'Invoice 42' })
+import { PagorClient } from '/static/sdk/pagor.js'
+const pagor = new PagorClient({ baseUrl: location.origin, token })
+const link = await pagor.createLink({ amount: 25000, note: 'Invoice 42' })
 ```
 
 Methods: `createLink`, `getLink`, `submitPayroll`, `getPayroll`, `createProof`, `getProof`, `me`, `portfolio`, `logout`.
@@ -108,7 +108,7 @@ Methods: `createLink`, `getLink`, `submitPayroll`, `getPayroll`, `createProof`, 
 
 ## Persistence
 
-Records and the signing key are stored in `data/edj.json` by default. The path can be changed with `EDJ_DATA_FILE`. The file is ignored by git. Prototype data survives a restart; it is not a substitute for an audited database.
+Records and the signing key are stored in `data/pagor.json` by default. The path can be changed with `EDJ_DATA_FILE`. The file is ignored by git. Prototype data survives a restart; it is not a substitute for an audited database.
 
 ## Security note
 

@@ -1,18 +1,18 @@
 {
-  "name": "@edjlabs/sdk",
+  "name": "@pagorpay/sdk",
   "version": "0.1.0",
-  "description": "Small client for the edj HTTP API",
+  "description": "Small client for the pagor HTTP API",
   "type": "module",
-  "main": "edj.js",
+  "main": "pagor.js",
   "exports": {
-    ".": "./edj.js"
+    ".": "./pagor.js"
   },
   "files": [
-    "edj.js",
+    "pagor.js",
     "README.md"
   ],
   "license": "MIT",
   "dependencies": {
-    "@edjlabs/sdk": "^0.1.0"
+    "@pagorpay/sdk": "^0.1.0"
   }
 }

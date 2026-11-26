@@ -31,8 +31,8 @@ Public pages: claim link, proof verification, docs, legal, support, faq.
 
 ## Tools
 
-- SDK source client at `sdk/js`, served at `/static/sdk/edj.js`.
-- CLI at `tools/cli/edj.mjs`.
+- SDK source client at `sdk/js`, served at `/static/sdk/pagor.js`.
+- CLI at `tools/cli/pagor.mjs`.
 - Contract compile and test at `tools/contract`.
 - Chipnet deploy script at `tools/contract/deploy-chipnet.mjs`.
 - Deployment helpers: `railway.json`, `wrangler.toml`, `web/_redirects`, `scripts/deploy-cloudflare.sh`.
@@ -43,7 +43,7 @@ Links, payroll, disclosure, portfolio, notifications, account, session, assistan
 
 ## Research and open questions
 
-- Whether BCH can verify ZK proofs inside CashVM covenants. This decides if edj can reach real zero-knowledge privacy or must stay with signed statements and covenants.
+- Whether BCH can verify ZK proofs inside CashVM covenants. This decides if pagor can reach real zero-knowledge privacy or must stay with signed statements and covenants.
 - CashToken liquidity and depth for PUSD.
 - BCH wallet support for CashTokens and payment URIs.
 - Jurisdiction and compliance for private business payments.

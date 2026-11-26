@@ -2,7 +2,7 @@
 
 ## What this is
 
-edj uses Bitcoin Cash. BCH does not use EVM contracts. This contract is BCH Script using native introspection opcodes, often called a covenant. It restricts where locked funds can be sent. It does not provide anonymity, and it is not a zero-knowledge proof.
+pagor uses Bitcoin Cash. BCH does not use EVM contracts. This contract is BCH Script using native introspection opcodes, often called a covenant. It restricts where locked funds can be sent. It does not provide anonymity, and it is not a zero-knowledge proof.
 
 The contract is a prototype. It is not audited and is not used by the payment link flow yet.
 

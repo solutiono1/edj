@@ -126,12 +126,12 @@ func (s *Server) Assistant(w http.ResponseWriter, r *http.Request) {
 		answer = "Your receiving address is in Wallet settings. Never send funds to an address you have not verified."
 		link = "/wallet"
 	case strings.Contains(m, "anon") || strings.Contains(m, "private"):
-		answer = "edj reduces what is published on-chain. It is not anonymity, and we never claim it is."
+		answer = "pagor reduces what is published on-chain. It is not anonymity, and we never claim it is."
 	}
 	writeJSON(w, http.StatusOK, map[string]string{"answer": answer, "link": link})
 }
 
-// RequireUser rejects requests without a valid edj session token.
+// RequireUser rejects requests without a valid pagor session token.
 func (s *Server) RequireUser(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if _, _, ok := s.userFromRequest(r); !ok {

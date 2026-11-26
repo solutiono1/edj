@@ -1,8 +1,8 @@
 {
-  "name": "edj-cli",
+  "name": "pagor-cli",
   "private": true,
   "type": "module",
   "bin": {
-    "edj": "./edj.mjs"
+    "pagor": "./pagor.mjs"
   }
 }

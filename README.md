@@ -1,16 +1,16 @@
 <div align="center">
 
-# edj
+# pagor
 
 Private payments and payroll on Bitcoin Cash. Keep amounts out of the public story of a payment, and show a signed threshold when someone needs to check.
 
 [Local app](web/index.html) · [Developer docs](web/docs.html) · [API](API.md) · [SDK](DEV-TOOLS.md) · [Contract](SMART-CONTRACT.md)
 
-**BCH BLAZE 2026 demo build. Public URL added on submission. Real Google sign-in, persistent records and BCH payment URIs are working. edj does not hold funds.**
+**BCH BLAZE 2026 demo build. Public URL added on submission. Real Google sign-in, persistent records and BCH payment URIs are working. pagor does not hold funds.**
 
 </div>
 
-![edj landing page](web/static/hero-preview.png)
+![pagor landing page](web/static/hero-preview.png)
 
 ---
 
@@ -24,10 +24,10 @@ These features run in the current demo build with a real Go server and a local J
 | Payroll drafts | Demo build | Upload a CSV with name, address and amount. Review recipients and total before any payout. Payout execution stays with the wallet. |
 | Disclosure statements | Demo build | Create an Ed25519 signed statement with a subject, threshold and expiry. It is not a zero-knowledge proof. The verification page shows the signature and public key. |
 | Google sign-in | Working | Sign in with Google Identity Services. The server verifies the audience and verified email. The session token stays in localStorage. |
-| Persistent store | Local file | Links, payroll drafts, proofs, users, sessions and the signing key survive a restart in `data/edj.json`. |
+| Persistent store | Local file | Links, payroll drafts, proofs, users, sessions and the signing key survive a restart in `data/pagor.json`. |
 | Portfolio | Local API | The app shows real counts of saved links, payroll runs and proofs from `/api/portfolio`. No invented balance. |
-| SDK | Source package | The client is served at `/static/sdk/edj.js` and packaged at `sdk/js`. It wraps the live HTTP API. |
-| CLI | Local tool | `tools/cli/edj.mjs` calls the same API. Tested with `me`, `portfolio` and `links create`. |
+| SDK | Source package | The client is served at `/static/sdk/pagor.js` and packaged at `sdk/js`. It wraps the live HTTP API. |
+| CLI | Local tool | `tools/cli/pagor.mjs` calls the same API. Tested with `me`, `portfolio` and `links create`. |
 | BCH covenant | Compiled and mock-tested | `tools/contract/PrivatePayroll.cash` constrains a spend to one output, a fixed amount and a fixed address. Chipnet deployment is the next step. |
 | MCP | Planned | Scope is documented in `DEV-TOOLS.md`. No MCP server is shipped yet. |
 
@@ -43,7 +43,7 @@ These features run in the current demo build with a real Go server and a local J
 | Deadline | 22 November 2026, 14:00 UTC |
 | Honesty rules | No anonymity claim and no ZK claim. Disclosure statements are signed statements. |
 
-## What edj does not do
+## What pagor does not do
 
 - It does not make a payment anonymous. Bitcoin Cash settlement is public.
 - It does not claim zero-knowledge proofs. BCH has no native ZK verifier for this flow, and the project rules require plain language. Disclosure statements are signed statements with a named reader and an expiry.
@@ -60,7 +60,7 @@ Requirements:
 - BCH addresses you control
 
 ```bash
-cd /home/solution/edj
+cd /home/solution/pagor
 cp .env.example .env
 ./start.sh
 ```
@@ -75,7 +75,7 @@ Open `http://localhost:8080`.
 | `EDJ_RECEIVE_ADDRESS` | none | BCH address for BCH links |
 | `EDJ_TOKEN_ADDRESS` | none | CashTokens address for token links |
 | `ADDR` | `:8080` | Listen address |
-| `EDJ_DATA_FILE` | `data/edj.json` | Store path |
+| `EDJ_DATA_FILE` | `data/pagor.json` | Store path |
 
 For Google sign-in, add `http://localhost:8080` and `http://127.0.0.1:8080` as authorized JavaScript origins. See `GOOGLE-OAUTH.md`.
 
@@ -99,7 +99,7 @@ The contract test compiles the CashScript source and evaluates the covenant with
 ## Layout
 
 ```
-cmd/edj/          server entrypoint and routes
+cmd/pagor/          server entrypoint and routes
 internal/api/     handlers, session checks, portfolio
 internal/core/    links, payroll parsing, signed statements
 internal/chain/   BCH address adapter
@@ -113,14 +113,14 @@ tools/contract/   BCH covenant source, artifact and tests
 ## SDK
 
 ```js
-import { EdjClient } from '/static/sdk/edj.js'
+import { PagorClient } from '/static/sdk/pagor.js'
 
-const edj = new EdjClient({
+const pagor = new PagorClient({
   baseUrl: location.origin,
   token: localStorage.getItem('edj_session')
 })
 
-const link = await edj.createLink({ amount: 25000, note: 'Invoice 42' })
+const link = await pagor.createLink({ amount: 25000, note: 'Invoice 42' })
 console.log(link.claimUrl)
 ```
 
@@ -129,9 +129,9 @@ Methods: `createLink`, `getLink`, `submitPayroll`, `getPayroll`, `createProof`, 
 ## CLI
 
 ```bash
-EDJ_TOKEN=<token> node tools/cli/edj.mjs me
-EDJ_TOKEN=<token> node tools/cli/edj.mjs portfolio
-EDJ_TOKEN=<token> node tools/cli/edj.mjs links create 5000 - 'Invoice 42'
+EDJ_TOKEN=<token> node tools/cli/pagor.mjs me
+EDJ_TOKEN=<token> node tools/cli/pagor.mjs portfolio
+EDJ_TOKEN=<token> node tools/cli/pagor.mjs links create 5000 - 'Invoice 42'
 ```
 
 `EDJ_URL` defaults to `http://localhost:8080`.
@@ -160,7 +160,7 @@ The full reference lives in the app at `/docs` and in [API.md](API.md).
 - **Quickstart.** Create a private link with one request. Amounts are integers in the smallest unit of the asset: satoshis for BCH, cents for PUSD.
 - **Authentication.** Exchange a Google ID token at `/api/auth/google`, then send the returned session token as `Authorization: Bearer`.
 - **Endpoints.** Links, payroll uploads, disclosure statements, portfolio totals, notifications and account reads.
-- **Source client.** `EdjClient` wraps the same API in the browser and in `sdk/js`.
+- **Source client.** `PagorClient` wraps the same API in the browser and in `sdk/js`.
 
 ```
 POST /api/links

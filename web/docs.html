@@ -1,26 +1,26 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Edj: private payments. no public amount</title>
-<meta name="description" content="edj developer docs. Create private payment links, payroll runs and signed disclosure proofs on Bitcoin Cash.">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pagor: private payments. no public amount</title>
+<meta name="description" content="pagor developer docs. Create private payment links, payroll runs and signed disclosure proofs on Bitcoin Cash.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://edj.cash/docs">
-<meta property="og:title" content="Edj: private payments. no public amount">
+<meta property="og:url" content="https://pagor.finance/docs">
+<meta property="og:title" content="Pagor: private payments. no public amount">
 <meta property="og:description" content="Create private payment links, payroll runs and signed disclosure proofs on Bitcoin Cash.">
-<meta property="og:image" content="https://edj.cash/static/og.png">
+<meta property="og:image" content="https://pagor.finance/static/og.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Edj: private payments. no public amount">
+<meta name="twitter:title" content="Pagor: private payments. no public amount">
 <meta name="twitter:description" content="Create private payment links, payroll runs and signed disclosure proofs on Bitcoin Cash.">
-<meta name="twitter:image" content="https://edj.cash/static/og.png"><script src="/static/config.js"></script><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"></head><body class="page-light">
+<meta name="twitter:image" content="https://pagor.finance/static/og.png"><script src="/static/config.js"></script><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"></head><body class="page-light">
 <a class="skip" href="#main">Skip to content</a>
 <header class="nav-wrap"><nav class="nav nav-page" id="nav" aria-label="Main">
- <a class="brand" href="/"><span class="brand-mark"></span>edj</a>
+ <a class="brand" href="/"><span class="brand-mark"></span>pagor</a>
  <div class="nav-links"><a href="/#how">How it works</a><a href="/#developers">Developers</a><a href="/docs">Docs</a><a href="/support">Support</a></div>
  <div class="nav-actions"><a class="nav-login" href="/login">Log in</a><a class="btn btn-nav btn-sm" href="/signup">Get started</a></div>
 </nav></header>
 <main id="main" class="page-main"><div class="doc-wrap">
  <p class="eyebrow">Developer docs</p>
  <h1 class="doc-title">Build private payments into your app.</h1>
- <p class="doc-lede">The edj HTTP API is live in v1. Create a private payment link, prepare a payroll run, or issue a signed disclosure proof. Settlement is public. The amount is not.</p>
+ <p class="doc-lede">The pagor HTTP API is live in v1. Create a private payment link, prepare a payroll run, or issue a signed disclosure proof. Settlement is public. The amount is not.</p>
  <div class="doc-chips"><span>v1 API</span><span>JSON</span><span>Google sign-in</span></div>
- <div class="doc-callout"><b>Status.</b> A small JavaScript client ships with the app at <code>/static/sdk/edj.js</code>. It is a thin source wrapper, not a package registry release. MCP and CLI are planned on the same primitives.</div>
+ <div class="doc-callout"><b>Status.</b> A small JavaScript client ships with the app at <code>/static/sdk/pagor.js</code>. It is a thin source wrapper, not a package registry release. MCP and CLI are planned on the same primitives.</div>
 
  <section class="doc-section" id="quickstart">
   <h2>Quickstart</h2>
@@ -40,11 +40,11 @@
 
  <section class="doc-section" id="auth">
   <h2>Authentication</h2>
-  <p>Google Identity Services returns an ID token to the browser. Exchange it for an edj session token. Send that token as a bearer header on account calls.</p>
+  <p>Google Identity Services returns an ID token to the browser. Exchange it for an pagor session token. Send that token as a bearer header on account calls.</p>
   <pre class="code-block">POST /api/auth/google
 { "idToken": "&lt;google credential&gt;" }
 
-Authorization: Bearer &lt;edj session token&gt;</pre>
+Authorization: Bearer &lt;pagor session token&gt;</pre>
   <p>The server verifies the Google token, checks the audience and verified email, then returns a session token. No cookie is set. The client stores the token in localStorage.</p>
  </section>
 
@@ -92,14 +92,14 @@ Grace,bitcoincash:pexample,98000</pre>
  <section class="doc-section" id="client">
   <h2>Source client</h2>
   <p>The v1 client mirrors the endpoints: <code>createLink</code>, <code>getLink</code>, <code>submitPayroll</code>, <code>getPayroll</code>, <code>createProof</code>, <code>getProof</code>, <code>me</code> and <code>logout</code>.</p>
-  <pre class="code-block">import { EdjClient } from '/static/sdk/edj.js'
+  <pre class="code-block">import { PagorClient } from '/static/sdk/pagor.js'
 
-const edj = new EdjClient({
+const pagor = new PagorClient({
   baseUrl: location.origin,
   token: localStorage.getItem('edj_session')
 })
 
-const link = await edj.createLink({ amount: 25000, note: 'Invoice 42' })
+const link = await pagor.createLink({ amount: 25000, note: 'Invoice 42' })
 console.log(link.claimUrl)</pre>
  </section>
 
@@ -112,7 +112,7 @@ console.log(link.claimUrl)</pre>
 </div></main>
 <footer class="footer compact"><div class="wrap">
  <div class="foot-bottom">
-  <p>Edj is a software project for Bitcoin Cash. Settlement is public, details are private. This is not anonymity.</p>
+  <p>Pagor is a software project for Bitcoin Cash. Settlement is public, details are private. This is not anonymity.</p>
   <div class="foot-mini"><a href="/">Home</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/delete">Delete data</a></div>
  </div>
 </div></footer>

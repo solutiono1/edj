@@ -27,7 +27,7 @@ func fail(w http.ResponseWriter, code int, msg string) {
 }
 
 func (s *Server) Health(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "engine": "edj"})
+	writeJSON(w, http.StatusOK, map[string]string{"status": "ok", "engine": "pagor"})
 }
 
 type linkRequest struct {
@@ -121,7 +121,7 @@ func (s *Server) GetProof(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, p)
 }
 
-// Portfolio reports real saved data. No balance is invented: edj does not
+// Portfolio reports real saved data. No balance is invented: pagor does not
 // hold funds, so the amounts are the totals of created requests and drafts.
 func (s *Server) Portfolio(w http.ResponseWriter, r *http.Request) {
 	links := s.Store.Links()

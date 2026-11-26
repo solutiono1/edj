@@ -5,6 +5,28 @@
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
+  // Session-aware nav and login redirect.
+  const apiBase = window.EDJ_API_BASE || '';
+  const session = localStorage.getItem('edj_session');
+  if (session) {
+    fetch(apiBase + '/api/me', { headers: { Authorization: 'Bearer ' + session } })
+      .then((r) => r.json())
+      .then((u) => {
+        if (u && u.sub) {
+          const login = $('.nav-login');
+          const cta = $('.btn-nav');
+          if (login) { login.textContent = 'Dashboard'; login.href = '/portfolio'; }
+          if (cta) { cta.textContent = 'Open app'; cta.href = '/portfolio'; }
+          if (location.pathname === '/login' || location.pathname === '/signup') {
+            location.replace('/portfolio');
+          }
+        } else {
+          localStorage.removeItem('edj_session');
+        }
+      })
+      .catch(() => {});
+  }
+
   // Nav: transparent over the hero at the top, compact glossy island after scrolling.
   // It returns to the transparent state only when the page is back at the top.
   const nav = document.getElementById('nav');
@@ -206,7 +228,7 @@
 
   // Scroll-driven phone: moves down through the blue section, eases back on scroll up.
   const scrollPhone = $('.get-phone');
-  const getSection = $('.get-edj');
+  const getSection = $('.get-pagor');
   if (scrollPhone && getSection && !reduce) {
     let target = 0;
     let current = 0;
@@ -297,7 +319,7 @@
 
   // WizardConnect wallet modal.
   const connectWalletBtn = document.getElementById('connect-wallet');
-  if (connectWalletBtn && window.EdjWallet) {
+  if (connectWalletBtn && window.PagorWallet) {
     const modal = document.createElement('div');
     modal.className = 'wallet-modal';
     modal.innerHTML = '<div class="wallet-card"><button class="wallet-close" type="button" aria-label="Close">×</button><h3>Connect your wallet</h3><p class="wallet-sub">Scan with a WizardConnect wallet to link your BCH address.</p><img class="wallet-qr" alt="QR code"><p class="wallet-uri"></p></div>';
@@ -307,7 +329,7 @@
     const open = async () => {
       modal.classList.add('open');
       try {
-        const res = await window.EdjWallet.connect();
+        const res = await window.PagorWallet.connect();
         qr.src = res.qr;
       } catch (error) {
         modal.classList.remove('open');
@@ -318,14 +340,14 @@
     modal.addEventListener('click', (event) => {
       if (event.target === modal) modal.classList.remove('open');
     });
-    window.addEventListener('edj-wallet-ready', (event) => {
+    window.addEventListener('pagor-wallet-ready', (event) => {
       modal.classList.remove('open');
       const address = event.detail.address || '';
       connectWalletBtn.textContent = address ? address.slice(0, 10) + '...' + address.slice(-6) : 'Wallet connected';
       connectWalletBtn.title = address;
       connectWalletBtn.classList.add('connected');
     });
-    window.addEventListener('edj-wallet-disconnect', () => {
+    window.addEventListener('pagor-wallet-disconnect', () => {
       connectWalletBtn.textContent = 'Connect wallet';
       connectWalletBtn.classList.remove('connected');
     });

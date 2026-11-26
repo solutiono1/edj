@@ -29,10 +29,10 @@
 
 ## Latest pass (user-directed scope)
 - FAQ added directly under Start private as a quiet accordion, with honest answers and no hype.
-- Real edj favicon and touch icon generated from the product mark.
+- Real pagor favicon and touch icon generated from the product mark.
 - Contact support section with a direct mailto action and a plain reply-time note.
 - Hero video returned to the sourced lifestyle clip with greenery, matching the earlier approved direction.
-- Portfolio card is now a sourced transparent iPhone mockup with an original edj screen rendered behind the frame.
+- Portfolio card is now a sourced transparent iPhone mockup with an original pagor screen rendered behind the frame.
 - Login and signup art replaced with a dark tech motion loop and a dark scrim, with the official Google button still rendered through Google Identity Services.
 
 ## Final user-directed corrections

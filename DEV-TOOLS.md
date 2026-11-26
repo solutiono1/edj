@@ -7,9 +7,9 @@
 ## JavaScript SDK
 
 Package: `sdk/js`
-Browser copy: `web/static/sdk/edj.js`
+Browser copy: `web/static/sdk/pagor.js`
 
-Both files contain the same `EdjClient` source. Methods:
+Both files contain the same `PagorClient` source. Methods:
 
 | Method | Endpoint |
 |---|---|
@@ -28,12 +28,12 @@ The client accepts a `baseUrl` and a session token. Errors carry `status` and `c
 To use the package from another local project:
 
 ```bash
-npm install /absolute/path/to/edj/sdk/js
+npm install /absolute/path/to/pagor/sdk/js
 ```
 
 ## CLI
 
-Path: `tools/cli/edj.mjs`
+Path: `tools/cli/pagor.mjs`
 
 Environment:
 
@@ -45,11 +45,11 @@ Environment:
 Commands:
 
 ```bash
-EDJ_TOKEN=<token> node tools/cli/edj.mjs me
-EDJ_TOKEN=<token> node tools/cli/edj.mjs portfolio
-EDJ_TOKEN=<token> node tools/cli/edj.mjs links create 5000 - 'Invoice 42'
-EDJ_TOKEN=<token> node tools/cli/edj.mjs payroll upload web/static/example-payroll.csv
-EDJ_TOKEN=<token> node tools/cli/edj.mjs proofs create 'Lender review' 100000 30
+EDJ_TOKEN=<token> node tools/cli/pagor.mjs me
+EDJ_TOKEN=<token> node tools/cli/pagor.mjs portfolio
+EDJ_TOKEN=<token> node tools/cli/pagor.mjs links create 5000 - 'Invoice 42'
+EDJ_TOKEN=<token> node tools/cli/pagor.mjs payroll upload web/static/example-payroll.csv
+EDJ_TOKEN=<token> node tools/cli/pagor.mjs proofs create 'Lender review' 100000 30
 ```
 
 All commands were tested against the running server with a seeded session. The seed and its data were removed after the test.

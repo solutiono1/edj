@@ -1,25 +1,25 @@
-# CREATIVE DIRECTION - edj (v2, binding)
+# CREATIVE DIRECTION - pagor (v2, binding)
 
 Role: Chief Brand Designer / Creative Director / UX Strategist / Visual Systems Partner.
 
 ## A. Brand Core
-- **Name:** edj (pronounced "edge"). Keep it. Respelled like `6lack` / `bnxn` - ordinary word, signature spelling.
-- **Primary tagline:** "Keep your edj off the ledger."
+- **Name:** pagor (pronounced "edge"). Keep it. Respelled like `6lack` / `bnxn` - ordinary word, signature spelling.
+- **Primary tagline:** "Keep the amount off the ledger."
 - **Hero line:** "Private payments. No public amounts."
-- **One-line positioning:** edj is a self-custodial Bitcoin Cash wallet and payments app that keeps amounts and counterparties off the public record - with payroll and proofs built in.
+- **One-line positioning:** pagor is a self-custodial Bitcoin Cash wallet and payments app that keeps amounts and counterparties off the public record - with payroll and proofs built in.
 - **Personality:** calm, precise, quietly confident, premium, human. Never hacker, never crypto-bro, never loud.
 - **Users:** freelancers paid in stablecoins; small teams and DAOs running payroll or supplier payments.
 - **Emotional hook:** relief - "my money isn't public."
-- **Memorable through:** one word (edj), one gesture (Public/Private blur), one character (Ed the envelope).
+- **Memorable through:** one word (pagor), one gesture (Public/Private blur), one character (Ed the envelope).
 
 ## B. Naming Options
-Keep **edj**. Alternates only for a future reboot: Vale, Seal, Opaque. None beat edj.
+Keep **pagor**. Alternates only for a future reboot: Vale, Seal, Opaque. None beat pagor.
 
 ## C. Recommended Brand Direction
 "The Sealed Envelope." Light-first, blue/white/black, very short landing, app-like dashboard, one mascot, one signature interaction. SDK now, MCP later. Real auth, real data, no mocks. Notifications as a real product surface.
 
 ## D. Logo Direction
-- Wordmark: lowercase `edj`, Nunito Sans, tight −0.05em tracking, black on white; the dot of the `j` is the blue accent - the entire identity in one detail.
+- Wordmark: lowercase `pagor`, Nunito Sans, tight −0.05em tracking, black on white; the dot of the `j` is the blue accent - the entire identity in one detail.
 - Mark: a folded envelope corner / broken line forming a minimal `e`. One blue stroke, no gradients, works at 16px favicon.
 - Reasoning: simple enough to be recognizable in a sidebar and on a pitch deck.
 
@@ -54,14 +54,14 @@ Keep **edj**. Alternates only for a future reboot: Vale, Seal, Opaque. None beat
 ## H. Landing Page Direction
 One screen, not a scroll:
 1. Nav (normal → island on scroll).
-2. Hero: "Keep your edj off the ledger." + one line "Private payments and payroll on Bitcoin Cash. No public amounts." + Get started / See how it works.
+2. Hero: "Keep the amount off the ledger." + one line "Private payments and payroll on Bitcoin Cash. No public amounts." + Get started / See how it works.
 3. Right: Ed sealing an envelope with a blurred amount line.
 4. Three-step strip: Create → Pay → Prove.
 5. One trust line + final CTA.
 No bento, no photo wall, no FAQ wall, no code band.
 
 ## I. Pitch Deck Visual Direction
-8 slides: Cover (edj + Ed) → Problem (public ledger) → Insight (CashTokens can't be mixed) → Solution (edj) → Product (3 tools) → Live demo → Business (SDK + partners) → Wow (Public/Private toggle + tagline). One idea per slide, huge type, one illustration, no paragraphs.
+8 slides: Cover (pagor + Ed) → Problem (public ledger) → Insight (CashTokens can't be mixed) → Solution (pagor) → Product (3 tools) → Live demo → Business (SDK + partners) → Wow (Public/Private toggle + tagline). One idea per slide, huge type, one illustration, no paragraphs.
 
 ## J. Image Generation Prompts
 - Mascot: see F prompt.

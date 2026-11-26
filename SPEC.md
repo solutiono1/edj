@@ -5,10 +5,10 @@
 
 ## 1. Identity
 
-- Name: **edj** (say "edge")
-- Tagline: **"Keep your edj off the ledger."**
-- Domain: `edj.cash`
-- GitHub: `edj-cash` (free), npm scope: `@edj` (free)
+- Name: **pagor** (say "edge")
+- Tagline: **"Keep the amount off the ledger."**
+- Domain: `pagor.finance`
+- GitHub: `pagor-cash` (free), npm scope: `@pagor` (free)
 
 ## 2. One-line definition
 
@@ -38,7 +38,7 @@ In:
 2. CSV payroll with unlinkable payouts
 3. PUSD support via automated token → BCH → CashFusion → BCH → token flow
 4. Signed (non-ZK) disclosure proof - prove a threshold without revealing a number
-5. SDK client (`@edjlabs/sdk` on npm) exposing link creation, payroll submission, proof verification
+5. SDK client (`@pagorpay/sdk` on npm) exposing link creation, payroll submission, proof verification
 6. Simple onboarding and UI: create link / upload CSV / done
 
 Out (explicitly, for v1):

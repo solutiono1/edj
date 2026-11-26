@@ -2,17 +2,17 @@
 
 ## Current shape
 
-edj is one Go binary. It serves static HTML pages, hand-written CSS, a small amount of vanilla JavaScript, and a JSON API. The frontend has no build step. htmx is vendored locally but the pages currently use ordinary fetch calls.
+pagor is one Go binary. It serves static HTML pages, hand-written CSS, a small amount of vanilla JavaScript, and a JSON API. The frontend has no build step. htmx is vendored locally but the pages currently use ordinary fetch calls.
 
 ```
-cmd/edj/                  server entrypoint, routes
+cmd/pagor/                  server entrypoint, routes
 internal/
   api/                    HTTP handlers, session checks
   core/                   links, payroll parsing, signed statements
   chain/                  Bitcoin Cash address adapter
   store/                  persistent JSON record store
 web/                      pages, CSS, scripts, icons, SDK
-data/edj.json             local records and signing key, ignored by git
+data/pagor.json             local records and signing key, ignored by git
 ```
 
 ## Request flow
@@ -26,7 +26,7 @@ data/edj.json             local records and signing key, ignored by git
 
 ## Chain model
 
-Bitcoin Cash settlement is public. edj does not hold funds and does not broadcast transactions. The claim page opens a BCH payment URI in the user's wallet. Payout execution is handled by the wallet and an external privacy step.
+Bitcoin Cash settlement is public. pagor does not hold funds and does not broadcast transactions. The claim page opens a BCH payment URI in the user's wallet. Payout execution is handled by the wallet and an external privacy step.
 
 The chain adapter in `internal/chain` keeps chain details out of core logic. v1 supports one adapter: BCH with an operator-configured receiving address and CashTokens address. There is no multi-chain support in v1.
 
@@ -39,7 +39,7 @@ Privacy claims are limited:
 
 ## Store
 
-Records and the signing key are written to `data/edj.json` using an atomic rename. The default path can be changed with `EDJ_DATA_FILE`. The file is ignored by git.
+Records and the signing key are written to `data/pagor.json` using an atomic rename. The default path can be changed with `EDJ_DATA_FILE`. The file is ignored by git.
 
 This is a prototype store, not an audited database. It gives restart survival without adding a database dependency.
 

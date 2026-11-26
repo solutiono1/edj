@@ -16,7 +16,7 @@ Evidence gathered while building. Used to decide what to build and whether the m
 - BCH gained Pay-to-Script, bounded loops, functions, and bitwise operations in the May 2026 upgrade. Native introspection opcodes from 2022 enable covenants. This opens a path to on-chain constraints.
 - There is active research on confidential transactions and post-quantum shielded pools for BCH and CashTokens using ZK-STARKs verified in CashVM covenants.
 
-## Implications for edj
+## Implications for pagor
 
 - The demand for private business and payroll payments is real and growing.
 - The unique wedge is BCH-native CashToken privacy, not a copy of EVM privacy pools.

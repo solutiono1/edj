@@ -12,7 +12,7 @@ Create a Supabase project. Run `supabase/schema.sql` in the SQL editor. It creat
 
 Copy the project URL and the service role key. The service role key stays on Render. It is never sent to the browser.
 
-If Supabase is not configured, the Go server falls back to `data/edj.json` on a local disk. That is fine for local testing and not safe for a stateless host.
+If Supabase is not configured, the Go server falls back to `data/pagor.json` on a local disk. That is fine for local testing and not safe for a stateless host.
 
 ## 2. Railway
 
@@ -102,8 +102,8 @@ Set `DRY_RUN=1` to print the transaction without broadcasting. On a real run, re
 | Supabase schema | Applied with migration `edj_initial_schema` |
 | Railway project ID | `c93645db-f49e-4f71-9ca2-fa5b29c95b8f` |
 | Railway service ID | `8e2b2810-9d80-45e9-8efa-13db2467cdfa` |
-| Railway API URL | `https://edj-api-v3-production.up.railway.app` |
-| Cloudflare Pages project | `edj` |
-| Cloudflare Pages URL | `https://edj-b48.pages.dev` |
+| Railway API URL | `https://pagor-api-v3-production.up.railway.app` |
+| Cloudflare Pages project | `pagor` |
+| Cloudflare Pages URL | `https://pagor-b48.pages.dev` |
 
 The service role key is not stored in this repository. Add it as `SUPABASE_SERVICE_ROLE_KEY` in Railway.

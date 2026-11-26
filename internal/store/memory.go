@@ -41,7 +41,7 @@ func New() *Memory {
 		users:    map[string]*User{},
 		sessions: map[string]string{},
 		notifications: []Notification{
-			{ID: "N_1", Title: "Welcome to edj", Body: "Your private receiving address is ready in Wallet settings.", CreatedAt: time.Now().UTC(), Read: false},
+			{ID: "N_1", Title: "Welcome to pagor", Body: "Your private receiving address is ready in Wallet settings.", CreatedAt: time.Now().UTC(), Read: false},
 			{ID: "N_2", Title: "BLAZE 2026", Body: "Submissions close 22 November, 14:00 UTC. Ship early and post your demo.", CreatedAt: time.Now().UTC(), Read: false},
 		},
 	}

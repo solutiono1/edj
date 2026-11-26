@@ -1,4 +1,4 @@
-You are taking over the frontend-builder role for the edj project. Read these files in the current folder (/home/solution/edj), in this order:
+You are taking over the frontend-builder role for the pagor project. Read these files in the current folder (/home/solution/pagor), in this order:
 
 BRAND.md, UIUX.md, MOTION.md, ASSETS.md, SPEC.md, ARCHITECTURE.md, API.md, HANDOFF.md, TASKS/TASK-001.md
 

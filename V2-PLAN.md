@@ -1,6 +1,6 @@
 # V2 PLAN
 
-Goal: turn the edj demo into a defensible BCH-native private payments product, ready for a future hackathon or grant.
+Goal: turn the pagor demo into a defensible BCH-native private payments product, ready for a future hackathon or grant.
 
 ## The one thing that wins
 

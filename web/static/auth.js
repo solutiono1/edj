@@ -18,7 +18,7 @@
       resolve(window.google);
       return;
     }
-    const existing = document.querySelector('script[data-edj-google]');
+    const existing = document.querySelector('script[data-pagor-google]');
     if (existing) {
       existing.addEventListener('load', () => resolve(window.google));
       existing.addEventListener('error', () => reject(new Error('Google script failed to load')));
@@ -28,7 +28,7 @@
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.defer = true;
-    script.dataset.edjGoogle = 'true';
+    script.dataset.pagorGoogle = 'true';
     script.onload = () => resolve(window.google);
     script.onerror = () => reject(new Error('Google script failed to load'));
     document.head.appendChild(script);
