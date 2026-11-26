@@ -1,20 +1,26 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pagor: private payments. no public amount</title>
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://pagor.finance/">
+<meta property="og:url" content="https://usepagor.xyz/">
 <meta property="og:title" content="Pagor: private payments. no public amount">
 <meta property="og:description" content="Private payments and payroll on Bitcoin Cash. No public amounts. No seed phrase.">
-<meta property="og:image" content="https://pagor.finance/static/og.png">
+<meta property="og:image" content="https://usepagor.xyz/static/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Pagor: private payments. no public amount">
 <meta name="twitter:description" content="Private payments and payroll on Bitcoin Cash. No public amounts. No seed phrase.">
-<meta name="twitter:image" content="https://pagor.finance/static/og.png"><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"><script src="/static/config.js"></script><link rel="stylesheet" href="/static/style.css"><script src="/static/auth.js" defer></script></head><body data-auth="signup">
+<meta name="twitter:image" content="https://usepagor.xyz/static/og.png"><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"><script src="/static/config.js"></script><link rel="stylesheet" href="/static/style.css"><script src="/static/auth.js" defer></script></head><body data-auth="signup">
 <main class="auth">
- <section class="auth-art"><video class="auth-art-video" autoplay muted loop playsinline preload="metadata" poster="/static/auth-art-poster.jpg"><source src="/static/auth-art.mp4" type="video/mp4"></video><a class="brand" href="/" style="color:#fff"><span class="brand-mark" style="border-color:#fff;border-right-color:#fff"></span>pagor</a><div><h2>Open your private account.</h2><p>No seed phrase. Sign in with Google and pagor sets up your wallet on this device.</p></div><p style="font-size:12px;opacity:.7">Takes about twenty seconds.</p></section>
+ <section class="auth-art"><video class="auth-art-video" autoplay muted loop playsinline preload="metadata" poster="/static/auth-art-poster.jpg"><source src="/static/auth-art.mp4" type="video/mp4"></video><a class="brand" href="/" style="color:#fff"><span class="brand-mark" style="border-color:#fff;border-right-color:#fff"></span>pagor</a><div><h2>Open your private account.</h2><p>No seed phrase. Sign up with email or Google and pagor sets up your wallet on this device.</p></div><p style="font-size:12px;opacity:.7">Takes about twenty seconds.</p></section>
  <section class="auth-panel"><div class="auth-card">
-  <h1>Create account</h1><p class="sub">Start with Google. Your identity works on every device.</p>
+  <h1>Create account</h1><p class="sub">Start with email. Your account works on every device.</p>
+  <form id="email-form" novalidate>
+   <label class="field"><span>Name</span><input id="name" name="name" type="text" autocomplete="name" placeholder="Your name" maxlength="80"></label>
+   <label class="field"><span>Email</span><input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>
+   <label class="field"><span>Password</span><input id="password" name="password" type="password" autocomplete="new-password" placeholder="At least 10 characters" required></label>
+   <button class="btn btn-blue auth-submit" type="submit">Create account with email</button>
+  </form>
+  <p id="auth-status" class="auth-status" role="status" aria-live="polite"></p>
+  <div class="divider">or continue with Google</div>
   <div class="google-wrap" id="gbtn" aria-label="Continue with Google"></div>
-  <p id="gstatus" class="auth-status" role="status" aria-live="polite"></p>
-  <div class="divider">No seed phrase. No password to forget.</div>
   <p class="auth-note">By continuing you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>.</p>
   <p class="switch">Already have an account? <a href="/login">Log in</a></p>
  </div></section>

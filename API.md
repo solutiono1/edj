@@ -13,6 +13,18 @@ JSON API served by the Go process. Base path: `/api`. All responses are JSON.
 }
 ```
 
+`POST /api/auth/signup`
+```json
+{ "name": "Ada Lovelace", "email": "ada@example.com", "password": "at least 10 characters" }
+```
+Creates an email account. The email is lowercased and trimmed. Passwords are 10 to 72 characters, hashed with bcrypt, and never returned by any endpoint. Duplicate emails return `409`.
+
+`POST /api/auth/login`
+```json
+{ "email": "ada@example.com", "password": "at least 10 characters" }
+```
+Returns the same shape as signup. Wrong credentials return `401` with a generic message that does not reveal whether the account exists. Both email endpoints are rate limited per client IP.
+
 `POST /api/auth/google`
 ```json
 { "idToken": "<Google credential>" }
@@ -21,7 +33,7 @@ The server verifies the token with Google, checks `aud`, `email_verified` and `s
 ```json
 { "token": "<pagor session>", "user": { "sub": "...", "email": "...", "name": "..." }, "isNew": true }
 ```
-No cookie is set. The browser stores the session token in localStorage.
+Google sign-in reuses an existing account when the verified email already belongs to an email signup, so a person has one account across both methods. No cookie is set. The browser stores the session token in localStorage.
 
 `GET /api/me` and `POST /api/logout` require `Authorization: Bearer <token>`.
 

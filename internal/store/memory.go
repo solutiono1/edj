@@ -1,6 +1,7 @@
 package store
 
 import (
+	"strings"
 	"sync"
 	"time"
 
@@ -29,17 +30,19 @@ type Memory struct {
 	runs          map[string]*core.PayrollRun
 	proofs        map[string]*core.DisclosureProof
 	users         map[string]*User
+	passwords     map[string]string
 	sessions      map[string]string
 	notifications []Notification
 }
 
 func New() *Memory {
 	return &Memory{
-		links:    map[string]*core.Link{},
-		runs:     map[string]*core.PayrollRun{},
-		proofs:   map[string]*core.DisclosureProof{},
-		users:    map[string]*User{},
-		sessions: map[string]string{},
+		links:     map[string]*core.Link{},
+		runs:      map[string]*core.PayrollRun{},
+		proofs:    map[string]*core.DisclosureProof{},
+		users:     map[string]*User{},
+		passwords: map[string]string{},
+		sessions:  map[string]string{},
 		notifications: []Notification{
 			{ID: "N_1", Title: "Welcome to pagor", Body: "Your private receiving address is ready in Wallet settings.", CreatedAt: time.Now().UTC(), Read: false},
 			{ID: "N_2", Title: "BLAZE 2026", Body: "Submissions close 22 November, 14:00 UTC. Ship early and post your demo.", CreatedAt: time.Now().UTC(), Read: false},
@@ -133,6 +136,41 @@ func (m *Memory) User(sub string) (*User, bool) {
 	defer m.mu.RUnlock()
 	u, ok := m.users[sub]
 	return u, ok
+}
+
+func (m *Memory) UserByEmail(email string) (*User, bool) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	for _, u := range m.users {
+		if strings.EqualFold(u.Email, email) {
+			return u, true
+		}
+	}
+	return nil, false
+}
+
+func (m *Memory) CreateEmailUser(u *User, hash string) (*User, bool) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, exists := m.users[u.Sub]; exists {
+		return nil, false
+	}
+	for _, existing := range m.users {
+		if strings.EqualFold(existing.Email, u.Email) {
+			return nil, false
+		}
+	}
+	m.users[u.Sub] = u
+	m.passwords[u.Sub] = hash
+	_ = m.saveLocked()
+	return u, true
+}
+
+func (m *Memory) PasswordHash(sub string) (string, bool) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	h, ok := m.passwords[sub]
+	return h, ok
 }
 
 func (m *Memory) PutSession(token, sub string) {

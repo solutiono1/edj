@@ -57,6 +57,8 @@ func main() {
 	mux.HandleFunc("GET /api/health", s.Health)
 	mux.HandleFunc("GET /api/config", s.Config)
 	mux.HandleFunc("POST /api/auth/google", s.GoogleAuth)
+	mux.HandleFunc("POST /api/auth/signup", s.EmailSignup)
+	mux.HandleFunc("POST /api/auth/login", s.EmailLogin)
 	mux.HandleFunc("GET /api/me", s.Me)
 	mux.HandleFunc("GET /api/portfolio", s.RequireUser(s.Portfolio))
 	mux.HandleFunc("GET /api/wallet/utxos", s.WalletUtxos)

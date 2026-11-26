@@ -33,8 +33,12 @@ create table if not exists public.proofs (
 create table if not exists public.users (
   sub text primary key,
   email text not null,
-  name text not null
+  name text not null,
+  password_hash text
 );
+
+create index if not exists users_email_idx on public.users (email);
+create unique index if not exists users_email_password_unique on public.users (lower(email)) where password_hash is not null;
 
 create table if not exists public.sessions (
   token text primary key,

@@ -237,21 +237,75 @@ func (s *Supabase) Proofs() []*core.DisclosureProof {
 	return proofs
 }
 
+// userRow includes the password hash, which is deliberately not part of User
+// because User is serialized to the browser by /api/me.
+type userRow struct {
+	Sub          string `json:"sub"`
+	Email        string `json:"email"`
+	Name         string `json:"name"`
+	PasswordHash string `json:"password_hash"`
+}
+
+func (r userRow) user() *User {
+	return &User{Sub: r.Sub, Email: r.Email, Name: r.Name}
+}
+
 func (s *Supabase) UpsertUser(u *User) (*User, bool) {
-	var existing []*User
+	var existing []userRow
 	if err := s.request(http.MethodGet, "users", url.Values{"sub": {"eq." + u.Sub}}, nil, &existing); err != nil {
 		return u, false
 	}
-	_ = s.request(http.MethodPost, "users", url.Values{"on_conflict": {"sub"}}, u, nil)
+	hash := ""
+	if len(existing) > 0 {
+		hash = existing[0].PasswordHash
+	}
+	_ = s.request(http.MethodPost, "users", url.Values{"on_conflict": {"sub"}}, userRow{
+		Sub: u.Sub, Email: u.Email, Name: u.Name, PasswordHash: hash,
+	}, nil)
 	return u, len(existing) == 0
 }
 
 func (s *Supabase) User(sub string) (*User, bool) {
-	var out []*User
+	var out []userRow
 	if err := s.request(http.MethodGet, "users", url.Values{"sub": {"eq." + sub}}, nil, &out); err != nil || len(out) == 0 {
 		return nil, false
 	}
-	return out[0], true
+	return out[0].user(), true
+}
+
+func (s *Supabase) UserByEmail(email string) (*User, bool) {
+	var out []userRow
+	if err := s.request(http.MethodGet, "users", url.Values{"email": {"eq." + email}}, nil, &out); err != nil || len(out) == 0 {
+		return nil, false
+	}
+	return out[0].user(), true
+}
+
+func (s *Supabase) CreateEmailUser(u *User, hash string) (*User, bool) {
+	var bySub []userRow
+	if err := s.request(http.MethodGet, "users", url.Values{"sub": {"eq." + u.Sub}}, nil, &bySub); err != nil || len(bySub) > 0 {
+		return nil, false
+	}
+	var byEmail []userRow
+	if err := s.request(http.MethodGet, "users", url.Values{"email": {"eq." + u.Email}}, nil, &byEmail); err != nil || len(byEmail) > 0 {
+		return nil, false
+	}
+	err := s.request(http.MethodPost, "users", url.Values{"on_conflict": {"sub"}}, userRow{
+		Sub: u.Sub, Email: u.Email, Name: u.Name, PasswordHash: hash,
+	}, nil)
+	if err != nil {
+		return nil, false
+	}
+	return u, true
+}
+
+func (s *Supabase) PasswordHash(sub string) (string, bool) {
+	var out []userRow
+	q := url.Values{"sub": {"eq." + sub}, "select": {"password_hash"}}
+	if err := s.request(http.MethodGet, "users", q, nil, &out); err != nil || len(out) == 0 || out[0].PasswordHash == "" {
+		return "", false
+	}
+	return out[0].PasswordHash, true
 }
 
 func (s *Supabase) PutSession(token, sub string) {

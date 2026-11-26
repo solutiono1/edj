@@ -1,14 +1,14 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pagor: private payments. no public amount</title>
 <meta name="description" content="pagor terms, privacy and data controls. A software prototype for private payments and payroll on Bitcoin Cash.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://pagor.finance/terms">
+<meta property="og:url" content="https://usepagor.xyz/terms">
 <meta property="og:title" content="Pagor: private payments. no public amount">
 <meta property="og:description" content="Terms, privacy and data controls for the pagor Bitcoin Cash payment prototype.">
-<meta property="og:image" content="https://pagor.finance/static/og.png">
+<meta property="og:image" content="https://usepagor.xyz/static/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Pagor: private payments. no public amount">
 <meta name="twitter:description" content="Terms, privacy and data controls for the pagor Bitcoin Cash payment prototype.">
-<meta name="twitter:image" content="https://pagor.finance/static/og.png"><script src="/static/config.js"></script><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"></head><body class="page-light">
+<meta name="twitter:image" content="https://usepagor.xyz/static/og.png"><script src="/static/config.js"></script><link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script><link rel="icon" href="/static/favicon.svg" type="image/svg+xml"><link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"></head><body class="page-light">
 <a class="skip" href="#main">Skip to content</a>
 <header class="nav-wrap"><nav class="nav nav-page" id="nav" aria-label="Main">
  <a class="brand" href="/"><span class="brand-mark"></span>pagor</a>
@@ -29,20 +29,20 @@
 
  <section class="doc-section" id="privacy">
   <h2>Privacy</h2>
-  <p>pagor runs without analytics, advertising, tracking pixels, or third-party analytics SDKs. The app stores an pagor session token in localStorage after Google sign-in. No cookie is set, and there is no cookie banner because there are no tracking cookies.</p>
-  <p>Google Identity Services is used only to verify your identity when you choose to sign in. Google receives the standard sign-in request for that interaction. Wallet payments are made from the wallet you choose; pagor does not hold your keys.</p>
+  <p>pagor runs without analytics, advertising, tracking pixels, or third-party analytics SDKs. The app stores a pagor session token in localStorage after email or Google sign-in. No cookie is set, and there is no cookie banner because there are no tracking cookies.</p>
+  <p>Email passwords are hashed with bcrypt on our server. Google Identity Services is used only when you choose to sign in with Google. Google receives the standard sign-in request for that interaction. Wallet payments are made from the wallet you choose; pagor does not hold your keys.</p>
   <p>Link, payroll and proof state lives in memory on the server for this prototype. It is lost when the server restarts. Notifications are generated in the same process.</p>
  </section>
 
  <section class="doc-section" id="delete">
   <h2>Delete your data</h2>
-  <p>To request deletion of any data held by the prototype, email <a href="mailto:hello@pagor.finance">hello@pagor.finance</a> from the Google address you used. You can also clear the pagor session token from localStorage at any time by logging out or clearing site data.</p>
+  <p>To request deletion of any data held by the prototype, email <a href="mailto:hello@usepagor.xyz">hello@usepagor.xyz</a> from the email address you used. You can also clear the pagor session token from localStorage at any time by logging out or clearing site data.</p>
   <p>No email marketing is sent. There are no subscriptions to unsubscribe from.</p>
  </section>
 
  <section class="doc-section" id="third-parties">
   <h2>Third parties and age</h2>
-  <p>The only remote service required for sign-in is Google Identity Services. The local HTMX script is served from this site. Wallet connection is delegated to the user's chosen BCH wallet. No reviews or testimonials are displayed.</p>
+  <p>Email sign-in needs no third-party service. If you choose Google sign-in, Google Identity Services verifies your identity. The local HTMX script is served from this site. Wallet connection is delegated to the user's chosen BCH wallet. No reviews or testimonials are displayed.</p>
   <p>The prototype is not intended for children under 13.</p>
  </section>
 </div></main>

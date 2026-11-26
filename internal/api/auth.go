@@ -4,12 +4,17 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"net"
 	"net/http"
+	"net/mail"
 	"net/url"
 	"os"
 	"strings"
+	"sync"
+	"time"
 
 	"edj.cash/edj/internal/store"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (s *Server) Config(w http.ResponseWriter, r *http.Request) {
@@ -56,12 +61,192 @@ func (s *Server) GoogleAuth(w http.ResponseWriter, r *http.Request) {
 		fail(w, http.StatusUnauthorized, "token rejected")
 		return
 	}
-	u, isNew := s.Store.UpsertUser(&store.User{Sub: info.Sub, Email: info.Email, Name: info.Name})
+	var u *store.User
+	var isNew bool
+	email := normalizeEmail(info.Email)
+	if email != "" {
+		if existing, ok := s.Store.UserByEmail(email); ok {
+			u, isNew = existing, false
+		}
+	}
+	if u == nil {
+		u, isNew = s.Store.UpsertUser(&store.User{Sub: info.Sub, Email: email, Name: info.Name})
+	}
+	s.newSession(w, u, isNew)
+}
+
+const (
+	minPasswordLength = 10
+	maxPasswordLength = 72 // bcrypt only uses the first 72 bytes
+)
+
+var (
+	emailAuthLimiter = &attemptLimiter{limit: 15, window: 15 * time.Minute}
+	dummyHash, _     = bcrypt.GenerateFromPassword([]byte("pagor-invalid-credential"), bcrypt.DefaultCost)
+)
+
+type attemptLimiter struct {
+	mu     sync.Mutex
+	hits   map[string][]time.Time
+	limit  int
+	window time.Duration
+}
+
+func (l *attemptLimiter) allow(key string) bool {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.hits == nil {
+		l.hits = make(map[string][]time.Time)
+	}
+	cutoff := time.Now().Add(-l.window)
+	recent := l.hits[key][:0]
+	for _, t := range l.hits[key] {
+		if t.After(cutoff) {
+			recent = append(recent, t)
+		}
+	}
+	if len(recent) >= l.limit {
+		l.hits[key] = recent
+		return false
+	}
+	l.hits[key] = append(recent, time.Now())
+	return true
+}
+
+func clientIP(r *http.Request) string {
+	if forwarded := r.Header.Get("X-Forwarded-For"); forwarded != "" {
+		return strings.TrimSpace(strings.Split(forwarded, ",")[0])
+	}
+	if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+		return host
+	}
+	return r.RemoteAddr
+}
+
+func normalizeEmail(raw string) string {
+	return strings.ToLower(strings.TrimSpace(raw))
+}
+
+func validEmail(email string) bool {
+	if email == "" || len(email) > 254 || strings.ContainsAny(email, " \t\r\n") {
+		return false
+	}
+	addr, err := mail.ParseAddress(email)
+	return err == nil && addr.Address == email
+}
+
+func passwordError(password string) string {
+	if len(password) < minPasswordLength {
+		return "Use at least 10 characters for your password."
+	}
+	if len(password) > maxPasswordLength {
+		return "Use at most 72 characters for your password."
+	}
+	return ""
+}
+
+func nameFromEmail(email string) string {
+	local := email
+	if i := strings.IndexByte(email, '@'); i > 0 {
+		local = email[:i]
+	}
+	parts := strings.Fields(strings.NewReplacer(".", " ", "_", " ", "-", " ").Replace(local))
+	if len(parts) == 0 {
+		return "Member"
+	}
+	var b strings.Builder
+	for _, part := range parts {
+		runes := []rune(part)
+		if b.Len() > 0 {
+			b.WriteByte(' ')
+		}
+		b.WriteString(strings.ToUpper(string(runes[0])) + strings.ToLower(string(runes[1:])))
+	}
+	return b.String()
+}
+
+func (s *Server) newSession(w http.ResponseWriter, user *store.User, isNew bool) {
 	b := make([]byte, 24)
 	_, _ = rand.Read(b)
 	token := hex.EncodeToString(b)
-	s.Store.PutSession(token, u.Sub)
-	writeJSON(w, http.StatusOK, map[string]any{"token": token, "user": u, "isNew": isNew})
+	s.Store.PutSession(token, user.Sub)
+	writeJSON(w, http.StatusOK, map[string]any{"token": token, "user": user, "isNew": isNew})
+}
+
+type emailAuthRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Name     string `json:"name"`
+}
+
+func (s *Server) EmailSignup(w http.ResponseWriter, r *http.Request) {
+	if !emailAuthLimiter.allow(clientIP(r)) {
+		fail(w, http.StatusTooManyRequests, "Too many attempts. Please try again in a few minutes.")
+		return
+	}
+	var req emailAuthRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		fail(w, http.StatusBadRequest, "Invalid request.")
+		return
+	}
+	email := normalizeEmail(req.Email)
+	if !validEmail(email) {
+		fail(w, http.StatusBadRequest, "Enter a valid email address.")
+		return
+	}
+	if msg := passwordError(req.Password); msg != "" {
+		fail(w, http.StatusBadRequest, msg)
+		return
+	}
+	name := strings.TrimSpace(req.Name)
+	if name == "" {
+		name = nameFromEmail(email)
+	}
+	if len(name) > 80 {
+		name = name[:80]
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		fail(w, http.StatusInternalServerError, "Could not create your account. Try again.")
+		return
+	}
+	user, created := s.Store.CreateEmailUser(&store.User{
+		Sub: "email:" + email, Email: email, Name: name,
+	}, string(hash))
+	if !created {
+		fail(w, http.StatusConflict, "An account with that email already exists. Log in instead.")
+		return
+	}
+	s.newSession(w, user, true)
+}
+
+func (s *Server) EmailLogin(w http.ResponseWriter, r *http.Request) {
+	if !emailAuthLimiter.allow(clientIP(r)) {
+		fail(w, http.StatusTooManyRequests, "Too many attempts. Please try again in a few minutes.")
+		return
+	}
+	var req emailAuthRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		fail(w, http.StatusBadRequest, "Invalid request.")
+		return
+	}
+	email := normalizeEmail(req.Email)
+	if !validEmail(email) {
+		fail(w, http.StatusBadRequest, "Enter a valid email address.")
+		return
+	}
+	user, ok := s.Store.UserByEmail(email)
+	if !ok {
+		_ = bcrypt.CompareHashAndPassword(dummyHash, []byte(req.Password))
+		fail(w, http.StatusUnauthorized, "Invalid email or password.")
+		return
+	}
+	hash, ok := s.Store.PasswordHash(user.Sub)
+	if !ok || bcrypt.CompareHashAndPassword([]byte(hash), []byte(req.Password)) != nil {
+		fail(w, http.StatusUnauthorized, "Invalid email or password.")
+		return
+	}
+	s.newSession(w, user, false)
 }
 
 func (s *Server) userFromRequest(r *http.Request) (*store.User, string, bool) {

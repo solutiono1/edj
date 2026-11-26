@@ -14,6 +14,9 @@ type Store interface {
 	Proofs() []*core.DisclosureProof
 	UpsertUser(*User) (*User, bool)
 	User(string) (*User, bool)
+	UserByEmail(string) (*User, bool)
+	CreateEmailUser(*User, string) (*User, bool)
+	PasswordHash(string) (string, bool)
 	PutSession(string, string)
 	Session(string) (string, bool)
 	DeleteSession(string)

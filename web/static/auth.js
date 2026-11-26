@@ -2,16 +2,63 @@
   'use strict';
 
   const API = window.EDJ_API_BASE || '';
-  const host = document.getElementById('gbtn');
-  const status = document.getElementById('gstatus');
-  if (!host) return;
-
+  const status = document.getElementById('auth-status') || document.getElementById('gstatus');
   const mode = document.body.dataset.auth || 'login';
+
   const setStatus = (text, tone) => {
     if (!status) return;
     status.textContent = text;
     status.dataset.tone = tone || '';
   };
+
+  const signedIn = (data) => {
+    localStorage.setItem('edj_session', data.token);
+    if (data.user?.name) localStorage.setItem('edj_name', data.user.name);
+    const hasLocalKey = Boolean(localStorage.getItem('edj_key_fp'));
+    const destination = mode === 'login' && hasLocalKey ? '/portfolio' : '/onboarding';
+    setStatus('Signed in. Opening your account...', 'ok');
+    location.href = destination;
+  };
+
+  // Email sign-up and login work without Google. No third party required.
+  const form = document.getElementById('email-form');
+  if (form) {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const nameField = document.getElementById('name');
+      const button = form.querySelector('button[type="submit"]');
+      if (!email || !password) {
+        setStatus('Enter your email and password.', 'error');
+        return;
+      }
+      button.disabled = true;
+      setStatus(mode === 'signup' ? 'Creating your account...' : 'Signing in...');
+      try {
+        const body = { email, password };
+        if (nameField) body.name = nameField.value.trim();
+        const res = await fetch(API + (mode === 'signup' ? '/api/auth/signup' : '/api/auth/login'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (!res.ok || !data.token) {
+          setStatus(data?.error?.message || 'Sign-in failed. Try again.', 'error');
+          button.disabled = false;
+          return;
+        }
+        signedIn(data);
+      } catch (error) {
+        setStatus('Could not reach the server. Check your connection and try again.', 'error');
+        button.disabled = false;
+      }
+    });
+  }
+
+  const host = document.getElementById('gbtn');
+  if (!host) return;
 
   const loadGoogle = () => new Promise((resolve, reject) => {
     if (window.google?.accounts?.id) {
@@ -34,14 +81,14 @@
     document.head.appendChild(script);
   });
 
-  const finish = async (response) => {
+  const finishGoogle = async (response) => {
     if (!response?.credential) {
       setStatus('Google did not return a credential. Try again.', 'error');
       return;
     }
     setStatus('Verifying your Google account...');
     try {
-      const res = await fetch(API+'/api/auth/google', {
+      const res = await fetch(API + '/api/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idToken: response.credential })
@@ -51,36 +98,32 @@
         setStatus(data?.error?.message || 'Sign-in failed. Try again.', 'error');
         return;
       }
-      localStorage.setItem('edj_session', data.token);
-      if (data.user?.name) localStorage.setItem('edj_name', data.user.name);
-      const hasLocalKey = Boolean(localStorage.getItem('edj_key_fp'));
-      const destination = mode === 'login' && hasLocalKey ? '/portfolio' : '/onboarding';
-      setStatus('Signed in. Opening your account...', 'ok');
-      location.href = destination;
+      signedIn(data);
     } catch (error) {
       setStatus('Could not reach the server. Check your connection and try again.', 'error');
     }
   };
 
-  const start = async () => {
-    setStatus('Loading Google sign-in...');
+  const startGoogle = async () => {
     let config;
     try {
-      const res = await fetch(API+'/api/config', { cache: 'no-store' });
+      const res = await fetch(API + '/api/config', { cache: 'no-store' });
       config = await res.json();
     } catch (error) {
       setStatus('Could not load the sign-in configuration.', 'error');
       return;
     }
     if (!config.googleClientId) {
-      setStatus('Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID to the server.', 'error');
+      host.hidden = true;
+      const divider = document.querySelector('.divider');
+      if (divider) divider.hidden = true;
       return;
     }
     try {
       await loadGoogle();
       window.google.accounts.id.initialize({
         client_id: config.googleClientId,
-        callback: finish,
+        callback: finishGoogle,
         auto_select: false,
         cancel_on_tap_outside: true,
         ux_mode: 'popup'
@@ -94,16 +137,15 @@
         logo_alignment: 'left',
         width: 336
       });
-      setStatus('');
       window.setTimeout(() => {
         if (!host.querySelector('iframe') && !host.querySelector('button')) {
-          setStatus('Google did not render. Make sure this origin is authorized for the client ID.', 'error');
+          setStatus('Google did not render. Email sign-in still works.', 'error');
         }
       }, 4000);
     } catch (error) {
-      setStatus('Google sign-in could not load. Check your connection and try again.', 'error');
+      host.hidden = true;
     }
   };
 
-  start();
+  startGoogle();
 })();

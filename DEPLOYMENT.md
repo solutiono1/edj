@@ -22,7 +22,7 @@ Set these environment variables:
 
 | Variable | Purpose |
 |---|---|
-| `GOOGLE_CLIENT_ID` | Google sign-in client ID |
+| `GOOGLE_CLIENT_ID` | Optional. Google sign-in client ID. Email sign-in works without it |
 | `EDJ_RECEIVE_ADDRESS` | BCH address for BCH links |
 | `EDJ_TOKEN_ADDRESS` | CashTokens address for token links |
 | `EDJ_PUBLIC_ORIGIN` | Cloudflare Pages origin, for CORS |
@@ -58,14 +58,16 @@ Every page loads `config.js` before the app scripts. All fetches prepend `window
 
 For a single-origin deploy, leave `EDJ_API_BASE` empty and serve everything from the Go server.
 
-## 4. Google OAuth
+## 4. Sign-in
 
-In Google Cloud, add both origins under Authorized JavaScript origins:
+Email sign-up and login need no extra configuration. They use the `users` and `sessions` tables in Supabase. Apply `supabase/schema.sql` so `users.password_hash` exists. Passwords are hashed with bcrypt on the server.
+
+Google sign-in is optional. If you use it, add these origins in Google Cloud under Authorized JavaScript origins:
 
 - `http://localhost:8080`
-- `https://<cloudflare-pages-domain>`
+- `https://<your Cloudflare Pages domain>`
 
-Do not add a raw IP origin. Google rejects it.
+Do not add a raw IP origin. Google rejects it. If `GOOGLE_CLIENT_ID` is unset, the Google button is hidden and email sign-in still works.
 
 ## 5. Chipnet contract
 

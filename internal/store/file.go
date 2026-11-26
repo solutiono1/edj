@@ -12,13 +12,14 @@ import (
 )
 
 type snapshot struct {
-	Links         map[string]*core.Link          `json:"links"`
-	Runs          map[string]*core.PayrollRun    `json:"runs"`
+	Links         map[string]*core.Link            `json:"links"`
+	Runs          map[string]*core.PayrollRun      `json:"runs"`
 	Proofs        map[string]*core.DisclosureProof `json:"proofs"`
-	Users         map[string]*User               `json:"users"`
-	Sessions      map[string]string              `json:"sessions"`
-	Notifications []Notification                 `json:"notifications"`
-	SignerKey     string                         `json:"signerKey"`
+	Users         map[string]*User                 `json:"users"`
+	Passwords     map[string]string                `json:"passwords"`
+	Sessions      map[string]string                `json:"sessions"`
+	Notifications []Notification                   `json:"notifications"`
+	SignerKey     string                           `json:"signerKey"`
 }
 
 func NewPersistent(path string) (*Memory, *core.Signer, error) {
@@ -42,6 +43,9 @@ func NewPersistent(path string) (*Memory, *core.Signer, error) {
 		}
 		if snap.Users != nil {
 			m.users = snap.Users
+		}
+		if snap.Passwords != nil {
+			m.passwords = snap.Passwords
 		}
 		if snap.Sessions != nil {
 			m.sessions = snap.Sessions
@@ -82,6 +86,7 @@ func (m *Memory) saveLocked() error {
 		Runs:          m.runs,
 		Proofs:        m.proofs,
 		Users:         m.users,
+		Passwords:     m.passwords,
 		Sessions:      m.sessions,
 		Notifications: m.notifications,
 		SignerKey:     m.signerKey,
