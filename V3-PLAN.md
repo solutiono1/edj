@@ -63,6 +63,9 @@ Every public-ledger chain must be described honestly. We do not claim private pa
 - Batch covenant tooling: done. `tools/contract/payroll-covenant.mjs` builds up to four recipients from CSV.
 - SDK encryption: done. `createPrivatePayroll` and `decryptPayroll` added to `@pagor/sdk` and the served source client.
 
+- Wallet UX: WizardConnect sessions are restored from local storage on page load, so an already linked wallet is reflected immediately. Fresh links still need the wallet relay handshake.
+- Landing preview: README now uses a current screenshot from `usepagor.xyz`.
+
 Still open: key import, chipnet signature verification with a real wallet, mainnet transaction, independent audit, and chain adapters after BCH.
 
 ## Explicitly out of scope

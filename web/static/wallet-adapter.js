@@ -68,6 +68,11 @@ export class BchAdapter extends PagorWalletAdapter {
     return this.wallet.connect();
   }
 
+  async restore() {
+    if (!this.wallet.restore) return false;
+    return this.wallet.restore();
+  }
+
   async disconnect() {
     return this.wallet.disconnect();
   }

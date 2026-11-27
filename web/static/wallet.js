@@ -1,4 +1,4 @@
-const state = { mod: null, mgr: null, relay: null, connected: false, address: null };
+const state = { mod: null, mgr: null, relay: null, connected: false, address: null, uri: null, qr: null };
 
 async function ensureModule() {
   if (!state.mod) state.mod = await import('/static/vendor/wizardconnect.js');
@@ -7,6 +7,7 @@ async function ensureModule() {
 
 window.PagorWallet = {
   async connect() {
+    if (state.connected && state.uri) return { uri: state.uri, qr: state.qr };
     const mod = await ensureModule();
     if (!state.mgr) {
       state.mgr = new mod.DappConnectionManager('pagor');
@@ -30,7 +31,47 @@ window.PagorWallet = {
     state.relay = mod.initiateDappRelay((payload) => state.mgr.updateConnection(payload.client, payload.status));
     state.mgr.attachRelay(state.relay);
     const qr = await mod.renderQR(state.relay.uri);
-    return { uri: state.relay.uri, qr };
+    state.uri = state.relay.uri;
+    state.qr = qr;
+    return { uri: state.uri, qr };
+  },
+
+  // Restore a previously linked wallet from WizardConnect's local session.
+  // This runs before any QR scan and makes an existing connection visible
+  // immediately, instead of waiting for the wallet relay handshake.
+  async restore() {
+    const mod = await ensureModule();
+    if (!state.mgr) {
+      state.mgr = new mod.DappConnectionManager('pagor');
+      state.mgr.on('walletready', (msg) => {
+        state.connected = true;
+        try {
+          state.address = mod.pubkeyToCashAddress(state.mgr.getPubkey(0, 0n));
+        } catch (error) {
+          state.address = null;
+        }
+        window.dispatchEvent(new CustomEvent('pagor-wallet-ready', {
+          detail: { name: msg.wallet_name, address: state.address }
+        }));
+      });
+      state.mgr.on('disconnect', () => {
+        state.connected = false;
+        state.address = null;
+        window.dispatchEvent(new CustomEvent('pagor-wallet-disconnect'));
+      });
+    }
+    const stored = state.mgr.loadStoredSession?.();
+    if (!stored?.paths?.length) return false;
+    try {
+      state.address = mod.pubkeyToCashAddress(state.mgr.getPubkey(0, 0n));
+      state.connected = true;
+      window.dispatchEvent(new CustomEvent('pagor-wallet-ready', {
+        detail: { name: stored.walletName || 'wallet', address: state.address, restored: true }
+      }));
+      return true;
+    } catch (error) {
+      return false;
+    }
   },
 
   get connected() { return state.connected; },
@@ -48,5 +89,7 @@ window.PagorWallet = {
     }
     state.connected = false;
     state.address = null;
+    state.uri = null;
+    state.qr = null;
   }
 };

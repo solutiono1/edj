@@ -351,6 +351,9 @@
       connectWalletBtn.textContent = 'Connect wallet';
       connectWalletBtn.classList.remove('connected');
     });
+    window.PagorWallet.restore().catch(() => {});
+  } else if (window.PagorWallet) {
+    window.PagorWallet.restore().catch(() => {});
   }
 
   // Back to top.
