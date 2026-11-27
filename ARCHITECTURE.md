@@ -5,7 +5,7 @@
 pagor is one Go binary. It serves static HTML pages, hand-written CSS, a small amount of vanilla JavaScript, and a JSON API. The frontend has no build step. htmx is vendored locally but the pages currently use ordinary fetch calls.
 
 ```
-cmd/pagor/                  server entrypoint, routes
+cmd/edj/                    server entrypoint, routes
 internal/
   api/                    HTTP handlers, session checks
   core/                   links, payroll parsing, signed statements
