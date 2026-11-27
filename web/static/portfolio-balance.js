@@ -12,8 +12,10 @@ if (balanceEl) {
   const render = async () => {
     if (!adapter.connected) {
       balanceEl.textContent = 'Connect your BCH wallet to see your balance.';
+      if (connectBtn) connectBtn.textContent = 'Connect BCH wallet';
       return;
     }
+    if (connectBtn) connectBtn.textContent = 'BCH wallet connected';
     try {
       const utxos = await adapter.getUtxos();
       const balance = aggregateBalance(utxos);
@@ -25,6 +27,10 @@ if (balanceEl) {
 
   if (connectBtn) {
     connectBtn.addEventListener('click', async () => {
+      if (adapter.connected) {
+        render();
+        return;
+      }
       try {
         const { uri } = await adapter.connect();
         balanceEl.textContent = 'Scan this in your wallet: ' + uri;
@@ -36,5 +42,19 @@ if (balanceEl) {
 
   window.addEventListener('pagor-wallet-ready', render);
   window.addEventListener('pagor-wallet-disconnect', render);
-  render();
+
+  // Module and classic defer scripts can execute in either order. Restore the
+  // session here too so this card never misses the wallet-ready event.
+  const init = async () => {
+    for (let attempt = 0; attempt < 50 && !window.PagorWallet; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    try {
+      if (window.PagorWallet?.restore) await window.PagorWallet.restore();
+    } catch (error) {
+      // A fresh wallet still needs a QR scan.
+    }
+    render();
+  };
+  init();
 }
