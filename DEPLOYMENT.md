@@ -16,7 +16,9 @@ If Supabase is not configured, the Go server falls back to `data/pagor.json` on 
 
 ## 2. Railway
 
-Connect the GitHub repo in Railway as a web service. `railway.json` sets the Nixpacks build and start commands. Railway supplies `PORT`, and the server reads it.
+Connect the GitHub repo in Railway as a web service. Build and start settings live in `.railway/railway.ts` using Railway Infrastructure as Code. Railway supplies `PORT`, and the server reads it.
+
+To change Railway configuration, edit `.railway/railway.ts`, then run `railway config plan` and `railway config apply` from the repo root. On a fresh clone, install the evaluator first with `cd .railway && npm install`. Variables stay unmanaged so secrets are not written into source. The old `railway.json` was removed after migration.
 
 Set these environment variables:
 

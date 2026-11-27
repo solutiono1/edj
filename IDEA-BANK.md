@@ -35,7 +35,7 @@ Public pages: claim link, proof verification, docs, legal, support, faq.
 - CLI at `tools/cli/pagor.mjs`.
 - Contract compile and test at `tools/contract`.
 - Chipnet deploy script at `tools/contract/deploy-chipnet.mjs`.
-- Deployment helpers: `railway.json`, `wrangler.toml`, `web/_redirects`, `scripts/deploy-cloudflare.sh`.
+- Deployment helpers: `.railway/railway.ts`, `wrangler.toml`, `web/_redirects`, `scripts/deploy-cloudflare.sh`.
 
 ## API surface
 
