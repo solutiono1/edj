@@ -13,31 +13,60 @@
   const apiBase = window.EDJ_API_BASE || '';
   const session = localStorage.getItem('edj_session');
   
-  // If user is signed in, redirect to portfolio (app)
+  // If user is signed in, show portfolio section immediately
   if (session) {
     fetch(apiBase + '/api/me', { headers: { Authorization: 'Bearer ' + session } })
       .then((r) => r.json())
       .then((u) => {
         if (u && u.sub) {
-          // Valid session: go to app immediately
-          location.replace('/portfolio');
+          // Valid session: show portfolio section, hide landing
+          document.querySelectorAll('[data-view]').forEach(s => s.hidden = s.dataset.view !== '/portfolio');
+          document.querySelectorAll('.nav-item').forEach(a => a.classList.add('active'));
+          // Update avatar/name
+          const ue = document.getElementById('profile-email');
+          if (u.email) ue.textContent = u.email;
+          const an = document.getElementById('profile-name');
+          if (u.name) an.textContent = u.name;
+          const av = document.getElementById('avatar');
+          if (u.name) av.textContent = u.name.slice(0,2).toUpperCase();
         } else {
-          // Invalid session: clear and show landing/start page
+          // Invalid session: clear and show landing
           localStorage.removeItem('edj_session');
-          // Show get-started button for unsigned-in users
-          const gsBtn = document.getElementById('get-started');
-          if (gsBtn) gsBtn.style.display = 'inline-block';
         }
       })
       .catch(() => {
         localStorage.removeItem('edj_session');
-        const gsBtn = document.getElementById('get-started');
-        if (gsBtn) gsBtn.style.display = 'inline-block';
       });
-  } else {
-    // No session: show get-started button
-    const gsBtn = document.getElementById('get-started');
-    if (gsBtn) gsBtn.style.display = 'inline-block';
+  }
+
+  // "Get started" button handler (for unsigned-in users)
+  const gsBtn = document.getElementById('get-started');
+  if (gsBtn) {
+    gsBtn.addEventListener('click', async () => {
+      // Final session check
+      const token = localStorage.getItem('edj_session');
+      if (!token) {
+        // No session: show login state
+        document.querySelectorAll('[data-view]').forEach(s => s.hidden = s.dataset.view !== '/login');
+        return;
+      }
+      try {
+        const r = await fetch(apiBase + '/api/me', { headers: { Authorization: 'Bearer ' + token } });
+        const u = await r.json();
+        if (u && u.sub) {
+          // Valid session: show portfolio
+          document.querySelectorAll('[data-view]').forEach(s => s.hidden = s.dataset.view !== '/portfolio');
+          document.querySelectorAll('.nav-item').forEach(a => a.classList.add('active'));
+        } else {
+          // Invalid session: clear and show login
+          localStorage.removeItem('edj_session');
+          document.querySelectorAll('[data-view]').forEach(s => s.hidden = s.dataset.view !== '/login');
+        }
+      } catch (error) {
+        localStorage.removeItem('edj_session');
+        document.querySelectorAll('[data-view]').forEach(s => s.hidden = s.dataset.view !== '/login');
+      }
+    });
   }
 
   // Session timeout manager: clear session after minutes of inactivity
@@ -51,7 +80,8 @@
         // Session timed out: clear and redirect to login
         localStorage.removeItem('edj_session');
         localStorage.removeItem('edj_name');
-        location.href = '/login';
+        // Show login view
+        document.querySelectorAll('[data-view]').forEach(s => s.hidden = s.dataset.view !== '/login');
       }
     }
     
@@ -81,37 +111,6 @@
 
   // Initialize session timeout when page loads
   const cleanupTimeout = startSessionTimeout();
-
-  // Handle Get started button click
-  const gsBtn = document.getElementById('get-started');
-  if (gsBtn) {
-    gsBtn.addEventListener('click', async () => {
-      // Final session check before routing
-      const token = localStorage.getItem('edj_session');
-      if (!token) {
-        // No session: go to login
-        location.href = '/login';
-        return;
-      }
-      try {
-        const r = await fetch(apiBase + '/api/me', { headers: { Authorization: 'Bearer ' + token } });
-        const u = await r.json();
-        if (u && u.sub) {
-          // Valid session: go to app
-          location.replace('/portfolio');
-        } else {
-          // Invalid session: clear and go to login
-          localStorage.removeItem('edj_session');
-          localStorage.removeItem('edj_name');
-          location.href = '/login';
-        }
-      } catch (error) {
-        localStorage.removeItem('edj_session');
-        localStorage.removeItem('edj_name');
-        location.href = '/login';
-      }
-    });
-  }
 
   // Nav: transparent over the hero at the top, compact glossy island after scrolling.
   // It returns to the transparent state only when the page is back at the top.
