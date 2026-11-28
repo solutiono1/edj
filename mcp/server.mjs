@@ -90,7 +90,7 @@ async function encryptRows(rows, passphrase) {
 }
 
 export function createHandler(options = {}) {
-  const baseUrl = String(options.baseUrl || process.env.PAGOR_API_BASE || 'https://edj-api-v3-production.up.railway.app').replace(/\/$/, '');
+  const baseUrl = String(options.baseUrl || process.env.PAGOR_API_BASE || 'https://api.usepagor.xyz').replace(/\/$/, '');
   const token = options.token || process.env.PAGOR_API_TOKEN || '';
   const maxAmount = Number(options.maxAmount || process.env.PAGOR_MCP_MAX_AMOUNT || 100000);
   const fetchImpl = options.fetchImpl || globalThis.fetch;

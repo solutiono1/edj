@@ -335,6 +335,7 @@
         modal.classList.remove('open');
       }
     };
+    window.PagorConnectBch = open;
     connectWalletBtn.addEventListener('click', open);
     close.addEventListener('click', () => modal.classList.remove('open'));
     modal.addEventListener('click', (event) => {

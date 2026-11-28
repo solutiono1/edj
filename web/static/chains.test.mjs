@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { CHAINS, chainById, stablesForChain, passesStableTests, isLive } from './chains.js';
 import { sumSats, formatBch, aggregateBalance } from './balance.js';
-import { PagorWalletAdapter, BchAdapter, adapterFor, supportedChains } from './wallet-adapter.js';
+import { PagorWalletAdapter, BchAdapter, EvmAdapter, adapterFor, supportedChains } from './wallet-adapter.js';
 
-test('chain registry has one live chain and explicit future chains', () => {
-  assert.equal(isLive('bch'), true);
-  for (const id of ['arc', 'base', 'solana', 'stellar', 'xrpl']) {
+test('chain registry marks only implemented adapters live', () => {
+  for (const id of ['bch', 'arc', 'base']) assert.equal(isLive(id), true, id + ' should be live');
+  for (const id of ['solana', 'stellar', 'xrpl']) {
     assert.equal(isLive(id), false, id + ' should not be marked live');
   }
   assert.ok(CHAINS.length >= 8);
@@ -23,7 +23,7 @@ test('stables per chain are limited and meet the five tests', () => {
 });
 
 test('unsupported adapters fail loudly', async () => {
-  const adapter = adapterFor('arc');
+  const adapter = adapterFor('solana');
   assert.equal(adapter.supported, false);
   assert.ok(adapter instanceof PagorWalletAdapter);
   await assert.rejects(() => adapter.connect(), /not available yet/);
@@ -31,9 +31,12 @@ test('unsupported adapters fail loudly', async () => {
   await assert.rejects(() => adapter.broadcast(), /not available/);
 });
 
-test('BCH adapter is registered', () => {
+test('BCH and EVM adapters are registered', async () => {
   assert.ok(adapterFor('bch') instanceof BchAdapter);
-  assert.deepEqual(supportedChains(), ['bch']);
+  assert.ok(adapterFor('arc') instanceof EvmAdapter);
+  assert.ok(adapterFor('base') instanceof EvmAdapter);
+  assert.deepEqual(supportedChains(), ['bch', 'arc', 'base']);
+  await assert.rejects(() => adapterFor('arc').connect(), /EVM wallet|not available/);
 });
 
 test('balance is summed locally and formatted', () => {

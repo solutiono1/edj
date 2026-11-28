@@ -6,14 +6,28 @@ import {
   cashAddressToLockingBytecode,
   lockingBytecodeToCashAddress,
   encodeTransaction,
+  decodeTransaction,
   binToHex,
   hexToBin,
-  sha256
+  sha256,
+  hash256,
+  secp256k1,
+  decodePrivateKeyWif,
+  encodePrivateKeyWif,
+  encodeDataPush,
+  encodeSigningSerializationBch,
+  SigningSerializationType,
+  numberToBinUint32LE,
+  valueSatoshisToBin,
+  encodeTransactionOutput,
+  encodeTransactionOutpoints,
+  encodeTransactionInputSequenceNumbersForSigning,
+  flattenBinArray
 } from '@bitauth/libauth';
 import QRCode from 'qrcode';
 
 function pubkeyToCashAddress(pubkey, prefix = 'bitcoincash') {
-  return encodeCashAddress(prefix, 'p2pkh', hash160(pubkey));
+  return encodeCashAddress({ prefix, type: 'p2pkh', payload: hash160(pubkey) }).address;
 }
 
 async function renderQR(uri) {
@@ -29,7 +43,22 @@ export {
   cashAddressToLockingBytecode,
   lockingBytecodeToCashAddress,
   encodeTransaction,
+  decodeTransaction,
   binToHex,
   hexToBin,
-  sha256
+  sha256,
+  hash160,
+  hash256,
+  secp256k1,
+  decodePrivateKeyWif,
+  encodePrivateKeyWif,
+  encodeDataPush,
+  encodeSigningSerializationBch,
+  SigningSerializationType,
+  numberToBinUint32LE,
+  valueSatoshisToBin,
+  encodeTransactionOutput,
+  encodeTransactionOutpoints,
+  encodeTransactionInputSequenceNumbersForSigning,
+  flattenBinArray
 };

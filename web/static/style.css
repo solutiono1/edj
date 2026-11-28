@@ -536,6 +536,17 @@ html,body{max-width:100%;overflow-x:clip}
 .wallet-qr{width:260px;height:260px;margin:18px auto 8px;display:block}
 .wallet-uri{font-size:11px;color:var(--soft);word-break:break-all}
 .wallet-close{position:absolute;top:14px;right:16px;width:32px;height:32px;border-radius:50%;border:0;background:var(--surface);color:var(--black);font:500 20px/1 Inter;cursor:pointer}
+.chain-list{display:grid;gap:10px;margin-top:16px}
+.chain-row{display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--hair);border-radius:14px;background:var(--surface);flex-wrap:wrap}
+.chain-row[data-supported="false"]{opacity:.72}
+.chain-main{flex:1;min-width:180px}
+.chain-main b{display:block;font:600 15px 'Nunito Sans',Inter,sans-serif;color:var(--black)}
+.chain-meta{display:block;font-size:11px;color:var(--muted);margin-top:4px}
+.chain-address{font:11px 'JetBrains Mono',monospace;color:var(--black);word-break:break-all;margin-top:6px}
+.chain-balance{font-size:12px;color:var(--black);margin-top:6px;min-height:16px}
+.chain-status{font-size:11px;color:var(--muted)}
+.chain-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+@media(max-width:620px){.chain-actions{margin-left:0;width:100%;justify-content:space-between}}
 
 /* Responsive hardening for the landing page */
 .hero-grid > *,.get-grid > *,.support-grid > *,.foot-top > *{min-width:0}

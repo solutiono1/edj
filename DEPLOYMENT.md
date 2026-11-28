@@ -110,10 +110,10 @@ Set `DRY_RUN=1` to print the transaction without broadcasting. On a real run, re
 | Supabase project ID | `ibabwmpllpcckxhdeyvz` |
 | Supabase URL | `https://ibabwmpllpcckxhdeyvz.supabase.co` |
 | Supabase schema | Applied with migration `edj_initial_schema` |
-| Railway project ID | `c93645db-f49e-4f71-9ca2-fa5b29c95b8f` |
-| Railway service ID | `8e2b2810-9d80-45e9-8efa-13db2467cdfa` |
-| Railway API URL | `https://pagor-api-v3-production.up.railway.app` |
+| Railway project | `pagor` (`c93645db-f49e-4f71-9ca2-fa5b29c95b8f`) |
+| Railway service | `pagor-api` (`5987ac36-c245-46fd-86e8-60e6021fa1a8`) |
+| Railway API URL | `https://api.usepagor.xyz` |
 | Cloudflare Pages project | `pagor` |
-| Cloudflare Pages URL | `https://pagor-b48.pages.dev` |
+| Cloudflare Pages URL | `https://usepagor.xyz` |
 
 The service role key is not stored in this repository. Add it as `SUPABASE_SERVICE_ROLE_KEY` in Railway.

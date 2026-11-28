@@ -4,6 +4,7 @@
 // explicit user choice and is not part of this adapter.
 
 import { chainById, isLive } from './chains.js';
+import { EvmWallet, EVM_CHAINS } from './evm-wallet.js';
 
 const API = () => (typeof window !== 'undefined' && window.EDJ_API_BASE) || '';
 
@@ -105,11 +106,66 @@ export class BchAdapter extends PagorWalletAdapter {
   }
 }
 
-const AVAILABLE = Object.freeze({ bch: BchAdapter });
+export class EvmAdapter extends PagorWalletAdapter {
+  constructor(chainId) {
+    super(chainId);
+    this.evm = new EvmWallet(chainId);
+  }
+
+  get supported() {
+    return Boolean(EVM_CHAINS[this.chainId]);
+  }
+
+  async connect() {
+    return this.evm.connect();
+  }
+
+  async restore() {
+    return this.evm.restore();
+  }
+
+  async disconnect() {
+    return this.evm.disconnect();
+  }
+
+  get address() {
+    return this.evm.address;
+  }
+
+  get connected() {
+    return this.evm.connected;
+  }
+
+  get currentChainId() {
+    return this.evm.currentChainId;
+  }
+
+  get onChain() {
+    return this.evm.onChain;
+  }
+
+  async getBalance() {
+    return this.evm.getBalance();
+  }
+
+  async signMessage(message) {
+    return this.evm.signMessage(message);
+  }
+
+  async signTransaction(tx) {
+    return this.evm.sendTransaction(tx);
+  }
+
+  async broadcast() {
+    throw new Error('EVM wallets broadcast when they sign. Call signTransaction with explicit user approval.');
+  }
+}
+
+const AVAILABLE = Object.freeze({ bch: BchAdapter, arc: EvmAdapter, base: EvmAdapter });
 
 export function adapterFor(chainId) {
   const Adapter = AVAILABLE[chainId];
-  return Adapter ? new Adapter() : new PagorWalletAdapter(chainId);
+  return Adapter ? new Adapter(chainId) : new PagorWalletAdapter(chainId);
 }
 
 export function supportedChains() {

@@ -5,14 +5,40 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
 // Electrum talks to a Bitcoin Cash Electrum (Fulcrum) server over TLS. It is
 // used only to read UTXOs and broadcast raw transactions that the wallet has
-// already signed.
+// already signed. Hosts may contain several host:port entries. They are tried
+// in order so one public server going down does not break wallet reads.
 type Electrum struct {
-	Host string
+	Host  string
+	Hosts []string
+}
+
+func NewElectrum(spec string) *Electrum {
+	var hosts []string
+	for _, part := range strings.Split(spec, ",") {
+		if host := strings.TrimSpace(part); host != "" {
+			hosts = append(hosts, host)
+		}
+	}
+	return &Electrum{Hosts: hosts}
+}
+
+func (e Electrum) endpoints() []string {
+	var out []string
+	for _, host := range e.Hosts {
+		if host = strings.TrimSpace(host); host != "" {
+			out = append(out, host)
+		}
+	}
+	if len(out) == 0 && strings.TrimSpace(e.Host) != "" {
+		out = append(out, strings.TrimSpace(e.Host))
+	}
+	return out
 }
 
 type ElectrumUtxo struct {
@@ -38,9 +64,28 @@ type electrumResponse struct {
 }
 
 func (e Electrum) call(method string, params []any) (json.RawMessage, error) {
-	conn, err := tls.Dial("tcp", e.Host, &tls.Config{MinVersion: tls.VersionTLS12})
+	endpoints := e.endpoints()
+	if len(endpoints) == 0 {
+		return nil, fmt.Errorf("electrum host is not configured")
+	}
+	var lastErr error
+	for _, host := range endpoints {
+		raw, retry, err := e.callOne(host, method, params)
+		if err == nil {
+			return raw, nil
+		}
+		lastErr = err
+		if !retry {
+			return nil, err
+		}
+	}
+	return nil, lastErr
+}
+
+func (e Electrum) callOne(host, method string, params []any) (json.RawMessage, bool, error) {
+	conn, err := tls.Dial("tcp", host, &tls.Config{MinVersion: tls.VersionTLS12})
 	if err != nil {
-		return nil, fmt.Errorf("electrum dial: %w", err)
+		return nil, true, fmt.Errorf("electrum dial %s: %w", host, err)
 	}
 	defer conn.Close()
 	_ = conn.SetDeadline(time.Now().Add(15 * time.Second))
@@ -48,25 +93,25 @@ func (e Electrum) call(method string, params []any) (json.RawMessage, error) {
 	req := electrumRequest{ID: 1, Method: method, Params: params}
 	data, err := json.Marshal(req)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	data = append(data, '\n')
 	if _, err := conn.Write(data); err != nil {
-		return nil, fmt.Errorf("electrum write: %w", err)
+		return nil, true, fmt.Errorf("electrum write %s: %w", host, err)
 	}
 
 	line, err := bufio.NewReader(conn).ReadBytes('\n')
 	if err != nil {
-		return nil, fmt.Errorf("electrum read: %w", err)
+		return nil, true, fmt.Errorf("electrum read %s: %w", host, err)
 	}
 	var resp electrumResponse
 	if err := json.Unmarshal(line, &resp); err != nil {
-		return nil, fmt.Errorf("electrum decode: %w", err)
+		return nil, false, fmt.Errorf("electrum decode %s: %w", host, err)
 	}
 	if resp.Error != nil {
-		return nil, fmt.Errorf("electrum %s: %s", method, resp.Error.Message)
+		return nil, false, fmt.Errorf("electrum %s on %s: %s", method, host, resp.Error.Message)
 	}
-	return resp.Result, nil
+	return resp.Result, false, nil
 }
 
 func (e Electrum) GetUtxos(address string) ([]ElectrumUtxo, error) {

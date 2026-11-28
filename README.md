@@ -30,8 +30,8 @@ The product direction and decisions live in [V3-PLAN.md](V3-PLAN.md) and [DECISI
 
 | Area | State |
 |---|---|
-| Domain | `usepagor.xyz` acquired. Cloudflare custom domain wiring is pending. |
-| API | Go server. Railway service `edj-api-v3` is deployed but still serving an older build until a redeploy is triggered. |
+| Domain | `usepagor.xyz` is live on Cloudflare Pages. |
+| API | Go server on Railway, service `pagor-api`, at `https://api.usepagor.xyz`. |
 | Frontend | Cloudflare Pages serves the current build. |
 | Database | Supabase PostgreSQL in production. Local JSON file for development only. |
 | Signing | Local Ed25519 or an external KMS/HSM endpoint. In-app wallet signing is gated by `EDJ_SIGNER_ENABLED = false` until chipnet verification. |
@@ -187,7 +187,7 @@ supabase/             schema
 import { PagorClient } from '@pagor/sdk'
 
 const pagor = new PagorClient({
-  baseUrl: 'https://edj-api-v3-production.up.railway.app',
+  baseUrl: 'https://api.usepagor.xyz',
   token: localStorage.getItem('edj_session')
 })
 

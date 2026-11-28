@@ -30,6 +30,19 @@ async function ensureModule() {
 window.PagorWallet = {
   async connect() {
     if (state.connected && state.uri) return { uri: state.uri, qr: state.qr };
+    // Fast path: our own flag is enough to keep the wallet connected across a
+    // refresh. Do not wait for the large WizardConnect module to load.
+    try {
+      if (localStorage.getItem(CONNECTED_KEY) === '1') {
+        state.address = localStorage.getItem(ADDRESS_KEY) || state.address;
+        state.connected = true;
+        window.dispatchEvent(new CustomEvent('pagor-wallet-ready', {
+          detail: { name: 'wallet', address: state.address, restored: true }
+        }));
+        return { uri: state.uri, qr: state.qr };
+      }
+    } catch (error) {}
+
     const mod = await ensureModule();
     if (!state.mgr) {
       state.mgr = new mod.DappConnectionManager('pagor');

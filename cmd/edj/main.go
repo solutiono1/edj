@@ -70,7 +70,7 @@ func main() {
 		Signer: signer,
 	}
 	if host := os.Getenv("EDJ_ELECTRUM_HOST"); host != "" {
-		s.Electrum = &chain.Electrum{Host: host}
+		s.Electrum = chain.NewElectrum(host)
 	}
 
 	mux := http.NewServeMux()

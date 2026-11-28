@@ -4,8 +4,8 @@
 
 export const CHAINS = Object.freeze([
   { id: 'bch', name: 'Bitcoin Cash', kind: 'utxo', status: 'live', stables: ['PUSD'] },
-  { id: 'arc', name: 'Arc', kind: 'evm', status: 'next', stables: ['USDC'] },
-  { id: 'base', name: 'Base', kind: 'evm', status: 'planned', stables: ['USDC'] },
+  { id: 'arc', name: 'Arc', kind: 'evm', status: 'live', stables: ['USDC'] },
+  { id: 'base', name: 'Base', kind: 'evm', status: 'live', stables: ['USDC'] },
   { id: 'solana', name: 'Solana', kind: 'svm', status: 'planned', stables: ['USDC', 'PYUSD'] },
   { id: 'stellar', name: 'Stellar', kind: 'account', status: 'planned', stables: ['USDC'] },
   { id: 'xrpl', name: 'XRP Ledger', kind: 'account', status: 'planned', stables: ['RLUSD'] },

@@ -1,4 +1,4 @@
-// Review-first BCH payment path. Signing is gated by EDJ_SIGNER_ENABLED;
+// Review-first BCH payment path. Signing is gated by PAGOR_SIGNER_ENABLED;
 // broadcasting is always a separate, explicit call. Wallets approve the
 // signature in their own UI. Nothing is broadcast automatically.
 
@@ -117,7 +117,7 @@ window.PagorSigner = {
   },
 
   async sign(review, built) {
-    if (window.EDJ_SIGNER_ENABLED !== true) {
+    if (window.PAGOR_SIGNER_ENABLED !== true) {
       throw new Error('Signer is not enabled. Use your wallet payment URI instead.');
     }
     const { mgr } = requireWallet();
